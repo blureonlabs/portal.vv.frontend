@@ -235,6 +235,43 @@ export interface CategoryTotal {
   total_aed: string
 }
 
+export interface AssignedVehicle {
+  id: string
+  plate_number: string
+  make: string
+  model: string
+  year: number
+  color: string | null
+}
+
+export interface DriverContext {
+  profile_id: string
+  full_name: string
+  email: string
+  driver_id: string
+  salary_type: SalaryType
+  nationality: string | null
+  self_entry_enabled: boolean
+  vehicle: AssignedVehicle | null
+}
+
+export interface DayEarnings {
+  date: string
+  cash_aed: string
+  card_aed: string
+  other_aed: string
+  total_aed: string
+}
+
+export interface EarningsReport {
+  month: string
+  days: DayEarnings[]
+  total_cash: string
+  total_card: string
+  total_other: string
+  grand_total: string
+}
+
 export interface FinanceSummaryReport {
   trip_revenue_cash: string
   trip_revenue_card: string
