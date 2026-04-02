@@ -28,7 +28,59 @@ export interface Driver {
   nationality: string
   salary_type: SalaryType
   is_active: boolean
+  self_entry_enabled: boolean
   created_at: string
+}
+
+export type TripSource = 'manual' | 'csv_import' | 'uber_api'
+export type ExpenseCategory = 'fuel' | 'maintenance' | 'toll' | 'insurance' | 'fines' | 'other'
+
+export interface Trip {
+  id: string
+  driver_id: string
+  driver_name: string
+  vehicle_id: string | null
+  trip_date: string
+  cash_aed: string
+  card_aed: string
+  other_aed: string
+  total_aed: string
+  source: TripSource
+  notes: string | null
+  created_at: string
+}
+
+export interface CsvPreviewRow {
+  row_num: number
+  trip_date: string
+  cash_aed: string
+  card_aed: string
+  other_aed: string
+  notes: string | null
+  error: string | null
+  cap_warning: string | null
+}
+
+export interface Expense {
+  id: string
+  driver_id: string | null
+  driver_name: string | null
+  amount_aed: string
+  category: ExpenseCategory
+  date: string
+  receipt_url: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface CashHandover {
+  id: string
+  driver_id: string
+  driver_name: string
+  amount_aed: string
+  submitted_at: string
+  verified_by: string
+  verifier_name: string
 }
 
 export interface DriverEdit {

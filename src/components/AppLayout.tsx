@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, LogOut, Car, UserCheck } from 'lucide-react'
+import { LayoutDashboard, Users, LogOut, Car, UserCheck, Route, DollarSign } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { supabase, LOGO_URL } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
@@ -17,6 +17,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Users', href: '/users', icon: Users, roles: ['super_admin'] },
   { label: 'Drivers', href: '/drivers', icon: UserCheck, roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Trips', href: '/trips', icon: Route, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+  { label: 'Finance', href: '/finance', icon: DollarSign, roles: ['super_admin', 'accountant'] },
 ]
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +48,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5">
           {visibleNav.map((item) => {
-            const active = location.pathname === item.href
+            const active = item.href === '/' ? location.pathname === '/' : location.pathname.startsWith(item.href)
             return (
               <Link
                 key={item.href}

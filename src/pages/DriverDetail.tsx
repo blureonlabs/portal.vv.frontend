@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, User, Car, DollarSign, CreditCard, Calendar, ClipboardList } from 'lucide-react'
 import { apiGet } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
-import { formatDate } from '../lib/utils'
-import type { Driver, DriverEdit, Vehicle } from '../types'
+import { formatDate, formatAed } from '../lib/utils'
+import type { Driver, DriverEdit, Vehicle, Trip } from '../types'
 
 const SALARY_LABELS: Record<string, string> = {
   commission: 'Commission (30%)',
@@ -28,6 +28,52 @@ function PlaceholderTab({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-muted">
       <p className="text-sm">{label} will be available in a future sprint.</p>
+    </div>
+  )
+}
+
+function TripsTab({ driverId }: { driverId: string }) {
+  const today = new Date().toISOString().slice(0, 10)
+  const monthStart = new Date(new Date().setDate(1)).toISOString().slice(0, 10)
+  const { data: trips = [], isLoading } = useQuery<Trip[]>({
+    queryKey: ['driver-trips', driverId],
+    queryFn: () => apiGet(`/trips?driver_id=${driverId}&from=${monthStart}&to=${today}`),
+  })
+
+  if (isLoading) return <p className="text-sm text-muted py-8 text-center">Loading…</p>
+  if (trips.length === 0) return <p className="text-sm text-muted py-12 text-center">No trips this month.</p>
+
+  const total = trips.reduce((s, t) => s + parseFloat(t.total_aed), 0)
+
+  return (
+    <div>
+      <p className="text-sm text-muted mb-4">Showing current month · Total: <span className="font-semibold text-primary">{formatAed(total)}</span></p>
+      <div className="bg-white rounded-xl border border-border overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-4 text-muted font-medium">Date</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Cash</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Card</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Other</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Total</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trips.map((t) => (
+              <tr key={t.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+                <td className="py-3 px-4 text-primary">{formatDate(t.trip_date)}</td>
+                <td className="py-3 px-4 text-right">{formatAed(parseFloat(t.cash_aed))}</td>
+                <td className="py-3 px-4 text-right text-muted">{formatAed(parseFloat(t.card_aed))}</td>
+                <td className="py-3 px-4 text-right text-muted">{formatAed(parseFloat(t.other_aed))}</td>
+                <td className="py-3 px-4 text-right font-semibold text-primary">{formatAed(parseFloat(t.total_aed))}</td>
+                <td className="py-3 px-4 text-muted">{t.notes ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -193,7 +239,7 @@ export default function DriverDetail() {
 
       {/* Tab content */}
       {activeTab === 'profile' && <ProfileTab driver={driver} />}
-      {activeTab === 'trips' && <PlaceholderTab label="Trips" />}
+      {activeTab === 'trips' && <TripsTab driverId={driver.id} />}
       {activeTab === 'financials' && <PlaceholderTab label="Financials" />}
       {activeTab === 'advances' && <PlaceholderTab label="Advances" />}
       {activeTab === 'leave' && <PlaceholderTab label="Leave" />}

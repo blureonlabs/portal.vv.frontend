@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UserPlus, Search, UserCheck, UserX } from 'lucide-react'
-import { apiGet, apiPost, apiPut } from '../lib/api'
+import { apiGet, apiPost, apiPut, apiDelete } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
@@ -84,6 +84,12 @@ export default function Drivers() {
 
   const activateMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/drivers/${id}/activate`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['drivers'] }),
+  })
+
+  const selfEntryMutation = useMutation({
+    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
+      apiPut(`/drivers/${id}/self-entry`, { enabled }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['drivers'] }),
   })
 
@@ -171,6 +177,17 @@ export default function Drivers() {
             <div className="text-xs text-muted space-y-1">
               <p>Nationality: <span className="text-primary">{driver.nationality}</span></p>
               <p>Salary: <span className="text-primary">{salaryLabel(driver.salary_type)}</span></p>
+              {isSuperAdmin && (
+                <div className="flex items-center justify-between pt-1">
+                  <span>Self-entry</span>
+                  <button
+                    onClick={() => selfEntryMutation.mutate({ id: driver.id, enabled: !driver.self_entry_enabled })}
+                    className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${driver.self_entry_enabled ? 'bg-accent' : 'bg-border'}`}
+                  >
+                    <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${driver.self_entry_enabled ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {(isSuperAdmin || user?.role === 'accountant') && (

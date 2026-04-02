@@ -13,6 +13,8 @@ import Drivers from './pages/Drivers'
 import DriverDetail from './pages/DriverDetail'
 import Vehicles from './pages/Vehicles'
 import VehicleDetail from './pages/VehicleDetail'
+import Trips from './pages/Trips'
+import Finance from './pages/Finance'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +55,8 @@ export default function App() {
                     <Route path="/drivers/:id" element={<DriverDetail />} />
                     <Route path="/vehicles" element={<Vehicles />} />
                     <Route path="/vehicles/:id" element={<VehicleDetail />} />
+                    <Route path="/trips" element={<Trips />} />
+                    <Route path="/finance" element={<Finance />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppLayout>
