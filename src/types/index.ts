@@ -316,3 +316,35 @@ export interface Salary {
   generated_by_name: string
   generated_at: string
 }
+
+export interface InsuranceAlert {
+  vehicle_id: string
+  plate_number: string
+  insurance_expiry: string
+  days_left: number
+}
+
+export interface DriverPerf {
+  driver_id: string
+  driver_name: string
+  trips_count: number
+  revenue_aed: string
+}
+
+export interface DayRevenue {
+  date: string
+  revenue_aed: string
+  trips_count: number
+}
+
+export interface DashboardKpis {
+  revenue_mtd: string
+  trips_mtd: number
+  active_drivers: number
+  active_vehicles: number
+  pending_advances: number
+  pending_leave: number
+  insurance_expiring_soon: InsuranceAlert[]
+  top_drivers: DriverPerf[]
+  revenue_trend: DayRevenue[]
+}
