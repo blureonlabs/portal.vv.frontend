@@ -282,3 +282,37 @@ export interface FinanceSummaryReport {
   total_handovers: string
   net_aed: string
 }
+
+export interface Salary {
+  id: string
+  driver_id: string
+  driver_name: string
+  period_month: string
+  salary_type_snapshot: SalaryType
+  total_earnings_aed: string
+  total_cash_received_aed: string
+  total_cash_submit_aed: string | null
+  cash_not_handover_aed: string
+  cash_diff_aed: string | null
+  car_charging_aed: string
+  car_charging_used_aed: string | null
+  car_charging_diff_aed: string | null
+  salik_used_aed: string
+  salik_refund_aed: string
+  salik_aed: string
+  rta_fine_aed: string
+  card_service_charges_aed: string
+  room_rent_aed: string | null
+  target_amount_aed: string | null
+  fixed_car_charging_aed: string | null
+  commission_aed: string | null
+  base_amount_aed: string
+  final_salary_aed: string
+  advance_deduction_aed: string
+  net_payable_aed: string
+  deductions_json: object | null
+  slip_url: string | null
+  generated_by: string
+  generated_by_name: string
+  generated_at: string
+}

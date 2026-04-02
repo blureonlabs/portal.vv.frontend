@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, LogOut, Car, UserCheck, Route, DollarSign, CreditCard, CalendarDays, FileText, BarChart3, Settings2, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, LogOut, Car, UserCheck, Route, DollarSign, CreditCard, CalendarDays, FileText, BarChart3, Settings2, Shield, Banknote } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { supabase, LOGO_URL } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Finance', href: '/finance', icon: DollarSign, roles: ['super_admin', 'accountant'] },
   { label: 'Advances', href: '/advances', icon: CreditCard, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
   { label: 'Leave', href: '/hr', icon: CalendarDays, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+  { label: 'Salary', href: '/salary', icon: Banknote, roles: ['super_admin', 'accountant'] },
   { label: 'Invoices', href: '/invoices', icon: FileText, roles: ['super_admin', 'accountant'] },
   { label: 'Reports', href: '/reports', icon: BarChart3, roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Settings', href: '/settings', icon: Settings2, roles: ['super_admin', 'accountant'] },
