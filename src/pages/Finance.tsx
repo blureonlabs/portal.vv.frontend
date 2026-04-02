@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, DollarSign, HandCoins } from 'lucide-react'
+import { Plus, HandCoins } from 'lucide-react'
 import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -89,12 +89,12 @@ export default function Finance() {
     enabled: tab === 'handovers',
   })
 
-  const expenseForm = useForm<ExpenseForm>({
+  const expenseForm = useForm<ExpenseForm, any, ExpenseForm>({
     resolver: zodResolver(expenseSchema),
     defaultValues: { date: today, category: 'fuel' },
   })
 
-  const handoverForm = useForm<HandoverForm>({
+  const handoverForm = useForm<HandoverForm, any, HandoverForm>({
     resolver: zodResolver(handoverSchema),
   })
 
@@ -259,7 +259,7 @@ export default function Finance() {
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
             >
               <h2 className="text-lg font-bold text-primary mb-6">Add Expense</h2>
-              <form onSubmit={expenseForm.handleSubmit((d) => { setApiError(''); addExpenseMutation.mutate(d) })}
+              <form onSubmit={expenseForm.handleSubmit((d: ExpenseForm) => { setApiError(''); addExpenseMutation.mutate(d) })}
                 className="flex flex-col gap-4">
                 <Select id="exp-driver" label="Driver (optional)"
                   options={[{ value: '', label: 'General (no driver)' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}
@@ -300,7 +300,7 @@ export default function Finance() {
             >
               <h2 className="text-lg font-bold text-primary mb-1">Record Cash Handover</h2>
               <p className="text-sm text-muted mb-6">Driver submits cash to you now.</p>
-              <form onSubmit={handoverForm.handleSubmit((d) => { setApiError(''); addHandoverMutation.mutate(d) })}
+              <form onSubmit={handoverForm.handleSubmit((d: HandoverForm) => { setApiError(''); addHandoverMutation.mutate(d) })}
                 className="flex flex-col gap-4">
                 <Select id="hov-driver" label="Driver"
                   options={[{ value: '', label: 'Select driver…' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}

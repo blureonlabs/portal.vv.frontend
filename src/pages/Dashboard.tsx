@@ -160,7 +160,7 @@ export default function Dashboard() {
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
-                  formatter={(val: number) => [`AED ${val.toLocaleString('en-AE', { minimumFractionDigits: 0 })}`, 'Revenue']}
+                  formatter={(val) => [`AED ${Number(val).toLocaleString('en-AE', { minimumFractionDigits: 0 })}`, 'Revenue']}
                   labelStyle={{ fontSize: 11 }}
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                 />

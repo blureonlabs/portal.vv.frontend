@@ -57,8 +57,6 @@ export default function HrRequests() {
   const qc = useQueryClient()
   const canAction = user?.role === 'super_admin' || user?.role === 'hr'
   const canManage = canAction || user?.role === 'accountant'
-  const isDriver = user?.role === 'driver'
-
   const [statusFilter, setStatusFilter] = useState<LeaveStatus | ''>('')
   const [typeFilter, setTypeFilter] = useState<LeaveType | ''>('')
   const [driverFilter, setDriverFilter] = useState('')
@@ -85,12 +83,12 @@ export default function HrRequests() {
     enabled: canManage,
   })
 
-  const submitForm = useForm<SubmitForm>({
+  const submitForm = useForm<SubmitForm, any, SubmitForm>({
     resolver: zodResolver(submitSchema),
     defaultValues: { type: 'leave' },
   })
 
-  const rejectForm = useForm<RejectForm>({
+  const rejectForm = useForm<RejectForm, any, RejectForm>({
     resolver: zodResolver(rejectSchema),
   })
 
@@ -255,7 +253,7 @@ export default function HrRequests() {
               <p className="text-sm text-muted mb-6">Submit a leave or permission request.</p>
 
               <form
-                onSubmit={submitForm.handleSubmit((d) => { setApiError(''); submitMutation.mutate(d) })}
+                onSubmit={submitForm.handleSubmit((d: SubmitForm) => { setApiError(''); submitMutation.mutate(d) })}
                 className="flex flex-col gap-4"
               >
                 {canManage && (
@@ -343,7 +341,7 @@ export default function HrRequests() {
               </p>
 
               <form
-                onSubmit={rejectForm.handleSubmit((d) => {
+                onSubmit={rejectForm.handleSubmit((d: RejectForm) => {
                   setApiError('')
                   rejectMutation.mutate({ id: rejectTarget.id, body: d })
                 })}

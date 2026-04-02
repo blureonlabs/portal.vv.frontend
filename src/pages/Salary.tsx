@@ -112,7 +112,7 @@ export default function SalaryPage() {
     },
   })
 
-  const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm<Form>({
+  const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm<Form, any, Form>({
     resolver: zodResolver(schema),
     defaultValues: {
       period_month: currentMonth(),
@@ -156,7 +156,7 @@ export default function SalaryPage() {
       {/* Generate form */}
       {showForm && (
         <form
-          onSubmit={handleSubmit((d) => mutate(d))}
+          onSubmit={handleSubmit((d: Form) => mutate(d))}
           className="bg-white border border-border rounded-2xl p-5 space-y-4"
         >
           <h2 className="font-semibold text-gray-900">Generate Salary</h2>

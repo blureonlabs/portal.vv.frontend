@@ -51,8 +51,6 @@ export default function Advances() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const canManage = user?.role === 'super_admin' || user?.role === 'accountant'
-  const isDriver = user?.role === 'driver'
-
   const [showRequest, setShowRequest] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<Advance | null>(null)
   const [payTarget, setPayTarget] = useState<Advance | null>(null)
@@ -71,15 +69,15 @@ export default function Advances() {
     enabled: canManage && showRequest,
   })
 
-  const requestForm = useForm<RequestForm>({
+  const requestForm = useForm<RequestForm, any, RequestForm>({
     resolver: zodResolver(requestSchema),
   })
 
-  const rejectForm = useForm<RejectForm>({
+  const rejectForm = useForm<RejectForm, any, RejectForm>({
     resolver: zodResolver(rejectSchema),
   })
 
-  const payForm = useForm<PayForm>({
+  const payForm = useForm<PayForm, any, PayForm>({
     resolver: zodResolver(paySchema),
     defaultValues: { payment_date: today, method: 'cash' },
   })
@@ -231,7 +229,7 @@ export default function Advances() {
               <p className="text-sm text-muted mb-6">Submit a salary advance request.</p>
 
               <form
-                onSubmit={requestForm.handleSubmit((d) => { setApiError(''); requestMutation.mutate(d) })}
+                onSubmit={requestForm.handleSubmit((d: RequestForm) => { setApiError(''); requestMutation.mutate(d) })}
                 className="flex flex-col gap-4"
               >
                 {canManage && (
@@ -298,7 +296,7 @@ export default function Advances() {
               <p className="text-sm text-muted mb-6">{rejectTarget.driver_name} · {formatAed(parseFloat(rejectTarget.amount_aed))}</p>
 
               <form
-                onSubmit={rejectForm.handleSubmit((d) => {
+                onSubmit={rejectForm.handleSubmit((d: RejectForm) => {
                   setApiError('')
                   rejectMutation.mutate({ id: rejectTarget.id, body: d })
                 })}
@@ -348,7 +346,7 @@ export default function Advances() {
               <p className="text-sm text-muted mb-6">{payTarget.driver_name} · {formatAed(parseFloat(payTarget.amount_aed))}</p>
 
               <form
-                onSubmit={payForm.handleSubmit((d) => {
+                onSubmit={payForm.handleSubmit((d: PayForm) => {
                   setApiError('')
                   payMutation.mutate({ id: payTarget.id, body: d })
                 })}

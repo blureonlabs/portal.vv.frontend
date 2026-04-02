@@ -71,7 +71,7 @@ export default function Trips() {
     },
   })
 
-  const form = useForm<TripForm>({
+  const form = useForm<TripForm, any, TripForm>({
     resolver: zodResolver(tripSchema),
     defaultValues: { trip_date: today, cash_aed: 0 },
   })
@@ -249,7 +249,7 @@ export default function Trips() {
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
             >
               <h2 className="text-lg font-bold text-primary mb-6">Add Trip</h2>
-              <form onSubmit={form.handleSubmit((d) => { setApiError(''); createMutation.mutate(d) })}
+              <form onSubmit={form.handleSubmit((d: TripForm) => { setApiError(''); createMutation.mutate(d) })}
                 className="flex flex-col gap-4">
                 <Select id="trip-driver" label="Driver"
                   options={[{ value: '', label: 'Select driver…' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}

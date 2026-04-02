@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, FileText, Download, ExternalLink } from 'lucide-react'
+import { Plus, Trash2, FileText, Download } from 'lucide-react'
 import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -46,7 +46,7 @@ export default function Invoices() {
     enabled: canManage,
   })
 
-  const form = useForm<GenerateForm>({
+  const form = useForm<GenerateForm, any, GenerateForm>({
     resolver: zodResolver(generateSchema),
     defaultValues: {
       line_items: [{ description: '', amount_aed: 0 }],

@@ -66,8 +66,8 @@ export default function Vehicles() {
     v.model.toLowerCase().includes(search.toLowerCase())
   )
 
-  const form = useForm<VehicleForm>({
-    resolver: zodResolver(vehicleSchema),
+  const form = useForm<VehicleForm, any, VehicleForm>({
+    resolver: zodResolver(vehicleSchema) as never,
     defaultValues: { year: new Date().getFullYear() },
   })
 
@@ -229,7 +229,7 @@ export default function Vehicles() {
               </h2>
 
               <form
-                onSubmit={form.handleSubmit((d) => {
+                onSubmit={form.handleSubmit((d: VehicleForm) => {
                   setApiError('')
                   if (editVehicle) {
                     updateMutation.mutate({ id: editVehicle.id, body: d })

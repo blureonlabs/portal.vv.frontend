@@ -37,7 +37,7 @@ export default function MyLeave() {
     queryFn: () => apiGet(`/hr/requests?from=${yearStart()}&to=${today()}`),
   })
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form, any, Form>({
     resolver: zodResolver(schema),
     defaultValues: { type: 'leave', from_date: today(), to_date: today() },
   })
@@ -51,8 +51,6 @@ export default function MyLeave() {
       setShowForm(false)
     },
   })
-
-  const hasPending = leaves.some((l) => l.status === 'pending')
 
   function dayCount(from: string, to: string) {
     const diff = (new Date(to).getTime() - new Date(from).getTime()) / 86400000
@@ -74,7 +72,7 @@ export default function MyLeave() {
       {/* Request form */}
       {showForm && (
         <form
-          onSubmit={handleSubmit((d) => mutate(d))}
+          onSubmit={handleSubmit((d: Form) => mutate(d))}
           className="bg-white rounded-2xl border border-border p-4 space-y-3"
         >
           <h3 className="font-semibold text-gray-900">New Request</h3>

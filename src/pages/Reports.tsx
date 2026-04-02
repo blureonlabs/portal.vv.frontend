@@ -30,7 +30,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export default function Reports() {
-  const { user } = useAuthStore()
+  useAuthStore()
   const [tab, setTab] = useState<TabId>('drivers')
   const [from, setFrom] = useState(monthStart())
   const [to, setTo] = useState(today())

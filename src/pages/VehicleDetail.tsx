@@ -112,7 +112,7 @@ function ServiceTab({ vehicleId }: { vehicleId: string }) {
     queryFn: () => apiGet(`/vehicles/${vehicleId}/service`),
   })
 
-  const form = useForm<ServiceForm>({
+  const form = useForm<ServiceForm, any, ServiceForm>({
     resolver: zodResolver(serviceSchema),
     defaultValues: { service_date: new Date().toISOString().slice(0, 10) },
   })
@@ -180,7 +180,7 @@ function ServiceTab({ vehicleId }: { vehicleId: string }) {
             >
               <h2 className="text-lg font-bold text-primary mb-6">Add Service Record</h2>
               <form
-                onSubmit={form.handleSubmit((d) => { setApiError(''); addMutation.mutate(d) })}
+                onSubmit={form.handleSubmit((d: ServiceForm) => { setApiError(''); addMutation.mutate(d) })}
                 className="flex flex-col gap-4"
               >
                 <div className="grid grid-cols-2 gap-3">
