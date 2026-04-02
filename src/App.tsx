@@ -9,6 +9,10 @@ import AcceptInvite from './pages/AcceptInvite'
 import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import UserManagement from './pages/UserManagement'
+import Drivers from './pages/Drivers'
+import DriverDetail from './pages/DriverDetail'
+import Vehicles from './pages/Vehicles'
+import VehicleDetail from './pages/VehicleDetail'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,7 +49,10 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    {/* Placeholder — filled in future sprints */}
+                    <Route path="/drivers" element={<Drivers />} />
+                    <Route path="/drivers/:id" element={<DriverDetail />} />
+                    <Route path="/vehicles" element={<Vehicles />} />
+                    <Route path="/vehicles/:id" element={<VehicleDetail />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppLayout>
