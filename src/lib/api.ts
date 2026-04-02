@@ -49,3 +49,13 @@ export async function apiDelete<T>(path: string): Promise<T> {
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json.data
 }
+
+/** Fetches raw bytes (e.g. CSV). Caller owns the blob. */
+export async function apiFetchRaw(path: string): Promise<Blob> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: await getAuthHeaders() })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error((json as { error?: string }).error ?? 'Request failed')
+  }
+  return res.blob()
+}

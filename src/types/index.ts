@@ -83,6 +83,65 @@ export interface CashHandover {
   verifier_name: string
 }
 
+export interface LineItem {
+  description: string
+  amount_aed: string
+}
+
+export interface Invoice {
+  id: string
+  driver_id: string
+  driver_name: string
+  invoice_no: string
+  period_start: string
+  period_end: string
+  line_items: LineItem[]
+  total_aed: string
+  pdf_url: string | null
+  generated_by: string
+  generated_by_name: string
+  created_at: string
+}
+
+export type LeaveType = 'leave' | 'permission'
+export type LeaveStatus = 'pending' | 'approved' | 'rejected'
+
+export interface LeaveRequest {
+  id: string
+  driver_id: string
+  driver_name: string
+  type: LeaveType
+  from_date: string
+  to_date: string
+  reason: string
+  status: LeaveStatus
+  actioned_by: string | null
+  actioned_by_name: string | null
+  rejection_reason: string | null
+  created_at: string
+}
+
+export type AdvanceStatus = 'pending' | 'approved' | 'rejected' | 'paid'
+export type PaymentMethod = 'cash' | 'bank_transfer'
+
+export interface Advance {
+  id: string
+  driver_id: string
+  driver_name: string
+  amount_aed: string
+  reason: string
+  status: AdvanceStatus
+  rejection_reason: string | null
+  payment_date: string | null
+  method: PaymentMethod | null
+  carry_forward_aed: string
+  salary_period: string | null
+  actioned_by: string | null
+  actioned_by_name: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface DriverEdit {
   id: string
   driver_id: string
@@ -130,4 +189,59 @@ export interface VehicleServiceRecord {
   next_due: string | null
   logged_by: string
   created_at: string
+}
+
+export interface Setting {
+  id: string
+  key: string
+  value: string
+  updated_by: string | null
+  updated_at: string
+}
+
+export interface AuditEntry {
+  id: string
+  actor_id: string
+  actor_role: string
+  entity_type: string
+  entity_id: string | null
+  action: string
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
+
+export interface DriverSummaryReport {
+  driver_id: string
+  driver_name: string
+  trips_count: number
+  total_revenue_aed: string
+  total_expenses_aed: string
+  net_aed: string
+}
+
+export interface TripDetailReport {
+  trip_id: string
+  driver_name: string
+  trip_date: string
+  cash_aed: string
+  card_aed: string
+  other_aed: string
+  total_aed: string
+  notes: string | null
+}
+
+export interface CategoryTotal {
+  category: string
+  total_aed: string
+}
+
+export interface FinanceSummaryReport {
+  trip_revenue_cash: string
+  trip_revenue_card: string
+  trip_revenue_other: string
+  trip_revenue_total: string
+  expense_by_category: CategoryTotal[]
+  total_expenses: string
+  total_handovers: string
+  net_aed: string
 }

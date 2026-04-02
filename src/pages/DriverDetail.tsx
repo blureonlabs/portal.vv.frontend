@@ -5,7 +5,7 @@ import { ArrowLeft, User, Car, DollarSign, CreditCard, Calendar, ClipboardList }
 import { apiGet } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { formatDate, formatAed } from '../lib/utils'
-import type { Driver, DriverEdit, Vehicle, Trip } from '../types'
+import type { Driver, DriverEdit, LeaveRequest, Vehicle, Trip } from '../types'
 
 const SALARY_LABELS: Record<string, string> = {
   commission: 'Commission (30%)',
@@ -119,6 +119,49 @@ function ProfileTab({ driver }: { driver: Driver }) {
           </Row>
         </dl>
       </div>
+    </div>
+  )
+}
+
+function LeaveTab({ driverId }: { driverId: string }) {
+  const { data: requests = [], isLoading } = useQuery<LeaveRequest[]>({
+    queryKey: ['driver-leave', driverId],
+    queryFn: () => apiGet(`/hr/requests?driver_id=${driverId}`),
+  })
+
+  if (isLoading) return <p className="text-sm text-muted py-8 text-center">Loading…</p>
+  if (requests.length === 0) return <p className="text-sm text-muted py-12 text-center">No leave requests.</p>
+
+  const statusColor: Record<string, string> = {
+    pending: 'text-warning',
+    approved: 'text-success',
+    rejected: 'text-danger',
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border">
+            <th className="text-left py-3 px-4 text-muted font-medium">Type</th>
+            <th className="text-left py-3 px-4 text-muted font-medium">From</th>
+            <th className="text-left py-3 px-4 text-muted font-medium">To</th>
+            <th className="text-left py-3 px-4 text-muted font-medium">Reason</th>
+            <th className="text-left py-3 px-4 text-muted font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((r) => (
+            <tr key={r.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+              <td className="py-3 px-4 capitalize text-primary">{r.type}</td>
+              <td className="py-3 px-4 text-muted">{formatDate(r.from_date)}</td>
+              <td className="py-3 px-4 text-muted">{formatDate(r.to_date)}</td>
+              <td className="py-3 px-4 text-muted truncate max-w-xs">{r.reason}</td>
+              <td className={`py-3 px-4 capitalize font-medium ${statusColor[r.status] ?? ''}`}>{r.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -242,7 +285,7 @@ export default function DriverDetail() {
       {activeTab === 'trips' && <TripsTab driverId={driver.id} />}
       {activeTab === 'financials' && <PlaceholderTab label="Financials" />}
       {activeTab === 'advances' && <PlaceholderTab label="Advances" />}
-      {activeTab === 'leave' && <PlaceholderTab label="Leave" />}
+      {activeTab === 'leave' && <LeaveTab driverId={driver.id} />}
       {activeTab === 'audit' && <AuditTab driverId={driver.id} />}
     </div>
   )

@@ -15,6 +15,12 @@ import Vehicles from './pages/Vehicles'
 import VehicleDetail from './pages/VehicleDetail'
 import Trips from './pages/Trips'
 import Finance from './pages/Finance'
+import Advances from './pages/Advances'
+import HrRequests from './pages/HrRequests'
+import Invoices from './pages/Invoices'
+import Settings from './pages/Settings'
+import AuditLog from './pages/AuditLog'
+import Reports from './pages/Reports'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +63,19 @@ export default function App() {
                     <Route path="/vehicles/:id" element={<VehicleDetail />} />
                     <Route path="/trips" element={<Trips />} />
                     <Route path="/finance" element={<Finance />} />
+                    <Route path="/advances" element={<Advances />} />
+                    <Route path="/hr" element={<HrRequests />} />
+                    <Route path="/invoices" element={<Invoices />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route
+                      path="/audit"
+                      element={
+                        <ProtectedRoute allowedRoles={['super_admin']}>
+                          <AuditLog />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppLayout>

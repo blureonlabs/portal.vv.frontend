@@ -1,0 +1,319 @@
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { BarChart3, Download } from 'lucide-react'
+import { apiGet, apiFetchRaw } from '../lib/api'
+import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
+import { Select } from '../components/ui/Select'
+import { useAuthStore } from '../store/authStore'
+import { formatAed } from '../lib/utils'
+import type { Driver, DriverSummaryReport, TripDetailReport, FinanceSummaryReport } from '../types'
+
+type TabId = 'drivers' | 'trips' | 'finance'
+
+function today() {
+  return new Date().toISOString().slice(0, 10)
+}
+function monthStart() {
+  const d = new Date()
+  d.setDate(1)
+  return d.toISOString().slice(0, 10)
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export default function Reports() {
+  const { user } = useAuthStore()
+  const [tab, setTab] = useState<TabId>('drivers')
+  const [from, setFrom] = useState(monthStart())
+  const [to, setTo] = useState(today())
+  const [driverId, setDriverId] = useState('')
+  const [exporting, setExporting] = useState(false)
+
+  const { data: drivers = [] } = useQuery<Driver[]>({
+    queryKey: ['drivers'],
+    queryFn: () => apiGet('/drivers'),
+    enabled: tab === 'trips',
+  })
+
+  // Driver summary
+  const driverParams = `from=${from}&to=${to}`
+  const { data: driverSummary = [], isLoading: loadingDrivers } = useQuery<DriverSummaryReport[]>({
+    queryKey: ['reports', 'drivers', from, to],
+    queryFn: () => apiGet(`/reports/drivers?${driverParams}`),
+    enabled: tab === 'drivers',
+  })
+
+  // Trip detail
+  const tripParams = `from=${from}&to=${to}${driverId ? `&driver_id=${driverId}` : ''}`
+  const { data: tripDetail = [], isLoading: loadingTrips } = useQuery<TripDetailReport[]>({
+    queryKey: ['reports', 'trips', from, to, driverId],
+    queryFn: () => apiGet(`/reports/trips?${tripParams}`),
+    enabled: tab === 'trips',
+  })
+
+  // Finance summary
+  const { data: finance, isLoading: loadingFinance } = useQuery<FinanceSummaryReport>({
+    queryKey: ['reports', 'finance', from, to],
+    queryFn: () => apiGet(`/reports/finance?from=${from}&to=${to}`),
+    enabled: tab === 'finance',
+  })
+
+  const handleExportCsv = async () => {
+    setExporting(true)
+    try {
+      let path = ''
+      let filename = ''
+      if (tab === 'drivers') { path = `/reports/drivers?${driverParams}&format=csv`; filename = 'driver_summary.csv' }
+      else if (tab === 'trips') { path = `/reports/trips?${tripParams}&format=csv`; filename = 'trip_detail.csv' }
+      else { path = `/reports/finance?from=${from}&to=${to}&format=csv`; filename = 'finance_summary.csv' }
+      const blob = await apiFetchRaw(path)
+      downloadBlob(blob, filename)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'drivers', label: 'Driver Summary' },
+    { id: 'trips', label: 'Trip Detail' },
+    { id: 'finance', label: 'Finance Summary' },
+  ]
+
+  return (
+    <div className="p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <BarChart3 className="w-6 h-6 text-brand" />
+          <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
+          <Download className="w-4 h-4 mr-1" />
+          Export CSV
+        </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              tab === t.id ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-3 flex-wrap items-end">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">From</label>
+          <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">To</label>
+          <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" />
+        </div>
+        {tab === 'trips' && (
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Driver</label>
+            <Select value={driverId} onChange={(e) => setDriverId(e.target.value)} className="w-48">
+              <option value="">All drivers</option>
+              {drivers.map((d) => (
+                <option key={d.id} value={d.id}>{d.full_name}</option>
+              ))}
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      {tab === 'drivers' && (
+        <DriverSummaryTable rows={driverSummary} loading={loadingDrivers} />
+      )}
+      {tab === 'trips' && (
+        <TripDetailTable rows={tripDetail} loading={loadingTrips} />
+      )}
+      {tab === 'finance' && (
+        <FinanceSummaryView data={finance} loading={loadingFinance} />
+      )}
+    </div>
+  )
+}
+
+function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; loading: boolean }) {
+  const totals = rows.reduce(
+    (acc, r) => ({
+      trips: acc.trips + r.trips_count,
+      revenue: acc.revenue + parseFloat(r.total_revenue_aed),
+      expenses: acc.expenses + parseFloat(r.total_expenses_aed),
+      net: acc.net + parseFloat(r.net_aed),
+    }),
+    { trips: 0, revenue: 0, expenses: 0, net: 0 }
+  )
+
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-gray-50">
+            <th className="py-3 px-4 text-left font-medium text-gray-500">Driver</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Trips</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Revenue (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Expenses (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Net (AED)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={5} className="py-12 text-center text-gray-400">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={5} className="py-12 text-center text-gray-400">No data for selected period</td></tr>
+          ) : (
+            <>
+              {rows.map((r) => (
+                <tr key={r.driver_id} className="border-b border-border last:border-0 hover:bg-gray-50">
+                  <td className="py-2.5 px-4 font-medium text-gray-900">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-right text-gray-700">{r.trips_count}</td>
+                  <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.total_revenue_aed)}</td>
+                  <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.total_expenses_aed)}</td>
+                  <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.net_aed) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    {formatAed(r.net_aed)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50 font-semibold text-sm border-t-2 border-gray-200">
+                <td className="py-3 px-4 text-gray-700">Total</td>
+                <td className="py-3 px-4 text-right">{totals.trips}</td>
+                <td className="py-3 px-4 text-right">{formatAed(totals.revenue)}</td>
+                <td className="py-3 px-4 text-right text-red-600">{formatAed(totals.expenses)}</td>
+                <td className={`py-3 px-4 text-right ${totals.net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  {formatAed(totals.net)}
+                </td>
+              </tr>
+            </>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-gray-50">
+            <th className="py-3 px-4 text-left font-medium text-gray-500">Driver</th>
+            <th className="py-3 px-4 text-left font-medium text-gray-500">Date</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Cash</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Card</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Other</th>
+            <th className="py-3 px-4 text-right font-medium text-gray-500">Total</th>
+            <th className="py-3 px-4 text-left font-medium text-gray-500">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={7} className="py-12 text-center text-gray-400">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={7} className="py-12 text-center text-gray-400">No trips in selected period</td></tr>
+          ) : (
+            rows.map((r) => (
+              <tr key={r.trip_id} className="border-b border-border last:border-0 hover:bg-gray-50">
+                <td className="py-2.5 px-4 font-medium text-gray-900">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-gray-600">{r.trip_date}</td>
+                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.cash_aed)}</td>
+                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.card_aed)}</td>
+                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.other_aed)}</td>
+                <td className="py-2.5 px-4 text-right font-semibold text-gray-900">{formatAed(r.total_aed)}</td>
+                <td className="py-2.5 px-4 text-gray-500 text-xs">{r.notes ?? '—'}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="bg-white rounded-xl border border-border p-4">
+      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className="text-xl font-bold text-gray-900">{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+    </div>
+  )
+}
+
+function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; loading: boolean }) {
+  if (loading) return <div className="py-12 text-center text-gray-400">Loading…</div>
+  if (!data) return null
+
+  return (
+    <div className="space-y-5">
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Total Revenue" value={formatAed(data.trip_revenue_total)} sub="from trips" />
+        <StatCard label="Total Expenses" value={formatAed(data.total_expenses)} />
+        <StatCard label="Cash Handovers" value={formatAed(data.total_handovers)} />
+        <StatCard label="Net" value={formatAed(data.net_aed)} />
+      </div>
+
+      {/* Revenue breakdown */}
+      <div className="bg-white rounded-xl border border-border p-4">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Revenue Breakdown</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-xs text-gray-500">Cash</p>
+            <p className="text-base font-semibold">{formatAed(data.trip_revenue_cash)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Card</p>
+            <p className="text-base font-semibold">{formatAed(data.trip_revenue_card)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Other</p>
+            <p className="text-base font-semibold">{formatAed(data.trip_revenue_other)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Expenses by category */}
+      {data.expense_by_category.length > 0 && (
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-gray-50">
+            <h3 className="text-sm font-semibold text-gray-700">Expenses by Category</h3>
+          </div>
+          <table className="w-full text-sm">
+            <tbody>
+              {data.expense_by_category.map((cat) => (
+                <tr key={cat.category} className="border-b border-border last:border-0">
+                  <td className="py-2.5 px-4 text-gray-700 capitalize">{cat.category.replace(/_/g, ' ')}</td>
+                  <td className="py-2.5 px-4 text-right font-medium text-red-600">{formatAed(cat.total_aed)}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50 font-semibold border-t-2 border-gray-200">
+                <td className="py-3 px-4 text-gray-700">Total</td>
+                <td className="py-3 px-4 text-right text-red-700">{formatAed(data.total_expenses)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
