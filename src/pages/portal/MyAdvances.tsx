@@ -65,7 +65,7 @@ export default function MyAdvances() {
   const hasPending = advances.some((a) => a.status === 'pending')
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Form, any, Form>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
   })
 
   const { mutate, isPending } = useMutation({

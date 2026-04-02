@@ -37,7 +37,7 @@ export default function MyTrips() {
   })
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Form, any, Form>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
     defaultValues: { trip_date: today() },
   })
 

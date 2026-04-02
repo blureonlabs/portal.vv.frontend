@@ -90,12 +90,12 @@ export default function Finance() {
   })
 
   const expenseForm = useForm<ExpenseForm, any, ExpenseForm>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(expenseSchema) as never,
     defaultValues: { date: today, category: 'fuel' },
   })
 
   const handoverForm = useForm<HandoverForm, any, HandoverForm>({
-    resolver: zodResolver(handoverSchema),
+    resolver: zodResolver(handoverSchema) as never,
   })
 
   const addExpenseMutation = useMutation({

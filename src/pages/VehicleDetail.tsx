@@ -113,7 +113,7 @@ function ServiceTab({ vehicleId }: { vehicleId: string }) {
   })
 
   const form = useForm<ServiceForm, any, ServiceForm>({
-    resolver: zodResolver(serviceSchema),
+    resolver: zodResolver(serviceSchema) as never,
     defaultValues: { service_date: new Date().toISOString().slice(0, 10) },
   })
 

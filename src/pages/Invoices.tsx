@@ -47,7 +47,7 @@ export default function Invoices() {
   })
 
   const form = useForm<GenerateForm, any, GenerateForm>({
-    resolver: zodResolver(generateSchema),
+    resolver: zodResolver(generateSchema) as never,
     defaultValues: {
       line_items: [{ description: '', amount_aed: 0 }],
     },

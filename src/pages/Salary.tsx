@@ -113,7 +113,7 @@ export default function SalaryPage() {
   })
 
   const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm<Form, any, Form>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as never,
     defaultValues: {
       period_month: currentMonth(),
       salary_type: 'commission',

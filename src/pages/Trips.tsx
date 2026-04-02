@@ -72,7 +72,7 @@ export default function Trips() {
   })
 
   const form = useForm<TripForm, any, TripForm>({
-    resolver: zodResolver(tripSchema),
+    resolver: zodResolver(tripSchema) as never,
     defaultValues: { trip_date: today, cash_aed: 0 },
   })
 

@@ -70,15 +70,15 @@ export default function Advances() {
   })
 
   const requestForm = useForm<RequestForm, any, RequestForm>({
-    resolver: zodResolver(requestSchema),
+    resolver: zodResolver(requestSchema) as never,
   })
 
   const rejectForm = useForm<RejectForm, any, RejectForm>({
-    resolver: zodResolver(rejectSchema),
+    resolver: zodResolver(rejectSchema) as never,
   })
 
   const payForm = useForm<PayForm, any, PayForm>({
-    resolver: zodResolver(paySchema),
+    resolver: zodResolver(paySchema) as never,
     defaultValues: { payment_date: today, method: 'cash' },
   })
 
