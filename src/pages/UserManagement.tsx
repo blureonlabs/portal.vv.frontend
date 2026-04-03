@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { formatDate } from '../lib/utils'
 import type { Invite, User } from '../types'
 
@@ -96,6 +97,8 @@ export default function UserManagement() {
   const qc = useQueryClient()
   const [showModal, setShowModal] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
+  const [confirmMsg, setConfirmMsg] = useState('')
 
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['users'],
@@ -341,7 +344,10 @@ export default function UserManagement() {
                             <span className="material-symbols-rounded text-[16px]">refresh</span>
                           </button>
                           <button
-                            onClick={() => revokeMutation.mutate(inv.id)}
+                            onClick={() => {
+                              setConfirmMsg(`Revoke the invitation sent to ${inv.email}? They will no longer be able to accept it.`)
+                              setConfirmAction(() => () => revokeMutation.mutate(inv.id))
+                            }}
                             className="p-1.5 rounded-lg hover:bg-red-50 text-muted hover:text-danger transition-colors"
                             title="Revoke"
                           >
@@ -357,6 +363,17 @@ export default function UserManagement() {
           )}
         </div>
       </section>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Revoke Invitation"
+        message={confirmMsg}
+        confirmLabel="Revoke"
+        variant="danger"
+        onConfirm={() => { confirmAction?.(); setConfirmAction(null) }}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       {/* Add User Modal */}
       <AnimatePresence>

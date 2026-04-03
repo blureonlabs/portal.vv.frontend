@@ -10,6 +10,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
 
@@ -44,6 +45,9 @@ export default function Drivers() {
   const [showCreate, setShowCreate] = useState(false)
   const [editDriver, setEditDriver] = useState<Driver | null>(null)
   const [apiError, setApiError] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
+  const [confirmMsg, setConfirmMsg] = useState('')
+  const [confirmTitle, setConfirmTitle] = useState('')
   const isSuperAdmin = user?.role === 'super_admin'
 
   const { data: drivers = [] } = useQuery<Driver[]>({
@@ -200,14 +204,22 @@ export default function Drivers() {
                 {isSuperAdmin && (
                   driver.is_active ? (
                     <button
-                      onClick={() => deactivateMutation.mutate(driver.id)}
+                      onClick={() => {
+                        setConfirmTitle('Deactivate Driver')
+                        setConfirmMsg(`Are you sure you want to deactivate ${driver.full_name}? They will no longer be able to log in.`)
+                        setConfirmAction(() => () => deactivateMutation.mutate(driver.id))
+                      }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                     >
                       <span className="material-symbols-rounded text-[12px]">person_off</span> Deactivate
                     </button>
                   ) : (
                     <button
-                      onClick={() => activateMutation.mutate(driver.id)}
+                      onClick={() => {
+                        setConfirmTitle('Reactivate Driver')
+                        setConfirmMsg(`Reactivate ${driver.full_name} and restore their access?`)
+                        setConfirmAction(() => () => activateMutation.mutate(driver.id))
+                      }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                     >
                       <span className="material-symbols-rounded text-[12px]">how_to_reg</span> Activate
@@ -262,6 +274,17 @@ export default function Drivers() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title={confirmTitle}
+        message={confirmMsg}
+        confirmLabel="Confirm"
+        variant="danger"
+        onConfirm={() => { confirmAction?.(); setConfirmAction(null) }}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       {/* Edit Modal */}
       <AnimatePresence>

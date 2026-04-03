@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Reports', href: '/reports', icon: 'analytics', roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Broadcasts', href: '/broadcasts', icon: 'campaign', roles: ['super_admin'] },
   { label: 'Settings', href: '/settings', icon: 'settings', roles: ['super_admin', 'accountant'] },
+  { label: 'Change Password', href: '/change-password', icon: 'lock', roles: ['super_admin', 'accountant', 'hr', 'driver', 'owner'] },
   { label: 'Audit Log', href: '/audit', icon: 'shield', roles: ['super_admin'] },
 ]
 

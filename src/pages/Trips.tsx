@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Trip, CsvPreviewRow } from '../types'
@@ -48,6 +49,8 @@ export default function Trips() {
   const [showCreate, setShowCreate] = useState(false)
   const [showCsv, setShowCsv] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
+  const [confirmMsg, setConfirmMsg] = useState('')
 
   // CSV import state
   const [csvDriverId, setCsvDriverId] = useState('')
@@ -224,8 +227,13 @@ export default function Trips() {
                   <td className="py-3 px-4 text-muted max-w-xs truncate">{t.notes ?? '—'}</td>
                   {canManage && (
                     <td className="py-3 px-4">
-                      <button onClick={() => deleteMutation.mutate(t.id)}
-                        className="text-danger hover:text-red-700 transition-colors p-1">
+                      <button
+                        onClick={() => {
+                          setConfirmMsg(`Delete the trip for ${t.driver_name ?? 'this driver'} on ${formatDate(t.trip_date)}? This cannot be undone.`)
+                          setConfirmAction(() => () => deleteMutation.mutate(t.id))
+                        }}
+                        className="text-danger hover:text-red-700 transition-colors p-1"
+                      >
                         <span className="material-symbols-rounded text-[14px]">delete</span>
                       </button>
                     </td>
@@ -236,6 +244,17 @@ export default function Trips() {
           </table>
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Delete Trip"
+        message={confirmMsg}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => { confirmAction?.(); setConfirmAction(null) }}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       {/* Create Trip Modal */}
       <AnimatePresence>
@@ -255,6 +274,7 @@ export default function Trips() {
                   error={form.formState.errors.driver_id?.message}
                   {...form.register('driver_id')} />
                 <Input id="trip-date" label="Trip Date" type="date"
+                  max={new Date().toISOString().slice(0, 10)}
                   error={form.formState.errors.trip_date?.message}
                   {...form.register('trip_date')} />
                 <div className="grid grid-cols-3 gap-3">

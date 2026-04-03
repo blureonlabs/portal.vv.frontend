@@ -8,10 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
-import type { Driver, Vehicle } from '../types'
+import type { Driver, Owner, Vehicle } from '../types'
 
 const vehicleSchema = z.object({
   plate_number: z.string().min(1, 'Required'),
@@ -22,6 +24,7 @@ const vehicleSchema = z.object({
   registration_date: z.string().optional(),
   registration_expiry: z.string().optional(),
   insurance_expiry: z.string().optional(),
+  owner_id: z.string().optional(),
 })
 
 type VehicleForm = z.infer<typeof vehicleSchema>
@@ -45,6 +48,8 @@ export default function Vehicles() {
   const [assignVehicle, setAssignVehicle] = useState<Vehicle | null>(null)
   const [selectedDriver, setSelectedDriver] = useState('')
   const [apiError, setApiError] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
+  const [confirmMsg, setConfirmMsg] = useState('')
   const isSuperAdmin = user?.role === 'super_admin'
   const canAssign = isSuperAdmin || user?.role === 'hr'
 
@@ -57,6 +62,12 @@ export default function Vehicles() {
     queryKey: ['drivers'],
     queryFn: () => apiGet('/drivers'),
     enabled: !!assignVehicle,
+  })
+
+  const { data: owners = [] } = useQuery<Owner[]>({
+    queryKey: ['owners'],
+    queryFn: () => apiGet('/owners'),
+    enabled: showCreate || !!editVehicle,
   })
 
   const filtered = vehicles.filter((v) =>
@@ -106,6 +117,7 @@ export default function Vehicles() {
       registration_date: v.registration_date ?? '',
       registration_expiry: v.registration_expiry ?? '',
       insurance_expiry: v.insurance_expiry ?? '',
+      owner_id: (v as any).owner_id ?? '',
     })
   }
 
@@ -200,7 +212,10 @@ export default function Vehicles() {
                 )}
                 {canAssign && v.status === 'assigned' && (
                   <button
-                    onClick={() => unassignMutation.mutate(v.id)}
+                    onClick={() => {
+                      setConfirmMsg(`Unassign ${v.assigned_driver_name ?? 'the driver'} from ${v.plate_number}?`)
+                      setConfirmAction(() => () => unassignMutation.mutate(v.id))
+                    }}
                     className="flex-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                   >
                     Unassign
@@ -211,6 +226,17 @@ export default function Vehicles() {
           )
         })}
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Unassign Vehicle"
+        message={confirmMsg}
+        confirmLabel="Unassign"
+        variant="danger"
+        onConfirm={() => { confirmAction?.(); setConfirmAction(null) }}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       {/* Create / Edit Modal (shared form) */}
       <AnimatePresence>
@@ -264,6 +290,19 @@ export default function Vehicles() {
                 </div>
                 <Input id="ins_exp" label="Insurance Expiry" type="date"
                   {...form.register('insurance_expiry')} />
+
+                <Select
+                  id="owner_id"
+                  label="Owner (optional)"
+                  options={[
+                    { value: '', label: 'Company Owned' },
+                    ...owners.map((o) => ({
+                      value: o.id,
+                      label: o.company_name ? `${o.full_name} — ${o.company_name}` : o.full_name,
+                    })),
+                  ]}
+                  {...form.register('owner_id')}
+                />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 

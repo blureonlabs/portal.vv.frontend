@@ -92,7 +92,7 @@ export default function Dashboard() {
       {/* KPI Cards */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="bg-white rounded-2xl border border-border p-5 h-28 animate-pulse">
               <div className="h-3 bg-gray-200 rounded w-24 mb-3" />
               <div className="h-7 bg-gray-200 rounded w-16" />
@@ -148,6 +148,18 @@ export default function Dashboard() {
             icon="shield_with_heart"
             accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-red-500' : 'bg-gray-400'}
             onClick={() => navigate('/vehicles')}
+          />
+          <KpiCard
+            label="Total Expenses MTD"
+            value={formatAed(kpis.total_expenses_mtd)}
+            icon="receipt_long"
+            accent="bg-orange-500"
+          />
+          <KpiCard
+            label="Net Profit MTD"
+            value={formatAed(kpis.net_profit)}
+            icon="account_balance"
+            accent={parseFloat(kpis.net_profit) >= 0 ? 'bg-emerald-600' : 'bg-red-500'}
           />
         </div>
       ) : null}

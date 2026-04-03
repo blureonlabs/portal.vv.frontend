@@ -368,6 +368,8 @@ export interface DashboardKpis {
   active_vehicles: number
   pending_advances: number
   pending_leave: number
+  total_expenses_mtd: string
+  net_profit: string
   insurance_expiring_soon: InsuranceAlert[]
   top_drivers: DriverPerf[]
   revenue_trend: DayRevenue[]

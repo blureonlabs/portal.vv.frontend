@@ -23,6 +23,7 @@ import Advances from './pages/Advances'
 import HrRequests from './pages/HrRequests'
 import Invoices from './pages/Invoices'
 import Settings from './pages/Settings'
+import ChangePassword from './pages/ChangePassword'
 import AuditLog from './pages/AuditLog'
 import Reports from './pages/Reports'
 import SalaryPage from './pages/Salary'
@@ -141,6 +142,7 @@ export default function App() {
                       }
                     />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/change-password" element={<ChangePassword />} />
                     <Route
                       path="/audit"
                       element={
