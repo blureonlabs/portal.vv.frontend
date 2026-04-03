@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ToastContainer } from './components/ui/Toast'
 
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/AppLayout'
@@ -50,6 +51,7 @@ function RootRedirect() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastContainer />
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
