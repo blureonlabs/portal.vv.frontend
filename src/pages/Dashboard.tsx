@@ -522,12 +522,52 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Monthly Comparison placeholder */}
-          <PlaceholderCard
-            icon="bar_chart"
-            title="Monthly Comparison"
-            message="Month-over-month revenue and trip comparison chart coming soon."
-          />
+          {/* Bottom Drivers */}
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-primary">Bottom Drivers</p>
+              <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
+                MTD
+              </span>
+            </div>
+
+            {!kpis || kpis.bottom_drivers.length === 0 ? (
+              <div className="text-muted text-sm py-8 text-center">No trips this month</div>
+            ) : (
+              <div className="space-y-3">
+                {kpis.bottom_drivers.map((d, i) => {
+                  const maxRev = kpis.bottom_drivers.length > 0
+                    ? parseFloat(kpis.bottom_drivers[kpis.bottom_drivers.length - 1].revenue_aed)
+                    : 1
+                  const pct = maxRev > 0 ? (parseFloat(d.revenue_aed) / maxRev) * 100 : 0
+                  return (
+                    <div key={d.driver_id} className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100 text-red-700"
+                        >
+                          {i + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-primary truncate">{d.driver_name}</p>
+                          <p className="text-xs text-muted">{d.trips_count} trip{d.trips_count !== 1 ? 's' : ''}</p>
+                        </div>
+                        <p className="text-sm font-bold text-primary whitespace-nowrap">
+                          {formatAed(d.revenue_aed)}
+                        </p>
+                      </div>
+                      <div className="ml-8 h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-red-400 transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
 
           {/* Per-Driver Financials placeholder */}
           <PlaceholderCard

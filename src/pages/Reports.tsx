@@ -15,9 +15,10 @@ import type {
   CashFlowReport,
   LeaveReport,
   SalaryReport,
+  VehicleReport,
 } from '../types'
 
-type TabId = 'drivers' | 'trips' | 'finance' | 'advances' | 'cash-flow' | 'leave' | 'salary'
+type TabId = 'drivers' | 'trips' | 'finance' | 'advances' | 'cash-flow' | 'leave' | 'salary' | 'vehicles'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -102,6 +103,13 @@ export default function Reports() {
     enabled: tab === 'salary',
   })
 
+  // Vehicle report
+  const { data: vehicleData = [], isLoading: loadingVehicles } = useQuery<VehicleReport[]>({
+    queryKey: ['reports', 'vehicles', from, to],
+    queryFn: () => apiGet(`/reports/vehicles?from=${from}&to=${to}`),
+    enabled: tab === 'vehicles',
+  })
+
   const handleExportCsv = async () => {
     setExporting(true)
     try {
@@ -119,8 +127,10 @@ export default function Reports() {
         path = `/reports/cash-flow?from=${from}&to=${to}&format=csv`; filename = 'cash_flow.csv'
       } else if (tab === 'leave') {
         path = `/reports/leave?from=${from}&to=${to}&format=csv`; filename = 'leave_report.csv'
-      } else {
+      } else if (tab === 'salary') {
         path = `/reports/salary?from=${from}&to=${to}&format=csv`; filename = 'salary_report.csv'
+      } else {
+        path = `/reports/vehicles?from=${from}&to=${to}&format=csv`; filename = 'vehicle_report.csv'
       }
       const blob = await apiFetchRaw(path)
       downloadBlob(blob, filename)
@@ -137,6 +147,7 @@ export default function Reports() {
     { id: 'cash-flow', label: 'Cash Flow' },
     { id: 'leave', label: 'Leave Report' },
     { id: 'salary', label: 'Salary Summary' },
+    { id: 'vehicles', label: 'Vehicles' },
   ]
 
   return (
@@ -211,6 +222,9 @@ export default function Reports() {
       )}
       {tab === 'salary' && (
         <SalaryReportTable rows={salaryData} loading={loadingSalary} />
+      )}
+      {tab === 'vehicles' && (
+        <VehicleReportTable rows={vehicleData} loading={loadingVehicles} />
       )}
     </div>
   )
@@ -519,6 +533,57 @@ function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: b
                 <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.gross)}</td>
                 <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.deductions)}</td>
                 <td className="py-2.5 px-4 text-right font-semibold text-green-700">{formatAed(r.net_payable)}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function VehicleReportTable({ rows, loading }: { rows: VehicleReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Plate</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Make / Model</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Status</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Owner</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Current Driver</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Insurance Expiry</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Services</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Last Service</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={8} className="py-12 text-center text-muted">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={8} className="py-12 text-center text-muted">No vehicle data</td></tr>
+          ) : (
+            rows.map((r) => (
+              <tr key={r.plate_number} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.plate_number}</td>
+                <td className="py-2.5 px-4 text-primary">{r.make} {r.model}</td>
+                <td className="py-2.5 px-4">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    r.status === 'available'
+                      ? 'bg-green-100 text-green-800'
+                      : r.status === 'assigned'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {r.status}
+                  </span>
+                </td>
+                <td className="py-2.5 px-4 text-muted">{r.owner_name ?? '—'}</td>
+                <td className="py-2.5 px-4 text-muted">{r.current_driver ?? '—'}</td>
+                <td className="py-2.5 px-4 text-muted">{r.insurance_expiry ?? '—'}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{r.service_count}</td>
+                <td className="py-2.5 px-4 text-muted">{r.last_service_date ?? '—'}</td>
               </tr>
             ))
           )}

@@ -62,6 +62,7 @@ export default function HrRequests() {
   const [showSubmit, setShowSubmit] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<LeaveRequest | null>(null)
   const [apiError, setApiError] = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const buildParams = () => {
     const p = new URLSearchParams()
@@ -118,6 +119,24 @@ export default function HrRequests() {
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
 
+  const bulkApproveMutation = useMutation({
+    mutationFn: (request_ids: string[]) => apiPost('/hr/requests/bulk-approve', { request_ids }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['leave'] })
+      setSelectedIds(new Set())
+    },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+  })
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   const driverOptions = [
     { value: '', label: 'All drivers' },
     ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
@@ -134,10 +153,22 @@ export default function HrRequests() {
             {pending > 0 ? `${pending} pending request${pending !== 1 ? 's' : ''}` : 'All caught up'}
           </p>
         </div>
-        <Button onClick={() => { setShowSubmit(true); setApiError('') }}>
-          <span className="material-symbols-rounded text-[16px]">add</span>
-          New Request
-        </Button>
+        <div className="flex items-center gap-2">
+          {canAction && selectedIds.size > 0 && (
+            <Button
+              variant="outline"
+              loading={bulkApproveMutation.isPending}
+              onClick={() => { setApiError(''); bulkApproveMutation.mutate(Array.from(selectedIds)) }}
+            >
+              <span className="material-symbols-rounded text-[16px]">done_all</span>
+              Approve Selected ({selectedIds.size})
+            </Button>
+          )}
+          <Button onClick={() => { setShowSubmit(true); setApiError('') }}>
+            <span className="material-symbols-rounded text-[16px]">add</span>
+            New Request
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -176,6 +207,7 @@ export default function HrRequests() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
+                {canAction && <th className="py-3 px-4 w-10" />}
                 <th className="text-left py-3 px-4 text-muted font-medium">Driver</th>
                 <th className="text-left py-3 px-4 text-muted font-medium">Type</th>
                 <th className="text-left py-3 px-4 text-muted font-medium">Dates</th>
@@ -188,6 +220,18 @@ export default function HrRequests() {
             <tbody>
               {requests.map((r) => (
                 <tr key={r.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+                  {canAction && (
+                    <td className="py-3 px-4">
+                      {r.status === 'pending' && (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(r.id)}
+                          onChange={() => toggleSelect(r.id)}
+                          className="rounded border-border text-accent focus:ring-accent"
+                        />
+                      )}
+                    </td>
+                  )}
                   <td className="py-3 px-4 font-medium text-primary">{r.driver_name}</td>
                   <td className="py-3 px-4">
                     <Badge variant={r.type === 'leave' ? 'default' : 'warning'}>

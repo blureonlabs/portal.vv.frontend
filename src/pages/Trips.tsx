@@ -99,6 +99,15 @@ export default function Trips() {
   const totalOther = trips.reduce((s, t) => s + parseFloat(t.other_aed), 0)
   const grandTotal = trips.reduce((s, t) => s + parseFloat(t.total_aed), 0)
 
+  // Conflict detection: flag trips where same driver+date appears more than once
+  const conflictKeys = new Set<string>()
+  const seenKeys = new Set<string>()
+  trips.forEach((t) => {
+    const key = `${t.driver_id}-${t.trip_date}`
+    if (seenKeys.has(key)) conflictKeys.add(key)
+    seenKeys.add(key)
+  })
+
   // CSV handlers
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -230,7 +239,19 @@ export default function Trips() {
             <tbody>
               {trips.map((t) => (
                 <tr key={t.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
-                  <td className="py-3 px-4 text-primary">{formatDate(t.trip_date)}</td>
+                  <td className="py-3 px-4 text-primary">
+                    <span className="inline-flex items-center gap-1">
+                      {formatDate(t.trip_date)}
+                      {conflictKeys.has(`${t.driver_id}-${t.trip_date}`) && (
+                        <span
+                          className="material-symbols-rounded text-[14px] text-amber-500"
+                          title="Duplicate trip: same driver has another trip on this date"
+                        >
+                          warning
+                        </span>
+                      )}
+                    </span>
+                  </td>
                   {canManage && <td className="py-3 px-4 font-medium text-primary">{t.driver_name}</td>}
                   <td className="py-3 px-4 text-right text-primary">{formatAed(parseFloat(t.cash_aed))}</td>
                   <td className="py-3 px-4 text-right text-muted">{formatAed(parseFloat(t.card_aed))}</td>

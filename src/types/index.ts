@@ -393,6 +393,7 @@ export interface DashboardKpis {
   net_profit: string
   insurance_expiring_soon: InsuranceAlert[]
   top_drivers: DriverPerf[]
+  bottom_drivers: DriverPerf[]
   revenue_trend: DayRevenue[]
 }
 
@@ -427,4 +428,16 @@ export interface SalaryReport {
   gross: string
   deductions: string
   net_payable: string
+}
+
+export interface VehicleReport {
+  plate_number: string
+  make: string
+  model: string
+  status: string
+  owner_name: string | null
+  current_driver: string | null
+  insurance_expiry: string | null
+  service_count: number
+  last_service_date: string | null
 }

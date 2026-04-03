@@ -125,7 +125,7 @@ export default function Invoices() {
                   <th className="text-left py-3 px-4 text-muted font-medium">Period</th>
                   <th className="text-right py-3 px-4 text-muted font-medium">Total</th>
                   <th className="text-left py-3 px-4 text-muted font-medium">Generated</th>
-                  <th className="text-left py-3 px-4 text-muted font-medium">PDF</th>
+                  <th className="text-left py-3 px-4 text-muted font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,14 +142,31 @@ export default function Invoices() {
                     <td className="py-3 px-4 text-muted">{formatDate(inv.created_at)}</td>
                     <td className="py-3 px-4">
                       {inv.pdf_url ? (
-                        <a
-                          href={inv.pdf_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
-                        >
-                          <span className="material-symbols-rounded text-[12px]">download</span> Download
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => window.open(inv.pdf_url!, '_blank')}
+                            className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                          >
+                            <span className="material-symbols-rounded text-[12px]">visibility</span> Preview
+                          </button>
+                          <button
+                            onClick={() => {
+                              const w = window.open(inv.pdf_url!)
+                              if (w) w.onload = () => w.print()
+                            }}
+                            className="inline-flex items-center gap-1 text-xs text-muted hover:text-primary hover:underline"
+                          >
+                            <span className="material-symbols-rounded text-[12px]">print</span> Print
+                          </button>
+                          <a
+                            href={inv.pdf_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-muted hover:underline"
+                          >
+                            <span className="material-symbols-rounded text-[12px]">download</span>
+                          </a>
+                        </div>
                       ) : (
                         <span className="text-xs text-muted">—</span>
                       )}
