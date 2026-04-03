@@ -12,21 +12,61 @@ import { Badge } from '../components/ui/Badge'
 import { formatDate } from '../lib/utils'
 import type { Invite, User } from '../types'
 
-// ── Invite form ───────────────────────────────────────────────────────────────
-
-const inviteSchema = z.object({
-  email: z.string().email('Valid email required'),
-  full_name: z.string().min(2, 'Full name required'),
-  role: z.enum(['super_admin', 'accountant', 'hr', 'driver']),
-})
-type InviteForm = z.infer<typeof inviteSchema>
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const ROLE_OPTIONS = [
   { value: 'super_admin', label: 'Super Admin' },
   { value: 'accountant', label: 'Accountant' },
   { value: 'hr', label: 'HR' },
   { value: 'driver', label: 'Driver' },
+  { value: 'owner', label: 'Owner' },
 ]
+
+const SALARY_OPTIONS = [
+  { value: 'commission', label: 'Commission (30%)' },
+  { value: 'target_high', label: 'Target High (AED 12,300)' },
+  { value: 'target_low', label: 'Target Low (AED 6,600)' },
+]
+
+// ── Schemas ───────────────────────────────────────────────────────────────────
+
+// Base fields shared across all paths
+const baseSchema = z.object({
+  email: z.string().email('Valid email required'),
+  full_name: z.string().min(2, 'Full name required'),
+  role: z.enum(['super_admin', 'accountant', 'hr', 'driver', 'owner']),
+  phone: z.string().optional(),
+})
+
+// Driver creation: requires password, nationality, salary_type
+const driverSchema = baseSchema.extend({
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  nationality: z.string().min(2, 'Nationality required'),
+  salary_type: z.enum(['commission', 'target_high', 'target_low']),
+  company_name: z.string().optional(),
+})
+
+// Owner creation: requires password, optional company_name
+const ownerSchema = baseSchema.extend({
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  nationality: z.string().optional(),
+  salary_type: z.enum(['commission', 'target_high', 'target_low']).optional(),
+  company_name: z.string().optional(),
+})
+
+// Invite flow (non-driver, non-owner): no password
+const inviteSchema = baseSchema.extend({
+  password: z.string().optional(),
+  nationality: z.string().optional(),
+  salary_type: z.enum(['commission', 'target_high', 'target_low']).optional(),
+  company_name: z.string().optional(),
+})
+
+// Combined discriminated schema — we use the loose inviteSchema for the form
+// and apply conditional validation in onSubmit
+type UserForm = z.infer<typeof inviteSchema>
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function roleLabel(role: string) {
   return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role
@@ -54,7 +94,7 @@ function expiryCountdown(expiresAt: string) {
 
 export default function UserManagement() {
   const qc = useQueryClient()
-  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [apiError, setApiError] = useState('')
 
   const { data: users = [] } = useQuery<User[]>({
@@ -67,12 +107,48 @@ export default function UserManagement() {
     queryFn: () => apiGet('/users/invites'),
   })
 
+  // Invite mutation (for non-driver/owner roles)
   const inviteMutation = useMutation({
-    mutationFn: (body: InviteForm) => apiPost('/users/invite', body),
+    mutationFn: (body: { email: string; full_name: string; role: string }) =>
+      apiPost('/users/invite', body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invites'] })
-      setShowInviteModal(false)
-      reset()
+      closeModal()
+    },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+  })
+
+  // Driver create-with-account mutation
+  const driverMutation = useMutation({
+    mutationFn: (body: {
+      email: string
+      password: string
+      full_name: string
+      phone?: string
+      nationality: string
+      salary_type: string
+    }) => apiPost('/drivers/create-with-account', body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['users'] })
+      qc.invalidateQueries({ queryKey: ['drivers'] })
+      closeModal()
+    },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+  })
+
+  // Owner create-with-account mutation
+  const ownerMutation = useMutation({
+    mutationFn: (body: {
+      email: string
+      password: string
+      full_name: string
+      phone?: string
+      company_name?: string
+    }) => apiPost('/owners/create-with-account', body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['users'] })
+      qc.invalidateQueries({ queryKey: ['owners'] })
+      closeModal()
     },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
@@ -87,15 +163,77 @@ export default function UserManagement() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['invites'] }),
   })
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<InviteForm>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<UserForm>({
     resolver: zodResolver(inviteSchema),
-    defaultValues: { role: 'driver' },
+    defaultValues: { role: 'super_admin' },
   })
 
-  const onInvite = (data: InviteForm) => {
+  const selectedRole = watch('role')
+  const isDriver = selectedRole === 'driver'
+  const isOwner = selectedRole === 'owner'
+  const needsDirectAccount = isDriver || isOwner
+
+  function closeModal() {
+    setShowModal(false)
     setApiError('')
-    inviteMutation.mutate(data)
+    reset()
   }
+
+  const onSubmit = (data: UserForm) => {
+    setApiError('')
+
+    if (isDriver) {
+      // Validate driver-specific fields manually
+      const parsed = driverSchema.safeParse(data)
+      if (!parsed.success) {
+        const first = parsed.error.errors[0]
+        setApiError(first?.message ?? 'Validation error')
+        return
+      }
+      driverMutation.mutate({
+        email: data.email,
+        password: data.password!,
+        full_name: data.full_name,
+        phone: data.phone || undefined,
+        nationality: data.nationality!,
+        salary_type: data.salary_type!,
+      })
+      return
+    }
+
+    if (isOwner) {
+      const parsed = ownerSchema.safeParse(data)
+      if (!parsed.success) {
+        const first = parsed.error.errors[0]
+        setApiError(first?.message ?? 'Validation error')
+        return
+      }
+      ownerMutation.mutate({
+        email: data.email,
+        password: data.password!,
+        full_name: data.full_name,
+        phone: data.phone || undefined,
+        company_name: data.company_name || undefined,
+      })
+      return
+    }
+
+    // Standard invite flow
+    inviteMutation.mutate({
+      email: data.email,
+      full_name: data.full_name,
+      role: data.role,
+    })
+  }
+
+  const isPending =
+    inviteMutation.isPending || driverMutation.isPending || ownerMutation.isPending || isSubmitting
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -104,9 +242,9 @@ export default function UserManagement() {
           <h1 className="text-2xl font-bold text-primary">Users</h1>
           <p className="text-sm text-muted mt-1">Manage team members and invitations</p>
         </div>
-        <Button onClick={() => setShowInviteModal(true)}>
+        <Button onClick={() => setShowModal(true)}>
           <span className="material-symbols-rounded text-[16px]">person_add</span>
-          Invite User
+          Add User
         </Button>
       </div>
 
@@ -220,30 +358,49 @@ export default function UserManagement() {
         </div>
       </section>
 
-      {/* Invite Modal */}
+      {/* Add User Modal */}
       <AnimatePresence>
-        {showInviteModal && (
+        {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/40"
-              onClick={() => setShowInviteModal(false)}
+              onClick={closeModal}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
+              className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
             >
-              <h2 className="text-lg font-bold text-primary mb-1">Invite Team Member</h2>
-              <p className="text-sm text-muted mb-6">They'll receive a 24-hour invite link by email.</p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="material-symbols-rounded text-[20px] text-accent">manage_accounts</span>
+                <h2 className="text-lg font-bold text-primary">
+                  {isDriver ? 'Add Driver' : isOwner ? 'Add Owner' : 'Invite Team Member'}
+                </h2>
+              </div>
+              <p className="text-sm text-muted mb-6">
+                {needsDirectAccount
+                  ? 'Create a new account with credentials directly.'
+                  : "They'll receive a 24-hour invite link by email."}
+              </p>
 
-              <form onSubmit={handleSubmit(onInvite)} className="flex flex-col gap-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                {/* Role — always first */}
+                <Select
+                  id="um-role"
+                  label="Role"
+                  options={ROLE_OPTIONS}
+                  error={errors.role?.message}
+                  {...register('role')}
+                />
+
+                {/* Common fields */}
                 <Input
-                  id="inv-email"
+                  id="um-email"
                   label="Email Address"
                   type="email"
                   placeholder="user@example.com"
@@ -252,20 +409,65 @@ export default function UserManagement() {
                 />
 
                 <Input
-                  id="inv-name"
+                  id="um-name"
                   label="Full Name"
                   placeholder="John Doe"
                   error={errors.full_name?.message}
                   {...register('full_name')}
                 />
 
-                <Select
-                  id="inv-role"
-                  label="Role"
-                  options={ROLE_OPTIONS}
-                  error={errors.role?.message}
-                  {...register('role')}
+                {/* Phone — for all roles */}
+                <Input
+                  id="um-phone"
+                  label="Phone (optional)"
+                  type="tel"
+                  placeholder="+971 50 000 0000"
+                  error={errors.phone?.message}
+                  {...register('phone')}
                 />
+
+                {/* Password — only when creating direct account */}
+                {needsDirectAccount && (
+                  <Input
+                    id="um-password"
+                    label="Password"
+                    type="password"
+                    placeholder="Min. 8 characters"
+                    error={errors.password?.message}
+                    {...register('password')}
+                  />
+                )}
+
+                {/* Driver-specific fields */}
+                {isDriver && (
+                  <>
+                    <Input
+                      id="um-nationality"
+                      label="Nationality"
+                      placeholder="e.g. Indian"
+                      error={errors.nationality?.message}
+                      {...register('nationality')}
+                    />
+                    <Select
+                      id="um-salary-type"
+                      label="Salary Type"
+                      options={SALARY_OPTIONS}
+                      error={errors.salary_type?.message}
+                      {...register('salary_type')}
+                    />
+                  </>
+                )}
+
+                {/* Owner-specific fields */}
+                {isOwner && (
+                  <Input
+                    id="um-company"
+                    label="Company Name (optional)"
+                    placeholder="e.g. Al Faris Transport LLC"
+                    error={errors.company_name?.message}
+                    {...register('company_name')}
+                  />
+                )}
 
                 {apiError && (
                   <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>
@@ -276,12 +478,12 @@ export default function UserManagement() {
                     type="button"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => setShowInviteModal(false)}
+                    onClick={closeModal}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" loading={isSubmitting} className="flex-1">
-                    Send Invite
+                  <Button type="submit" loading={isPending} className="flex-1">
+                    {isDriver ? 'Create Driver' : isOwner ? 'Create Owner' : 'Send Invite'}
                   </Button>
                 </div>
               </form>
