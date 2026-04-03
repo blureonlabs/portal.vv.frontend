@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
-import { supabase } from '../lib/supabase'
+import { supabase, LOGO_URL } from '../lib/supabase'
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { Input } from '../components/ui/Input'
@@ -61,9 +61,7 @@ export default function Login() {
         <div className="bg-white rounded-2xl border border-border shadow-sm p-8">
           {/* Logo / Brand */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-md">
-              <span className="material-symbols-rounded text-white text-3xl">directions_car</span>
-            </div>
+            <img src={LOGO_URL} alt="Voiture Voyages" className="h-14 mb-4" />
             <h1 className="text-xl font-bold text-primary tracking-tight">Voiture Voyages</h1>
             <p className="text-sm text-muted mt-1">Sign in to your account</p>
           </div>
