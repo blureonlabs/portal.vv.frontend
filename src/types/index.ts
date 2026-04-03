@@ -379,6 +379,31 @@ export interface Document {
   created_at: string
 }
 
+export interface CashShortfallAlert {
+  driver_id: string
+  driver_name: string
+  cash_received: string
+  cash_submitted: string
+  shortfall: string
+}
+
+export interface ServiceOverdueAlert {
+  vehicle_id: string
+  plate_number: string
+  service_type: string
+  next_due: string
+}
+
+export interface DriverFinancial {
+  driver_id: string
+  driver_name: string
+  cash_received: string
+  cash_submitted: string
+  shortfall: string
+  card_total: string
+  expenses_total: string
+}
+
 export interface DashboardKpis {
   revenue_mtd: string
   revenue_cash_mtd: string
@@ -395,6 +420,8 @@ export interface DashboardKpis {
   top_drivers: DriverPerf[]
   bottom_drivers: DriverPerf[]
   revenue_trend: DayRevenue[]
+  cash_shortfall_drivers: CashShortfallAlert[]
+  service_overdue_vehicles: ServiceOverdueAlert[]
 }
 
 export interface AdvanceReport {

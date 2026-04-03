@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { AvatarUpload } from './AvatarUpload'
+import { NotificationPanel, useNotificationCount } from './NotificationPanel'
 import type { Role } from '../types'
 
 interface NavItem {
@@ -35,6 +37,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, clear } = useAuthStore()
+  const [panelOpen, setPanelOpen] = useState(false)
+  const { unreadCount } = useNotificationCount()
 
   const visibleNav = NAV_ITEMS.filter((item) =>
     user?.role ? item.roles.includes(user.role) : false
@@ -47,12 +51,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <>
     <div className="flex h-screen overflow-hidden bg-surface">
       {/* Sidebar */}
       <aside className="w-[260px] flex-shrink-0 bg-primary flex flex-col">
-        {/* Logo */}
-        <div className="h-16 flex items-center px-6">
+        {/* Logo + Bell */}
+        <div className="h-16 flex items-center justify-between px-6">
           <span className="text-white font-bold text-lg tracking-tight">Voiture Voyages</span>
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Open notifications"
+          >
+            <span className="material-symbols-rounded text-[22px] text-white/60 hover:text-white">notifications</span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Nav */}
@@ -101,5 +118,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
     </div>
+
+    <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
+    </>
   )
 }

@@ -7,7 +7,7 @@ import {
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
-import type { DashboardKpis } from '../types'
+import type { DashboardKpis, DriverFinancial } from '../types'
 
 /** Material Symbols icon helper */
 function MsIcon({ name, className }: { name: string; className?: string }) {
@@ -128,6 +128,13 @@ export default function Dashboard() {
     refetchInterval: 120_000,
   })
 
+  const { data: driverFinancials } = useQuery<DriverFinancial[]>({
+    queryKey: ['dashboard-driver-financials'],
+    queryFn: () => apiGet('/dashboard/driver-financials'),
+    staleTime: 60_000,
+    refetchInterval: 120_000,
+  })
+
   // Revenue trend chart data
   const chartData = kpis?.revenue_trend.map((d) => ({
     date: new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
@@ -198,6 +205,49 @@ export default function Dashboard() {
                   ? <>insurance <strong>expired</strong> on {new Date(a.insurance_expiry).toLocaleDateString('en-GB')}</>
                   : <>insurance expires in <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}({new Date(a.insurance_expiry).toLocaleDateString('en-GB')})</>
                 }
+              </span>
+              <button
+                onClick={() => navigate('/vehicles')}
+                className="ml-auto text-xs underline underline-offset-2 whitespace-nowrap"
+              >
+                View vehicles
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Cash Shortfall Alerts ── */}
+      {kpis && kpis.cash_shortfall_drivers.length > 0 && (
+        <div className="space-y-2">
+          {kpis.cash_shortfall_drivers.map((a) => (
+            <div
+              key={a.driver_id}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-red-50 border border-red-200 text-red-800"
+            >
+              <MsIcon name="account_balance_wallet" className="text-lg flex-shrink-0" />
+              <span>
+                <strong>{a.driver_name}</strong> has a cash shortfall of{' '}
+                <strong>{formatAed(a.shortfall)}</strong>{' '}
+                (received {formatAed(a.cash_received)}, submitted {formatAed(a.cash_submitted)})
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Service Overdue Alerts ── */}
+      {kpis && kpis.service_overdue_vehicles.length > 0 && (
+        <div className="space-y-2">
+          {kpis.service_overdue_vehicles.map((a) => (
+            <div
+              key={a.vehicle_id}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-amber-50 border border-amber-200 text-amber-800"
+            >
+              <MsIcon name="build" className="text-lg flex-shrink-0" />
+              <span>
+                Vehicle <strong>{a.plate_number}</strong> — {a.service_type} service was due on{' '}
+                <strong>{new Date(a.next_due).toLocaleDateString('en-GB')}</strong>
               </span>
               <button
                 onClick={() => navigate('/vehicles')}
@@ -571,12 +621,59 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Per-Driver Financials placeholder */}
-          <PlaceholderCard
-            icon="manage_accounts"
-            title="Per-Driver Financials"
-            message="Drill-down into individual driver revenue, expenses, and net earnings coming soon."
-          />
+          {/* Per-Driver Financials */}
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-primary">Per-Driver Financials</p>
+              <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
+                MTD
+              </span>
+            </div>
+
+            {!driverFinancials ? (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+                ))}
+              </div>
+            ) : driverFinancials.length === 0 ? (
+              <div className="text-muted text-sm py-8 text-center">No data this month</div>
+            ) : (
+              <div className="overflow-auto flex-1">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-muted uppercase tracking-wide border-b border-border">
+                      <th className="text-left pb-2 pr-2 font-semibold">Driver</th>
+                      <th className="text-right pb-2 pr-2 font-semibold">Cash In</th>
+                      <th className="text-right pb-2 pr-2 font-semibold">Submitted</th>
+                      <th className="text-right pb-2 pr-2 font-semibold">Card</th>
+                      <th className="text-right pb-2 font-semibold">Expenses</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {driverFinancials.map((d) => {
+                      const shortfall = parseFloat(d.shortfall)
+                      return (
+                        <tr key={d.driver_id} className="border-b border-border/50 last:border-0">
+                          <td className="py-2 pr-2 font-medium text-primary truncate max-w-[80px]">
+                            {d.driver_name}
+                          </td>
+                          <td className="py-2 pr-2 text-right text-primary">{formatAed(d.cash_received)}</td>
+                          <td className="py-2 pr-2 text-right">
+                            <span className={shortfall > 0 ? 'text-red-600 font-semibold' : 'text-primary'}>
+                              {formatAed(d.cash_submitted)}
+                            </span>
+                          </td>
+                          <td className="py-2 pr-2 text-right text-primary">{formatAed(d.card_total)}</td>
+                          <td className="py-2 text-right text-orange-600">{formatAed(d.expenses_total)}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
