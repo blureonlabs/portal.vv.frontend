@@ -11,6 +11,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, Owner, Vehicle } from '../types'
@@ -53,7 +54,7 @@ export default function Vehicles() {
   const isSuperAdmin = user?.role === 'super_admin'
   const canAssign = isSuperAdmin || user?.role === 'hr'
 
-  const { data: vehicles = [] } = useQuery<Vehicle[]>({
+  const { data: vehicles = [], isLoading: vehiclesLoading } = useQuery<Vehicle[]>({
     queryKey: ['vehicles'],
     queryFn: () => apiGet('/vehicles'),
   })
@@ -149,12 +150,13 @@ export default function Vehicles() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.length === 0 && (
+        {vehiclesLoading && Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+        {!vehiclesLoading && filtered.length === 0 && (
           <p className="col-span-full text-center text-muted py-12 text-sm">
             {search ? 'No vehicles match your search' : 'No vehicles yet'}
           </p>
         )}
-        {filtered.map((v) => {
+        {!vehiclesLoading && filtered.map((v) => {
           const insLeft = insuranceDaysLeft(v.insurance_expiry)
           const insuranceAlert = insLeft !== null && insLeft <= 30
 

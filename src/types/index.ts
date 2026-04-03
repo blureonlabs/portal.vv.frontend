@@ -9,6 +9,7 @@ export interface User {
   role: Role
   phone?: string | null
   is_active: boolean
+  avatar_url?: string | null
   created_at: string
 }
 
@@ -335,6 +336,7 @@ export interface InsuranceAlert {
   plate_number: string
   insurance_expiry: string
   days_left: number
+  is_expired: boolean
 }
 
 export interface DriverPerf {
@@ -392,4 +394,37 @@ export interface DashboardKpis {
   insurance_expiring_soon: InsuranceAlert[]
   top_drivers: DriverPerf[]
   revenue_trend: DayRevenue[]
+}
+
+export interface AdvanceReport {
+  driver_name: string
+  total_requested: string
+  total_approved: string
+  total_paid: string
+  outstanding_balance: string
+}
+
+export interface CashFlowReport {
+  driver_name: string
+  total_cash_received: string
+  total_cash_submitted: string
+  shortfall: string
+}
+
+export interface LeaveReport {
+  driver_name: string
+  total_leave_days: number
+  total_permissions: number
+  pending_count: number
+  approved_count: number
+  rejected_count: number
+}
+
+export interface SalaryReport {
+  driver_name: string
+  period: string
+  salary_type: string
+  gross: string
+  deductions: string
+  net_payable: string
 }

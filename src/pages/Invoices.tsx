@@ -8,6 +8,7 @@ import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
+import { Pagination } from '../components/ui/Pagination'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Invoice } from '../types'
@@ -33,6 +34,8 @@ export default function Invoices() {
   const [driverFilter, setDriverFilter] = useState('')
   const [showGenerate, setShowGenerate] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 25
 
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
     queryKey: ['invoices', driverFilter],
@@ -68,6 +71,9 @@ export default function Invoices() {
     { value: '', label: 'All drivers' },
     ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
   ]
+
+  const totalPages = Math.ceil(invoices.length / PAGE_SIZE)
+  const pagedInvoices = invoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleGenerate = (data: GenerateForm) => {
     const driver = drivers.find((d) => d.id === data.driver_id)
@@ -109,49 +115,52 @@ export default function Invoices() {
       ) : invoices.length === 0 ? (
         <p className="text-sm text-muted text-center py-12">No invoices yet.</p>
       ) : (
-        <div className="bg-white rounded-xl border border-border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-3 px-4 text-muted font-medium">Invoice No</th>
-                <th className="text-left py-3 px-4 text-muted font-medium">Driver</th>
-                <th className="text-left py-3 px-4 text-muted font-medium">Period</th>
-                <th className="text-right py-3 px-4 text-muted font-medium">Total</th>
-                <th className="text-left py-3 px-4 text-muted font-medium">Generated</th>
-                <th className="text-left py-3 px-4 text-muted font-medium">PDF</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
-                  <td className="py-3 px-4 font-mono text-sm font-medium text-primary">{inv.invoice_no}</td>
-                  <td className="py-3 px-4 text-primary">{inv.driver_name}</td>
-                  <td className="py-3 px-4 text-muted">
-                    {formatDate(inv.period_start)} – {formatDate(inv.period_end)}
-                  </td>
-                  <td className="py-3 px-4 text-right font-semibold text-primary">
-                    {formatAed(parseFloat(inv.total_aed))}
-                  </td>
-                  <td className="py-3 px-4 text-muted">{formatDate(inv.created_at)}</td>
-                  <td className="py-3 px-4">
-                    {inv.pdf_url ? (
-                      <a
-                        href={inv.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
-                      >
-                        <span className="material-symbols-rounded text-[12px]">download</span> Download
-                      </a>
-                    ) : (
-                      <span className="text-xs text-muted">—</span>
-                    )}
-                  </td>
+        <>
+          <div className="bg-white rounded-xl border border-border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 text-muted font-medium">Invoice No</th>
+                  <th className="text-left py-3 px-4 text-muted font-medium">Driver</th>
+                  <th className="text-left py-3 px-4 text-muted font-medium">Period</th>
+                  <th className="text-right py-3 px-4 text-muted font-medium">Total</th>
+                  <th className="text-left py-3 px-4 text-muted font-medium">Generated</th>
+                  <th className="text-left py-3 px-4 text-muted font-medium">PDF</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pagedInvoices.map((inv) => (
+                  <tr key={inv.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+                    <td className="py-3 px-4 font-mono text-sm font-medium text-primary">{inv.invoice_no}</td>
+                    <td className="py-3 px-4 text-primary">{inv.driver_name}</td>
+                    <td className="py-3 px-4 text-muted">
+                      {formatDate(inv.period_start)} – {formatDate(inv.period_end)}
+                    </td>
+                    <td className="py-3 px-4 text-right font-semibold text-primary">
+                      {formatAed(parseFloat(inv.total_aed))}
+                    </td>
+                    <td className="py-3 px-4 text-muted">{formatDate(inv.created_at)}</td>
+                    <td className="py-3 px-4">
+                      {inv.pdf_url ? (
+                        <a
+                          href={inv.pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                        >
+                          <span className="material-symbols-rounded text-[12px]">download</span> Download
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
       )}
 
       {/* Generate Modal */}

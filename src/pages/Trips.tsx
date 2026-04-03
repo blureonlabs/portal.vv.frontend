@@ -134,6 +134,17 @@ export default function Trips() {
   const validRows = csvPreview?.filter((r) => !r.error) ?? []
   const errorRows = csvPreview?.filter((r) => r.error) ?? []
 
+  const downloadTemplate = () => {
+    const csv = 'driver_id,trip_date,cash_aed,card_aed,other_aed,notes\n'
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'trip_template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -144,6 +155,10 @@ export default function Trips() {
         </div>
         {canManage && (
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={downloadTemplate}>
+              <span className="material-symbols-rounded text-[16px]">download</span>
+              Template
+            </Button>
             <Button variant="outline" onClick={() => { setShowCsv(true); setApiError('') }}>
               <span className="material-symbols-rounded text-[16px]">upload</span>
               CSV Import

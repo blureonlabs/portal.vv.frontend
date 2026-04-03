@@ -11,6 +11,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { Pagination } from '../components/ui/Pagination'
 import { formatDate } from '../lib/utils'
 import type { Invite, User } from '../types'
 
@@ -101,6 +102,8 @@ export default function UserManagement() {
   const [apiError, setApiError] = useState('')
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
   const [confirmMsg, setConfirmMsg] = useState('')
+  const [usersPage, setUsersPage] = useState(1)
+  const PAGE_SIZE = 25
 
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['users'],
@@ -240,6 +243,9 @@ export default function UserManagement() {
   const isPending =
     inviteMutation.isPending || driverMutation.isPending || ownerMutation.isPending || isSubmitting
 
+  const usersTotalPages = Math.ceil(users.length / PAGE_SIZE)
+  const pagedUsers = users.slice((usersPage - 1) * PAGE_SIZE, usersPage * PAGE_SIZE)
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -273,7 +279,7 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {users.map((u) => (
+                {pagedUsers.map((u) => (
                   <tr
                     key={u.id}
                     className="hover:bg-surface/50 transition-colors cursor-pointer"
@@ -299,6 +305,7 @@ export default function UserManagement() {
             </table>
           )}
         </div>
+        <Pagination page={usersPage} totalPages={usersTotalPages} onPageChange={setUsersPage} />
       </section>
 
       {/* Pending Invites */}

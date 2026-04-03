@@ -11,6 +11,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
 
@@ -50,7 +51,7 @@ export default function Drivers() {
   const [confirmTitle, setConfirmTitle] = useState('')
   const isSuperAdmin = user?.role === 'super_admin'
 
-  const { data: drivers = [] } = useQuery<Driver[]>({
+  const { data: drivers = [], isLoading: driversLoading } = useQuery<Driver[]>({
     queryKey: ['drivers'],
     queryFn: () => apiGet('/drivers'),
   })
@@ -145,12 +146,13 @@ export default function Drivers() {
 
       {/* Driver Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.length === 0 && (
+        {driversLoading && Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+        {!driversLoading && filtered.length === 0 && (
           <p className="col-span-full text-center text-muted py-12 text-sm">
             {search ? 'No drivers match your search' : 'No drivers yet'}
           </p>
         )}
-        {filtered.map((driver) => (
+        {!driversLoading && filtered.map((driver) => (
           <motion.div
             key={driver.id}
             layout

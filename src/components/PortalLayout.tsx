@@ -9,6 +9,9 @@ const NAV = [
   { label: 'Earnings', href: '/portal/earnings', icon: 'trending_up' },
   { label: 'Advances', href: '/portal/advances', icon: 'credit_card' },
   { label: 'Leave', href: '/portal/leave', icon: 'event_busy' },
+  { label: 'Cash', href: '/portal/cash', icon: 'account_balance' },
+  { label: 'Slips', href: '/portal/slips', icon: 'receipt' },
+  { label: 'Profile', href: '/portal/profile', icon: 'person' },
 ]
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {

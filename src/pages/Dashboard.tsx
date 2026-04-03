@@ -182,16 +182,20 @@ export default function Dashboard() {
             <div
               key={a.vehicle_id}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
-                a.days_left <= 7
+                a.is_expired
+                  ? 'bg-red-100 border border-red-300 text-red-900'
+                  : a.days_left <= 7
                   ? 'bg-red-50 border border-red-200 text-red-800'
                   : 'bg-amber-50 border border-amber-200 text-amber-800'
               }`}
             >
               <MsIcon name="warning" className="text-lg flex-shrink-0" />
               <span>
-                Vehicle <strong>{a.plate_number}</strong> insurance expires in{' '}
-                <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}
-                ({new Date(a.insurance_expiry).toLocaleDateString('en-GB')})
+                Vehicle <strong>{a.plate_number}</strong>{' '}
+                {a.is_expired
+                  ? <>insurance <strong>expired</strong> on {new Date(a.insurance_expiry).toLocaleDateString('en-GB')}</>
+                  : <>insurance expires in <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}({new Date(a.insurance_expiry).toLocaleDateString('en-GB')})</>
+                }
               </span>
               <button
                 onClick={() => navigate('/vehicles')}

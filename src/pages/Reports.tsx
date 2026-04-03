@@ -6,9 +6,18 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
-import type { Driver, DriverSummaryReport, TripDetailReport, FinanceSummaryReport } from '../types'
+import type {
+  Driver,
+  DriverSummaryReport,
+  TripDetailReport,
+  FinanceSummaryReport,
+  AdvanceReport,
+  CashFlowReport,
+  LeaveReport,
+  SalaryReport,
+} from '../types'
 
-type TabId = 'drivers' | 'trips' | 'finance'
+type TabId = 'drivers' | 'trips' | 'finance' | 'advances' | 'cash-flow' | 'leave' | 'salary'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -65,14 +74,54 @@ export default function Reports() {
     enabled: tab === 'finance',
   })
 
+  // Advance report
+  const { data: advances = [], isLoading: loadingAdvances } = useQuery<AdvanceReport[]>({
+    queryKey: ['reports', 'advances', from, to],
+    queryFn: () => apiGet(`/reports/advances?from=${from}&to=${to}`),
+    enabled: tab === 'advances',
+  })
+
+  // Cash flow report
+  const { data: cashFlow = [], isLoading: loadingCashFlow } = useQuery<CashFlowReport[]>({
+    queryKey: ['reports', 'cash-flow', from, to],
+    queryFn: () => apiGet(`/reports/cash-flow?from=${from}&to=${to}`),
+    enabled: tab === 'cash-flow',
+  })
+
+  // Leave report
+  const { data: leaveData = [], isLoading: loadingLeave } = useQuery<LeaveReport[]>({
+    queryKey: ['reports', 'leave', from, to],
+    queryFn: () => apiGet(`/reports/leave?from=${from}&to=${to}`),
+    enabled: tab === 'leave',
+  })
+
+  // Salary report
+  const { data: salaryData = [], isLoading: loadingSalary } = useQuery<SalaryReport[]>({
+    queryKey: ['reports', 'salary', from, to],
+    queryFn: () => apiGet(`/reports/salary?from=${from}&to=${to}`),
+    enabled: tab === 'salary',
+  })
+
   const handleExportCsv = async () => {
     setExporting(true)
     try {
       let path = ''
       let filename = ''
-      if (tab === 'drivers') { path = `/reports/drivers?${driverParams}&format=csv`; filename = 'driver_summary.csv' }
-      else if (tab === 'trips') { path = `/reports/trips?${tripParams}&format=csv`; filename = 'trip_detail.csv' }
-      else { path = `/reports/finance?from=${from}&to=${to}&format=csv`; filename = 'finance_summary.csv' }
+      if (tab === 'drivers') {
+        path = `/reports/drivers?${driverParams}&format=csv`; filename = 'driver_summary.csv'
+      } else if (tab === 'trips') {
+        path = `/reports/trips?${tripParams}&format=csv`; filename = 'trip_detail.csv'
+      } else if (tab === 'finance') {
+        path = `/reports/finance?from=${from}&to=${to}&format=csv`; filename = 'finance_summary.csv'
+      } else if (tab === 'advances') {
+        path = `/reports/advances?from=${from}&to=${to}&format=csv`; filename = 'advance_report.csv'
+      } else if (tab === 'cash-flow') {
+        path = `/reports/cash-flow?from=${from}&to=${to}&format=csv`; filename = 'cash_flow.csv'
+      } else if (tab === 'leave') {
+        path = `/reports/leave?from=${from}&to=${to}&format=csv`; filename = 'leave_report.csv'
+      } else {
+        path = `/reports/salary?from=${from}&to=${to}&format=csv`; filename = 'salary_report.csv'
+      }
       const blob = await apiFetchRaw(path)
       downloadBlob(blob, filename)
     } finally {
@@ -84,6 +133,10 @@ export default function Reports() {
     { id: 'drivers', label: 'Driver Summary' },
     { id: 'trips', label: 'Trip Detail' },
     { id: 'finance', label: 'Finance Summary' },
+    { id: 'advances', label: 'Advance Report' },
+    { id: 'cash-flow', label: 'Cash Flow' },
+    { id: 'leave', label: 'Leave Report' },
+    { id: 'salary', label: 'Salary Summary' },
   ]
 
   return (
@@ -100,7 +153,7 @@ export default function Reports() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-surface p-1 rounded-lg w-fit flex-wrap">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -146,6 +199,18 @@ export default function Reports() {
       )}
       {tab === 'finance' && (
         <FinanceSummaryView data={finance} loading={loadingFinance} />
+      )}
+      {tab === 'advances' && (
+        <AdvanceReportTable rows={advances} loading={loadingAdvances} />
+      )}
+      {tab === 'cash-flow' && (
+        <CashFlowTable rows={cashFlow} loading={loadingCashFlow} />
+      )}
+      {tab === 'leave' && (
+        <LeaveReportTable rows={leaveData} loading={loadingLeave} />
+      )}
+      {tab === 'salary' && (
+        <SalaryReportTable rows={salaryData} loading={loadingSalary} />
       )}
     </div>
   )
@@ -313,6 +378,152 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
           </table>
         </div>
       )}
+    </div>
+  )
+}
+
+function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Requested (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Approved (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Paid (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Outstanding (AED)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={5} className="py-12 text-center text-muted">No advance data for selected period</td></tr>
+          ) : (
+            rows.map((r) => (
+              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_requested)}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_approved)}</td>
+                <td className="py-2.5 px-4 text-right text-green-700">{formatAed(r.total_paid)}</td>
+                <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.outstanding_balance) > 0 ? 'text-red-700' : 'text-primary'}`}>
+                  {formatAed(r.outstanding_balance)}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Cash Received (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Cash Submitted (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Shortfall (AED)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={4} className="py-12 text-center text-muted">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={4} className="py-12 text-center text-muted">No cash flow data for selected period</td></tr>
+          ) : (
+            rows.map((r) => (
+              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_cash_received)}</td>
+                <td className="py-2.5 px-4 text-right text-green-700">{formatAed(r.total_cash_submitted)}</td>
+                <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.shortfall) > 0 ? 'text-red-700' : 'text-primary'}`}>
+                  {formatAed(r.shortfall)}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Leave Days</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Permissions</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Pending</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Approved</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Rejected</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={6} className="py-12 text-center text-muted">No leave data for selected period</td></tr>
+          ) : (
+            rows.map((r) => (
+              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{r.total_leave_days}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{r.total_permissions}</td>
+                <td className="py-2.5 px-4 text-right text-yellow-600">{r.pending_count}</td>
+                <td className="py-2.5 px-4 text-right text-green-700">{r.approved_count}</td>
+                <td className="py-2.5 px-4 text-right text-red-600">{r.rejected_count}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: boolean }) {
+  return (
+    <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Period</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Type</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Gross (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Deductions (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Net Payable (AED)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading…</td></tr>
+          ) : rows.length === 0 ? (
+            <tr><td colSpan={6} className="py-12 text-center text-muted">No salary data for selected period</td></tr>
+          ) : (
+            rows.map((r, idx) => (
+              <tr key={idx} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-muted">{r.period}</td>
+                <td className="py-2.5 px-4 text-primary capitalize">{r.salary_type.replace(/_/g, ' ')}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.gross)}</td>
+                <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.deductions)}</td>
+                <td className="py-2.5 px-4 text-right font-semibold text-green-700">{formatAed(r.net_payable)}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   )
 }

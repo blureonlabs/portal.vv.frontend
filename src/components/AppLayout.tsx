@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
+import { AvatarUpload } from './AvatarUpload'
 import type { Role } from '../types'
 
 interface NavItem {
@@ -79,11 +80,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* User + Signout */}
         <div className="p-3 border-t border-white/10">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-sm font-bold">
-                {user?.full_name?.charAt(0).toUpperCase()}
-              </span>
-            </div>
+            <AvatarUpload size="sm" />
             <div className="min-w-0">
               <p className="text-sm font-medium text-white truncate">{user?.full_name}</p>
               <p className="text-xs text-white/50 truncate">{user?.email}</p>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -26,17 +26,31 @@ export default function AcceptInvite() {
   const token = searchParams.get('token')
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
+  const [tokenInvalid, setTokenInvalid] = useState(false)
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
-  if (!token) {
+  if (!token || tokenInvalid) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl border border-border shadow-sm p-8 text-center max-w-sm w-full">
-          <p className="text-danger font-medium">Invalid invite link.</p>
-          <p className="text-sm text-muted mt-2">Please use the link from your invitation email.</p>
+          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <h2 className="font-bold text-primary text-lg mb-2">Invitation Expired</h2>
+          <p className="text-sm text-muted mb-6">
+            This invitation has expired or is no longer valid. Please contact your administrator for a new invitation.
+          </p>
+          <Link
+            to="/login"
+            className="inline-block w-full py-2.5 px-4 rounded-xl bg-accent text-white text-sm font-medium text-center hover:bg-indigo-700 transition-colors"
+          >
+            Back to Login
+          </Link>
         </div>
       </div>
     )
@@ -75,7 +89,13 @@ export default function AcceptInvite() {
       })
       setDone(true)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong')
+      const msg = e instanceof Error ? e.message : 'Something went wrong'
+      // Treat expired / not-found token errors as invalid-invite state
+      if (/expired|invalid|not found|no longer/i.test(msg)) {
+        setTokenInvalid(true)
+      } else {
+        setError(msg)
+      }
     }
   }
 

@@ -36,6 +36,9 @@ import MyTrips from './pages/portal/MyTrips'
 import MyEarnings from './pages/portal/MyEarnings'
 import MyAdvances from './pages/portal/MyAdvances'
 import MyLeave from './pages/portal/MyLeave'
+import MyProfile from './pages/portal/MyProfile'
+import MyCash from './pages/portal/MyCash'
+import MySalarySlips from './pages/portal/MySalarySlips'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +80,9 @@ export default function App() {
                     <Route path="/earnings" element={<MyEarnings />} />
                     <Route path="/advances" element={<MyAdvances />} />
                     <Route path="/leave" element={<MyLeave />} />
+                    <Route path="/profile" element={<MyProfile />} />
+                    <Route path="/cash" element={<MyCash />} />
+                    <Route path="/slips" element={<MySalarySlips />} />
                     <Route path="*" element={<Navigate to="/portal" replace />} />
                   </Routes>
                 </PortalLayout>

@@ -9,6 +9,8 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { Pagination } from '../components/ui/Pagination'
+import { TableRowSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Expense, CashHandover, ExpenseCategory } from '../types'
@@ -63,6 +65,9 @@ export default function Finance() {
   const [showExpense, setShowExpense] = useState(false)
   const [showHandover, setShowHandover] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [expensePage, setExpensePage] = useState(1)
+  const [handoverPage, setHandoverPage] = useState(1)
+  const PAGE_SIZE = 25
 
   const { data: drivers = [] } = useQuery<Driver[]>({
     queryKey: ['drivers'],
@@ -76,13 +81,13 @@ export default function Finance() {
     return p.toString()
   }
 
-  const { data: expenses = [] } = useQuery<Expense[]>({
+  const { data: expenses = [], isLoading: expensesLoading } = useQuery<Expense[]>({
     queryKey: ['expenses', from, to, driverFilter],
     queryFn: () => apiGet(`/finance/expenses?${buildParams()}`),
     enabled: tab === 'expenses',
   })
 
-  const { data: handovers = [] } = useQuery<CashHandover[]>({
+  const { data: handovers = [], isLoading: handoversLoading } = useQuery<CashHandover[]>({
     queryKey: ['handovers', from, to, driverFilter],
     queryFn: () => apiGet(`/finance/handovers?${buildParams()}`),
     enabled: tab === 'handovers',
@@ -119,6 +124,12 @@ export default function Finance() {
 
   const totalExpenses = expenses.reduce((s, e) => s + parseFloat(e.amount_aed), 0)
   const totalHandovers = handovers.reduce((s, h) => s + parseFloat(h.amount_aed), 0)
+
+  const expenseTotalPages = Math.ceil(expenses.length / PAGE_SIZE)
+  const pagedExpenses = expenses.slice((expensePage - 1) * PAGE_SIZE, expensePage * PAGE_SIZE)
+
+  const handoverTotalPages = Math.ceil(handovers.length / PAGE_SIZE)
+  const pagedHandovers = handovers.slice((handoverPage - 1) * PAGE_SIZE, handoverPage * PAGE_SIZE)
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -185,9 +196,7 @@ export default function Finance() {
 
       {/* Expenses tab */}
       {tab === 'expenses' && (
-        expenses.length === 0 ? (
-          <p className="text-muted text-sm text-center py-12">No expenses in this range.</p>
-        ) : (
+        expensesLoading ? (
           <div className="bg-white rounded-xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -200,28 +209,50 @@ export default function Finance() {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((e) => (
-                  <tr key={e.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
-                    <td className="py-3 px-4 text-primary">{formatDate(e.date)}</td>
-                    {canManage && <td className="py-3 px-4 text-muted">{e.driver_name ?? '—'}</td>}
-                    <td className="py-3 px-4">
-                      <Badge variant={categoryBadge(e.category)}>{e.category}</Badge>
-                    </td>
-                    <td className="py-3 px-4 text-right font-semibold text-danger">{formatAed(parseFloat(e.amount_aed))}</td>
-                    <td className="py-3 px-4 text-muted truncate max-w-xs">{e.notes ?? '—'}</td>
-                  </tr>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <TableRowSkeleton key={i} cols={canManage ? 5 : 4} />
                 ))}
               </tbody>
             </table>
           </div>
+        ) : expenses.length === 0 ? (
+          <p className="text-muted text-sm text-center py-12">No expenses in this range.</p>
+        ) : (
+          <>
+            <div className="bg-white rounded-xl border border-border overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-muted font-medium">Date</th>
+                    {canManage && <th className="text-left py-3 px-4 text-muted font-medium">Driver</th>}
+                    <th className="text-left py-3 px-4 text-muted font-medium">Category</th>
+                    <th className="text-right py-3 px-4 text-muted font-medium">Amount</th>
+                    <th className="text-left py-3 px-4 text-muted font-medium">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedExpenses.map((e) => (
+                    <tr key={e.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+                      <td className="py-3 px-4 text-primary">{formatDate(e.date)}</td>
+                      {canManage && <td className="py-3 px-4 text-muted">{e.driver_name ?? '—'}</td>}
+                      <td className="py-3 px-4">
+                        <Badge variant={categoryBadge(e.category)}>{e.category}</Badge>
+                      </td>
+                      <td className="py-3 px-4 text-right font-semibold text-danger">{formatAed(parseFloat(e.amount_aed))}</td>
+                      <td className="py-3 px-4 text-muted truncate max-w-xs">{e.notes ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={expensePage} totalPages={expenseTotalPages} onPageChange={setExpensePage} />
+          </>
         )
       )}
 
       {/* Handovers tab */}
       {tab === 'handovers' && (
-        handovers.length === 0 ? (
-          <p className="text-muted text-sm text-center py-12">No cash handovers in this range.</p>
-        ) : (
+        handoversLoading ? (
           <div className="bg-white rounded-xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -233,17 +264,40 @@ export default function Finance() {
                 </tr>
               </thead>
               <tbody>
-                {handovers.map((h) => (
-                  <tr key={h.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
-                    <td className="py-3 px-4 text-primary">{formatDate(h.submitted_at)}</td>
-                    <td className="py-3 px-4 font-medium text-primary">{h.driver_name}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-success">{formatAed(parseFloat(h.amount_aed))}</td>
-                    <td className="py-3 px-4 text-muted">{h.verifier_name}</td>
-                  </tr>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <TableRowSkeleton key={i} cols={4} />
                 ))}
               </tbody>
             </table>
           </div>
+        ) : handovers.length === 0 ? (
+          <p className="text-muted text-sm text-center py-12">No cash handovers in this range.</p>
+        ) : (
+          <>
+            <div className="bg-white rounded-xl border border-border overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-muted font-medium">Date</th>
+                    <th className="text-left py-3 px-4 text-muted font-medium">Driver</th>
+                    <th className="text-right py-3 px-4 text-muted font-medium">Amount</th>
+                    <th className="text-left py-3 px-4 text-muted font-medium">Verified By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedHandovers.map((h) => (
+                    <tr key={h.id} className="border-b border-border last:border-0 hover:bg-surface transition-colors">
+                      <td className="py-3 px-4 text-primary">{formatDate(h.submitted_at)}</td>
+                      <td className="py-3 px-4 font-medium text-primary">{h.driver_name}</td>
+                      <td className="py-3 px-4 text-right font-semibold text-success">{formatAed(parseFloat(h.amount_aed))}</td>
+                      <td className="py-3 px-4 text-muted">{h.verifier_name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={handoverPage} totalPages={handoverTotalPages} onPageChange={setHandoverPage} />
+          </>
         )
       )}
 
