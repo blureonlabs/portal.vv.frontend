@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastContainer } from './components/ui/Toast'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/AppLayout'
@@ -39,6 +40,7 @@ import MyLeave from './pages/portal/MyLeave'
 import MyProfile from './pages/portal/MyProfile'
 import MyCash from './pages/portal/MyCash'
 import MySalarySlips from './pages/portal/MySalarySlips'
+import MyNotifications from './pages/portal/MyNotifications'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +63,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastContainer />
+      <ErrorBoundary>
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
@@ -83,6 +86,7 @@ export default function App() {
                     <Route path="/profile" element={<MyProfile />} />
                     <Route path="/cash" element={<MyCash />} />
                     <Route path="/slips" element={<MySalarySlips />} />
+                    <Route path="/notifications" element={<MyNotifications />} />
                     <Route path="*" element={<Navigate to="/portal" replace />} />
                   </Routes>
                 </PortalLayout>
@@ -174,6 +178,7 @@ export default function App() {
           />
         </Routes>
       </BrowserRouter>
+      </ErrorBoundary>
     </QueryClientProvider>
   )
 }

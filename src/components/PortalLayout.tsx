@@ -11,6 +11,7 @@ const NAV = [
   { label: 'Leave', href: '/portal/leave', icon: 'event_busy' },
   { label: 'Cash', href: '/portal/cash', icon: 'account_balance' },
   { label: 'Slips', href: '/portal/slips', icon: 'receipt' },
+  { label: 'Alerts', href: '/portal/notifications', icon: 'notifications' },
   { label: 'Profile', href: '/portal/profile', icon: 'person' },
 ]
 
