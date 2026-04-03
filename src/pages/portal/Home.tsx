@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Car, TrendingUp, CreditCard, CalendarDays } from 'lucide-react'
 import { apiGet } from '../../lib/api'
 import { formatAed } from '../../lib/utils'
 import type { Advance, DriverContext, EarningsReport, LeaveRequest } from '../../types'
@@ -14,13 +13,13 @@ function monthStart() {
 export default function PortalHome() {
   const { data: ctx } = useQuery<DriverContext>({
     queryKey: ['portal-me'],
-    queryFn: () => apiGet('/me'),
+    queryFn: () => apiGet('/portal/me'),
   })
 
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { data: earnings } = useQuery<EarningsReport>({
     queryKey: ['portal-earnings', currentMonth],
-    queryFn: () => apiGet(`/me/earnings?month=${currentMonth}`),
+    queryFn: () => apiGet(`/portal/me/earnings?month=${currentMonth}`),
   })
 
   const { data: advances = [] } = useQuery<Advance[]>({
@@ -43,20 +42,20 @@ export default function PortalHome() {
     <div className="p-4 space-y-5">
       {/* Greeting */}
       <div className="pt-2">
-        <p className="text-sm text-gray-500">Welcome back,</p>
-        <h1 className="text-2xl font-bold text-gray-900">{ctx?.full_name ?? '—'}</h1>
+        <p className="text-sm text-muted">Welcome back,</p>
+        <h1 className="text-2xl font-bold text-primary">{ctx?.full_name ?? '—'}</h1>
         {ctx?.vehicle && (
-          <div className="flex items-center gap-1.5 mt-1 text-sm text-gray-500">
-            <Car className="w-4 h-4" />
+          <div className="flex items-center gap-1.5 mt-1 text-sm text-muted">
+            <span className="material-symbols-rounded text-[16px]">directions_car</span>
             <span>{ctx.vehicle.plate_number} · {ctx.vehicle.make} {ctx.vehicle.model}</span>
           </div>
         )}
       </div>
 
       {/* Monthly earnings card */}
-      <div className="bg-gradient-to-br from-brand to-brand/80 rounded-2xl p-5 text-white shadow-lg">
+      <div className="bg-primary rounded-2xl p-5 text-white shadow-lg">
         <div className="flex items-center gap-2 mb-1 opacity-80">
-          <TrendingUp className="w-4 h-4" />
+          <span className="material-symbols-rounded text-[18px]">trending_up</span>
           <span className="text-sm font-medium">
             {new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })} Earnings
           </span>
@@ -76,7 +75,7 @@ export default function PortalHome() {
       {/* Status cards */}
       <div className="grid grid-cols-2 gap-3">
         <StatusCard
-          icon={<CreditCard className="w-5 h-5" />}
+          icon="credit_card"
           label="Advance"
           value={
             pendingAdvance
@@ -88,7 +87,7 @@ export default function PortalHome() {
           accent={pendingAdvance ? 'yellow' : approvedAdvance ? 'green' : 'gray'}
         />
         <StatusCard
-          icon={<CalendarDays className="w-5 h-5" />}
+          icon="event_busy"
           label="Leave"
           value={activeLeave ? `On ${activeLeave.type} today` : 'No active leave'}
           accent={activeLeave ? 'blue' : 'gray'}
@@ -98,14 +97,14 @@ export default function PortalHome() {
       {/* Quick stats */}
       {earnings && earnings.days.length > 0 && (
         <div className="bg-white rounded-2xl border border-border p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Recent Days</h3>
+          <h3 className="text-sm font-semibold text-primary mb-3">Recent Days</h3>
           <div className="space-y-2">
             {earnings.days.slice(-5).reverse().map((d) => (
               <div key={d.date} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted">
                   {new Date(d.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
                 </span>
-                <span className="text-sm font-semibold text-gray-900">{formatAed(d.total_aed)}</span>
+                <span className="text-sm font-semibold text-primary">{formatAed(d.total_aed)}</span>
               </div>
             ))}
           </div>
@@ -118,22 +117,24 @@ export default function PortalHome() {
 function StatusCard({
   icon, label, value, accent,
 }: {
-  icon: React.ReactNode
+  icon: string
   label: string
   value: string
   accent: 'green' | 'yellow' | 'blue' | 'gray'
 }) {
   const colors = {
-    green: 'bg-green-50 text-green-700',
-    yellow: 'bg-yellow-50 text-yellow-700',
+    green: 'bg-emerald-50 text-emerald-700',
+    yellow: 'bg-amber-50 text-amber-700',
     blue: 'bg-blue-50 text-blue-700',
-    gray: 'bg-gray-50 text-gray-500',
+    gray: 'bg-surface text-muted',
   }
   return (
     <div className="bg-white rounded-2xl border border-border p-4">
-      <div className={`inline-flex p-2 rounded-lg mb-2 ${colors[accent]}`}>{icon}</div>
-      <p className="text-xs text-gray-500 mb-0.5">{label}</p>
-      <p className="text-sm font-medium text-gray-900">{value}</p>
+      <div className={`inline-flex p-2 rounded-xl mb-2 ${colors[accent]}`}>
+        <span className="material-symbols-rounded text-[20px]">{icon}</span>
+      </div>
+      <p className="text-xs text-muted mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-primary">{value}</p>
     </div>
   )
 }

@@ -1,15 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Home, Route, TrendingUp, CreditCard, CalendarDays, LogOut } from 'lucide-react'
 import { cn } from '../lib/utils'
-import { supabase, LOGO_URL } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
 const NAV = [
-  { label: 'Home', href: '/portal', icon: Home, exact: true },
-  { label: 'Trips', href: '/portal/trips', icon: Route },
-  { label: 'Earnings', href: '/portal/earnings', icon: TrendingUp },
-  { label: 'Advances', href: '/portal/advances', icon: CreditCard },
-  { label: 'Leave', href: '/portal/leave', icon: CalendarDays },
+  { label: 'Home', href: '/portal', icon: 'home', exact: true },
+  { label: 'Trips', href: '/portal/trips', icon: 'route' },
+  { label: 'Earnings', href: '/portal/earnings', icon: 'trending_up' },
+  { label: 'Advances', href: '/portal/advances', icon: 'credit_card' },
+  { label: 'Leave', href: '/portal/leave', icon: 'event_busy' },
 ]
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -25,13 +24,13 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen bg-surface">
       {/* Top bar */}
-      <header className="bg-white border-b border-border px-4 h-14 flex items-center justify-between sticky top-0 z-20">
-        <img src={LOGO_URL} alt="Voiture Voyages" className="h-7" />
+      <header className="bg-primary px-4 h-14 flex items-center justify-between sticky top-0 z-20">
+        <span className="text-white font-bold text-base tracking-tight">Voiture Voyages</span>
         <button
           onClick={handleSignOut}
-          className="p-2 text-gray-400 hover:text-gray-700 rounded-lg"
+          className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
         >
-          <LogOut className="w-5 h-5" />
+          <span className="material-symbols-rounded text-[22px]">logout</span>
         </button>
       </header>
 
@@ -41,7 +40,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-20 safe-area-pb">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-20">
         <div className="flex">
           {NAV.map((item) => (
             <NavLink
@@ -51,11 +50,11 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
               className={({ isActive }) =>
                 cn(
                   'flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium transition-colors',
-                  isActive ? 'text-brand' : 'text-gray-400'
+                  isActive ? 'text-primary' : 'text-muted'
                 )
               }
             >
-              <item.icon className="w-5 h-5" />
+              <span className="material-symbols-rounded text-[22px]">{item.icon}</span>
               {item.label}
             </NavLink>
           ))}
