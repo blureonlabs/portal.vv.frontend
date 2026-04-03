@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
-import type { Vehicle, VehicleAssignment, VehicleServiceRecord } from '../types'
+import type { Vehicle, VehicleAssignment, VehicleServiceRecord, Document, DocumentType } from '../types'
 
 const serviceSchema = z.object({
   service_date: z.string().min(1, 'Required'),
@@ -23,7 +23,7 @@ const serviceSchema = z.object({
 
 type ServiceForm = z.infer<typeof serviceSchema>
 
-type Tab = 'overview' | 'service' | 'assignments'
+type Tab = 'overview' | 'service' | 'assignments' | 'documents'
 
 function statusVariant(status: string) {
   const m = { available: 'success' as const, assigned: 'default' as const, inactive: 'muted' as const }
@@ -262,10 +262,241 @@ function Row({ label, value, children }: { label: string; value?: string; childr
   )
 }
 
+const DOC_TYPE_LABELS: Record<DocumentType, string> = {
+  license: 'License',
+  visa: 'Visa',
+  passport: 'Passport',
+  emirates_id: 'Emirates ID',
+  medical: 'Medical',
+  registration_card: 'Registration Card',
+  insurance_certificate: 'Insurance Certificate',
+  receipt: 'Receipt',
+  other: 'Other',
+}
+
+function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
+  if (!expiryDate) return <span className="text-muted text-xs">No expiry</span>
+  const daysLeft = Math.ceil((new Date(expiryDate).getTime() - Date.now()) / 86_400_000)
+  if (daysLeft < 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-danger bg-red-50 px-2 py-0.5 rounded-full">
+        <span className="material-symbols-rounded text-[12px]">error</span>
+        Expired
+      </span>
+    )
+  }
+  if (daysLeft <= 30) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-amber-50 px-2 py-0.5 rounded-full">
+        <span className="material-symbols-rounded text-[12px]">warning</span>
+        {daysLeft}d left
+      </span>
+    )
+  }
+  return <span className="text-xs text-muted">{formatDate(expiryDate)}</span>
+}
+
+async function deleteDocument(id: string): Promise<void> {
+  const { supabase } = await import('../lib/supabase')
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1'
+  const res = await fetch(`${API_BASE}/documents/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  })
+  if (!res.ok && res.status !== 204) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error((json as { error?: string }).error ?? 'Delete failed')
+  }
+}
+
+function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicle'; entityId: string }) {
+  const qc = useQueryClient()
+  const [showUpload, setShowUpload] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [form, setForm] = useState<{
+    doc_type: DocumentType
+    file_url: string
+    file_name: string
+    expiry_date: string
+    notes: string
+  }>({
+    doc_type: 'other',
+    file_url: '',
+    file_name: '',
+    expiry_date: '',
+    notes: '',
+  })
+
+  const queryKey = ['documents', entityType, entityId]
+
+  const { data: docs = [], isLoading } = useQuery<Document[]>({
+    queryKey,
+    queryFn: () => apiGet(`/documents?entity_type=${entityType}&entity_id=${entityId}`),
+  })
+
+  const uploadMutation = useMutation({
+    mutationFn: (body: typeof form) =>
+      apiPost('/documents', {
+        entity_type: entityType,
+        entity_id: entityId,
+        doc_type: body.doc_type,
+        file_url: body.file_url,
+        file_name: body.file_name,
+        expiry_date: body.expiry_date || null,
+        notes: body.notes || null,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey })
+      setShowUpload(false)
+      setForm({ doc_type: 'other', file_url: '', file_name: '', expiry_date: '', notes: '' })
+    },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Upload failed'),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteDocument(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey }),
+    onError: (e) => alert(e instanceof Error ? e.message : 'Delete failed'),
+  })
+
+  if (isLoading) return <p className="text-sm text-muted py-8 text-center">Loading…</p>
+
+  return (
+    <div>
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => { setShowUpload(true); setApiError('') }} size="sm">
+          <span className="material-symbols-rounded text-[16px]">upload</span>
+          Upload Document
+        </Button>
+      </div>
+
+      {docs.length === 0 ? (
+        <p className="text-sm text-muted py-12 text-center">No documents uploaded yet.</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {docs.map((doc) => (
+            <div key={doc.id} className="bg-white rounded-2xl border border-border p-4 flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-rounded text-[20px] text-muted">description</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-primary truncate">{doc.file_name}</p>
+                  <p className="text-xs text-muted mt-0.5">{DOC_TYPE_LABELS[doc.doc_type] ?? doc.doc_type}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <ExpiryBadge expiryDate={doc.expiry_date} />
+                    {doc.notes && (
+                      <span className="text-xs text-muted truncate max-w-xs">{doc.notes}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href={doc.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-accent hover:underline rounded-full px-3 py-1.5 border border-border hover:bg-surface transition-colors"
+                >
+                  <span className="material-symbols-rounded text-[14px]">open_in_new</span>
+                  View
+                </a>
+                <button
+                  onClick={() => { if (confirm('Delete this document?')) deleteMutation.mutate(doc.id) }}
+                  disabled={deleteMutation.isPending}
+                  className="inline-flex items-center gap-1 text-xs text-danger hover:bg-red-50 rounded-full px-3 py-1.5 border border-border transition-colors"
+                >
+                  <span className="material-symbols-rounded text-[14px]">delete</span>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {showUpload && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40" onClick={() => setShowUpload(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
+            >
+              <h2 className="text-lg font-bold text-primary mb-6">Upload Document</h2>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-muted mb-1">Document Type</label>
+                  <select
+                    value={form.doc_type}
+                    onChange={(e) => setForm((f) => ({ ...f, doc_type: e.target.value as DocumentType }))}
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-primary bg-white focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  >
+                    {(Object.entries(DOC_TYPE_LABELS) as [DocumentType, string][]).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+                <Input
+                  id="doc-url"
+                  label="File URL"
+                  placeholder="https://…"
+                  value={form.file_url}
+                  onChange={(e) => setForm((f) => ({ ...f, file_url: e.target.value }))}
+                />
+                <Input
+                  id="doc-name"
+                  label="File Name"
+                  placeholder="registration_card.pdf"
+                  value={form.file_name}
+                  onChange={(e) => setForm((f) => ({ ...f, file_name: e.target.value }))}
+                />
+                <Input
+                  id="doc-expiry"
+                  label="Expiry Date (optional)"
+                  type="date"
+                  value={form.expiry_date}
+                  onChange={(e) => setForm((f) => ({ ...f, expiry_date: e.target.value }))}
+                />
+                <Input
+                  id="doc-notes"
+                  label="Notes (optional)"
+                  placeholder="Any remarks…"
+                  value={form.notes}
+                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                />
+                {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
+                <div className="flex gap-3 mt-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowUpload(false)}>Cancel</Button>
+                  <Button
+                    type="button"
+                    className="flex-1"
+                    loading={uploadMutation.isPending}
+                    onClick={() => { setApiError(''); uploadMutation.mutate(form) }}
+                  >
+                    Upload
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: 'overview', label: 'Overview', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
   { key: 'service', label: 'Service History', icon: <span className="material-symbols-rounded text-[16px]">build</span> },
   { key: 'assignments', label: 'Assignments', icon: <span className="material-symbols-rounded text-[16px]">history</span> },
+  { key: 'documents', label: 'Documents', icon: <span className="material-symbols-rounded text-[16px]">folder_open</span> },
 ]
 
 export default function VehicleDetail() {
@@ -339,6 +570,7 @@ export default function VehicleDetail() {
       {activeTab === 'overview' && <OverviewTab vehicle={vehicle} />}
       {activeTab === 'service' && <ServiceTab vehicleId={vehicle.id} />}
       {activeTab === 'assignments' && <AssignmentsTab vehicleId={vehicle.id} />}
+      {activeTab === 'documents' && <DocumentsTab entityType="vehicle" entityId={vehicle.id} />}
     </div>
   )
 }

@@ -7,6 +7,7 @@ export interface User {
   email: string
   full_name: string
   role: Role
+  phone?: string | null
   is_active: boolean
   created_at: string
 }
@@ -361,8 +362,26 @@ export interface Broadcast {
   created_at: string
 }
 
+export type DocumentType = 'license' | 'visa' | 'passport' | 'emirates_id' | 'medical' | 'registration_card' | 'insurance_certificate' | 'receipt' | 'other'
+
+export interface Document {
+  id: string
+  entity_type: 'driver' | 'vehicle'
+  entity_id: string
+  doc_type: DocumentType
+  file_url: string
+  file_name: string
+  expiry_date: string | null
+  uploaded_by: string
+  notes: string | null
+  created_at: string
+}
+
 export interface DashboardKpis {
   revenue_mtd: string
+  revenue_cash_mtd: string
+  revenue_card_mtd: string
+  revenue_other_mtd: string
   trips_mtd: number
   active_drivers: number
   active_vehicles: number

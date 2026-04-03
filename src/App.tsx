@@ -12,6 +12,7 @@ import AcceptInvite from './pages/AcceptInvite'
 import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import UserManagement from './pages/UserManagement'
+import UserDetail from './pages/UserDetail'
 import Drivers from './pages/Drivers'
 import Owners from './pages/Owners'
 import DriverDetail from './pages/DriverDetail'
@@ -111,6 +112,14 @@ export default function App() {
                       element={
                         <ProtectedRoute allowedRoles={['super_admin']}>
                           <UserManagement />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/users/:id"
+                      element={
+                        <ProtectedRoute allowedRoles={['super_admin']}>
+                          <UserDetail />
                         </ProtectedRoute>
                       }
                     />

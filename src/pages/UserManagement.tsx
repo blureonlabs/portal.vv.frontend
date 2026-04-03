@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -95,6 +96,7 @@ function expiryCountdown(expiresAt: string) {
 
 export default function UserManagement() {
   const qc = useQueryClient()
+  const navigate = useNavigate()
   const [showModal, setShowModal] = useState(false)
   const [apiError, setApiError] = useState('')
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
@@ -272,8 +274,15 @@ export default function UserManagement() {
               </thead>
               <tbody className="divide-y divide-border">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-surface/50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-primary">{u.full_name}</td>
+                  <tr
+                    key={u.id}
+                    className="hover:bg-surface/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/users/${u.id}`)}
+                  >
+                    <td className="px-4 py-3 font-medium text-primary flex items-center gap-2">
+                      {u.full_name}
+                      <span className="material-symbols-rounded text-[14px] text-muted opacity-0 group-hover:opacity-100">chevron_right</span>
+                    </td>
                     <td className="px-4 py-3 text-muted">{u.email}</td>
                     <td className="px-4 py-3">
                       <Badge variant="default">{roleLabel(u.role)}</Badge>
