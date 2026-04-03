@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect } from 'react'
 
 type ToastType = 'success' | 'error' | 'info'
 
