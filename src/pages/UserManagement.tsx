@@ -195,7 +195,7 @@ export default function UserManagement() {
       // Validate driver-specific fields manually
       const parsed = driverSchema.safeParse(data)
       if (!parsed.success) {
-        const first = parsed.error.errors[0]
+        const first = parsed.error.issues[0]
         setApiError(first?.message ?? 'Validation error')
         return
       }
@@ -213,7 +213,7 @@ export default function UserManagement() {
     if (isOwner) {
       const parsed = ownerSchema.safeParse(data)
       if (!parsed.success) {
-        const first = parsed.error.errors[0]
+        const first = parsed.error.issues[0]
         setApiError(first?.message ?? 'Validation error')
         return
       }

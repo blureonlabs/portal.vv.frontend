@@ -97,7 +97,7 @@ export default function Invoices() {
           <select
             value={driverFilter}
             onChange={(e) => setDriverFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+            className="h-9 px-3 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             {driverOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
@@ -171,13 +171,12 @@ export default function Invoices() {
                 <Select
                   id="inv-driver"
                   label="Driver"
-                  options={[
-                    { value: '', label: 'Select driver…' },
-                    ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
-                  ]}
                   error={form.formState.errors.driver_id?.message}
                   {...form.register('driver_id')}
-                />
+                >
+                  <option value="">Select driver...</option>
+                  {drivers.map((d) => <option key={d.id} value={d.id}>{d.full_name}</option>)}
+                </Select>
                 <div className="grid grid-cols-2 gap-3">
                   <Input
                     id="inv-start"

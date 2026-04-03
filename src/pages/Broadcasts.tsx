@@ -174,22 +174,14 @@ export default function Broadcasts() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Select
-                    label="Channel"
-                    {...register('channel')}
-                    options={[
-                      { value: 'email', label: 'Email' },
-                      { value: 'whatsapp', label: 'WhatsApp (Coming Soon)' },
-                    ]}
-                  />
-                  <Select
-                    label="Target"
-                    {...register('target')}
-                    options={[
-                      { value: 'all_drivers', label: 'All Drivers' },
-                      { value: 'selected_drivers', label: 'Select Drivers' },
-                    ]}
-                  />
+                  <Select label="Channel" {...register('channel')}>
+                    <option value="email">Email</option>
+                    <option value="whatsapp">WhatsApp (Coming Soon)</option>
+                  </Select>
+                  <Select label="Target" {...register('target')}>
+                    <option value="all_drivers">All Drivers</option>
+                    <option value="selected_drivers">Select Drivers</option>
+                  </Select>
                 </div>
 
                 {target === 'selected_drivers' && (
