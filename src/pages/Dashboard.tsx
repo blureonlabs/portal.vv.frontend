@@ -1,26 +1,30 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Users, Car, CreditCard, CalendarDays, AlertTriangle } from 'lucide-react'
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
 import type { DashboardKpis } from '../types'
 
+/** Material Symbols icon helper */
+function MsIcon({ name, className }: { name: string; className?: string }) {
+  return <span className={`material-symbols-rounded ${className ?? ''}`}>{name}</span>
+}
+
 function KpiCard({
-  label, value, sub, icon: Icon, accent, onClick,
+  label, value, sub, icon, accent, onClick,
 }: {
   label: string
   value: string | number
   sub?: string
-  icon: React.ComponentType<{ className?: string }>
+  icon: string
   accent: string
   onClick?: () => void
 }) {
   return (
     <button
       onClick={onClick}
-      className={`bg-white rounded-2xl border border-border p-5 text-left w-full transition-shadow hover:shadow-md ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`bg-white rounded-2xl border border-border p-5 text-left w-full transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <div className="flex items-start justify-between">
         <div>
@@ -29,7 +33,7 @@ function KpiCard({
           {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
         </div>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
-          <Icon className="w-5 h-5 text-white" />
+          <MsIcon name={icon} className="text-white text-xl" />
         </div>
       </div>
     </button>
@@ -41,7 +45,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const monthLabel = new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })
 
-  const { data: kpis, isLoading } = useQuery<DashboardKpis>({
+  const { data: kpis, isLoading, isError } = useQuery<DashboardKpis>({
     queryKey: ['dashboard'],
     queryFn: () => apiGet('/dashboard'),
     staleTime: 60_000,
@@ -74,7 +78,7 @@ export default function Dashboard() {
                   : 'bg-amber-50 border border-amber-200 text-amber-800'
               }`}
             >
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <MsIcon name="warning" className="text-lg flex-shrink-0" />
               <span>
                 Vehicle <strong>{a.plate_number}</strong> insurance expires in{' '}
                 <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}
@@ -95,47 +99,53 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+      ) : isError ? (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+          <MsIcon name="cloud_off" className="text-red-400 text-3xl" />
+          <p className="text-red-800 font-medium mt-2">Failed to load dashboard data</p>
+          <p className="text-red-600 text-sm mt-1">Please check your connection and try refreshing the page.</p>
+        </div>
       ) : kpis ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <KpiCard
             label={`Revenue MTD`}
             value={formatAed(kpis.revenue_mtd)}
             sub={`${kpis.trips_mtd} trips`}
-            icon={TrendingUp}
-            accent="bg-brand"
+            icon="trending_up"
+            accent="bg-primary"
           />
           <KpiCard
             label="Active Drivers"
             value={kpis.active_drivers}
-            icon={Users}
+            icon="group"
             accent="bg-emerald-500"
             onClick={() => navigate('/drivers')}
           />
           <KpiCard
             label="Active Vehicles"
             value={kpis.active_vehicles}
-            icon={Car}
+            icon="directions_car"
             accent="bg-sky-500"
             onClick={() => navigate('/vehicles')}
           />
           <KpiCard
             label="Pending Advances"
             value={kpis.pending_advances}
-            icon={CreditCard}
+            icon="payments"
             accent={kpis.pending_advances > 0 ? 'bg-amber-500' : 'bg-gray-400'}
             onClick={() => navigate('/advances')}
           />
           <KpiCard
             label="Pending Leave"
             value={kpis.pending_leave}
-            icon={CalendarDays}
+            icon="event_busy"
             accent={kpis.pending_leave > 0 ? 'bg-amber-500' : 'bg-gray-400'}
             onClick={() => navigate('/hr')}
           />
           <KpiCard
             label="Insurance Alerts"
             value={kpis.insurance_expiring_soon.length}
-            icon={AlertTriangle}
+            icon="shield_with_heart"
             accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-red-500' : 'bg-gray-400'}
             onClick={() => navigate('/vehicles')}
           />
@@ -153,8 +163,8 @@ export default function Dashboard() {
               <AreaChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-brand, #2563eb)" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="var(--color-brand, #2563eb)" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--color-brand, #161f3f)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--color-brand, #161f3f)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
@@ -167,7 +177,7 @@ export default function Dashboard() {
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="var(--color-brand, #2563eb)"
+                  stroke="var(--color-brand, #161f3f)"
                   strokeWidth={2}
                   fill="url(#revGrad)"
                   dot={false}

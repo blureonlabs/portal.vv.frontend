@@ -13,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import UserManagement from './pages/UserManagement'
 import Drivers from './pages/Drivers'
+import Owners from './pages/Owners'
 import DriverDetail from './pages/DriverDetail'
 import Vehicles from './pages/Vehicles'
 import VehicleDetail from './pages/VehicleDetail'
@@ -27,6 +28,7 @@ import Reports from './pages/Reports'
 import SalaryPage from './pages/Salary'
 
 import PortalHome from './pages/portal/Home'
+import OwnerHome from './pages/portal/OwnerHome'
 import MyTrips from './pages/portal/MyTrips'
 import MyEarnings from './pages/portal/MyEarnings'
 import MyAdvances from './pages/portal/MyAdvances'
@@ -45,6 +47,7 @@ const queryClient = new QueryClient({
 function RootRedirect() {
   const { user } = useAuthStore()
   if (user?.role === 'driver') return <Navigate to="/portal" replace />
+  if (user?.role === 'owner') return <Navigate to="/owner-portal" replace />
   return <Dashboard />
 }
 
@@ -78,6 +81,21 @@ export default function App() {
             }
           />
 
+          {/* Owner portal — isolated layout */}
+          <Route
+            path="/owner-portal/*"
+            element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <PortalLayout>
+                  <Routes>
+                    <Route path="/" element={<OwnerHome />} />
+                    <Route path="*" element={<Navigate to="/owner-portal" replace />} />
+                  </Routes>
+                </PortalLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin layout */}
           <Route
             path="/*"
@@ -96,6 +114,14 @@ export default function App() {
                     />
                     <Route path="/drivers" element={<Drivers />} />
                     <Route path="/drivers/:id" element={<DriverDetail />} />
+                    <Route
+                      path="/owners"
+                      element={
+                        <ProtectedRoute allowedRoles={['super_admin']}>
+                          <Owners />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/vehicles" element={<Vehicles />} />
                     <Route path="/vehicles/:id" element={<VehicleDetail />} />
                     <Route path="/trips" element={<Trips />} />

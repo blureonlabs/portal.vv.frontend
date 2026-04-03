@@ -1,4 +1,4 @@
-export type Role = 'super_admin' | 'accountant' | 'hr' | 'driver'
+export type Role = 'super_admin' | 'accountant' | 'hr' | 'driver' | 'owner'
 export type SalaryType = 'commission' | 'target_high' | 'target_low'
 export type VehicleStatus = 'available' | 'assigned' | 'inactive'
 
@@ -29,6 +29,18 @@ export interface Driver {
   salary_type: SalaryType
   is_active: boolean
   self_entry_enabled: boolean
+  created_at: string
+}
+
+export interface Owner {
+  id: string
+  profile_id: string
+  full_name: string
+  email: string
+  phone: string | null
+  company_name: string | null
+  notes: string | null
+  is_active: boolean
   created_at: string
 }
 

@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Users', href: '/users', icon: 'group', roles: ['super_admin'] },
   { label: 'Drivers', href: '/drivers', icon: 'badge', roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Vehicles', href: '/vehicles', icon: 'directions_car', roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Owners', href: '/owners', icon: 'person_book', roles: ['super_admin'] },
   { label: 'Trips', href: '/trips', icon: 'route', roles: ['super_admin', 'accountant', 'hr', 'driver'] },
   { label: 'Finance', href: '/finance', icon: 'payments', roles: ['super_admin', 'accountant'] },
   { label: 'Advances', href: '/advances', icon: 'credit_card', roles: ['super_admin', 'accountant', 'hr', 'driver'] },

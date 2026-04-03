@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
-import { supabase, LOGO_URL } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { Input } from '../components/ui/Input'
@@ -51,17 +51,20 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#fefefe] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="w-full max-w-sm"
       >
         <div className="bg-white rounded-2xl border border-border shadow-sm p-8">
+          {/* Logo / Brand */}
           <div className="flex flex-col items-center mb-8">
-            <img src={LOGO_URL} alt="Voiture Voyages" className="h-10 mb-4" />
-            <h1 className="text-xl font-bold text-primary">Fleet Management</h1>
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-md">
+              <span className="material-symbols-rounded text-white text-3xl">directions_car</span>
+            </div>
+            <h1 className="text-xl font-bold text-primary tracking-tight">Voiture Voyages</h1>
             <p className="text-sm text-muted mt-1">Sign in to your account</p>
           </div>
 
@@ -87,7 +90,7 @@ export default function Login() {
             />
 
             {error && (
-              <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{error}</p>
+              <p className="text-sm text-danger bg-red-50 rounded-xl px-3 py-2">{error}</p>
             )}
 
             <Button type="submit" loading={isSubmitting} className="w-full mt-2">
@@ -96,11 +99,15 @@ export default function Login() {
           </form>
 
           <div className="mt-4 text-center">
-            <Link to="/forgot-password" className="text-sm text-accent hover:underline">
+            <Link to="/forgot-password" className="text-sm text-muted hover:text-primary transition-colors">
               Forgot your password?
             </Link>
           </div>
         </div>
+
+        <p className="text-center text-xs text-muted mt-6">
+          &copy; {new Date().getFullYear()} Voiture Voyages
+        </p>
       </motion.div>
     </div>
   )
