@@ -318,6 +318,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
   const qc = useQueryClient()
   const [showUpload, setShowUpload] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState<{
     doc_type: DocumentType
     file_url: string
@@ -353,6 +354,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
     onSuccess: () => {
       qc.invalidateQueries({ queryKey })
       setShowUpload(false)
+      setUploading(false)
       setForm({ doc_type: 'other', file_url: '', file_name: '', expiry_date: '', notes: '' })
     },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Upload failed'),
@@ -443,13 +445,47 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                     ))}
                   </select>
                 </div>
-                <Input
-                  id="doc-url"
-                  label="File URL"
-                  placeholder="https://…"
-                  value={form.file_url}
-                  onChange={(e) => setForm((f) => ({ ...f, file_url: e.target.value }))}
-                />
+                <div>
+                  <label className="block text-xs font-medium text-muted mb-1">File</label>
+                  <input
+                    id="doc-file"
+                    type="file"
+                    accept="image/*,.pdf"
+                    className="w-full text-sm text-primary file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-border file:text-xs file:font-medium file:bg-surface file:text-primary hover:file:bg-accent-light cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setUploading(true)
+                      setApiError('')
+                      try {
+                        const { supabase } = await import('../lib/supabase')
+                        const path = `documents/${entityType}/${entityId}/${file.name}`
+                        const { error } = await supabase.storage
+                          .from('fms-files')
+                          .upload(path, file, { upsert: true })
+                        if (error) throw new Error(error.message)
+                        const { data: urlData } = supabase.storage.from('fms-files').getPublicUrl(path)
+                        setForm((f) => ({ ...f, file_url: urlData.publicUrl, file_name: file.name }))
+                      } catch (err) {
+                        setApiError(err instanceof Error ? err.message : 'Upload failed')
+                      } finally {
+                        setUploading(false)
+                      }
+                    }}
+                  />
+                  {uploading && (
+                    <p className="text-xs text-muted mt-1 flex items-center gap-1">
+                      <span className="material-symbols-rounded text-[14px] animate-spin">progress_activity</span>
+                      Uploading…
+                    </p>
+                  )}
+                  {form.file_url && !uploading && (
+                    <p className="text-xs text-success mt-1 flex items-center gap-1">
+                      <span className="material-symbols-rounded text-[14px]">check_circle</span>
+                      File uploaded
+                    </p>
+                  )}
+                </div>
                 <Input
                   id="doc-name"
                   label="File Name"
@@ -477,8 +513,12 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   <Button
                     type="button"
                     className="flex-1"
-                    loading={uploadMutation.isPending}
-                    onClick={() => { setApiError(''); uploadMutation.mutate(form) }}
+                    loading={uploadMutation.isPending || uploading}
+                    onClick={() => {
+                      if (!form.file_url) { setApiError('Please select a file to upload'); return }
+                      setApiError('')
+                      uploadMutation.mutate(form)
+                    }}
                   >
                     Upload
                   </Button>

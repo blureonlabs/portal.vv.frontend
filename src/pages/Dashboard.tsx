@@ -175,6 +175,8 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* TODO: Document expiry alerts when backend endpoint is added */}
+
       {/* ── Insurance Alerts ── */}
       {kpis && kpis.insurance_expiring_soon.length > 0 && (
         <div className="space-y-2">

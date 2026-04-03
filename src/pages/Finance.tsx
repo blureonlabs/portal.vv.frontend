@@ -65,6 +65,8 @@ export default function Finance() {
   const [showExpense, setShowExpense] = useState(false)
   const [showHandover, setShowHandover] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [receiptUrl, setReceiptUrl] = useState('')
+  const [receiptUploading, setReceiptUploading] = useState(false)
   const [expensePage, setExpensePage] = useState(1)
   const [handoverPage, setHandoverPage] = useState(1)
   const PAGE_SIZE = 25
@@ -106,8 +108,14 @@ export default function Finance() {
     mutationFn: (body: ExpenseForm) => apiPost('/finance/expenses', {
       ...body,
       driver_id: body.driver_id || null,
+      receipt_url: receiptUrl || null,
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['expenses'] }); setShowExpense(false); expenseForm.reset() },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses'] })
+      setShowExpense(false)
+      setReceiptUrl('')
+      expenseForm.reset()
+    },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
 
@@ -330,10 +338,52 @@ export default function Finance() {
                   error={expenseForm.formState.errors.category?.message}
                   {...expenseForm.register('category')} />
                 <Input id="exp-notes" label="Notes (optional)" {...expenseForm.register('notes')} />
+                <div>
+                  <label className="block text-xs font-medium text-muted mb-1">Receipt (optional)</label>
+                  <input
+                    id="exp-receipt"
+                    type="file"
+                    accept="image/*,.pdf"
+                    className="w-full text-sm text-primary file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-border file:text-xs file:font-medium file:bg-surface file:text-primary hover:file:bg-accent-light cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setReceiptUploading(true)
+                      setApiError('')
+                      try {
+                        const { supabase } = await import('../lib/supabase')
+                        const uuid = crypto.randomUUID()
+                        const path = `receipts/${uuid}/${file.name}`
+                        const { error } = await supabase.storage
+                          .from('fms-files')
+                          .upload(path, file, { upsert: true })
+                        if (error) throw new Error(error.message)
+                        const { data: urlData } = supabase.storage.from('fms-files').getPublicUrl(path)
+                        setReceiptUrl(urlData.publicUrl)
+                      } catch (err) {
+                        setApiError(err instanceof Error ? err.message : 'Receipt upload failed')
+                      } finally {
+                        setReceiptUploading(false)
+                      }
+                    }}
+                  />
+                  {receiptUploading && (
+                    <p className="text-xs text-muted mt-1 flex items-center gap-1">
+                      <span className="material-symbols-rounded text-[14px] animate-spin">progress_activity</span>
+                      Uploading receipt…
+                    </p>
+                  )}
+                  {receiptUrl && !receiptUploading && (
+                    <p className="text-xs text-success mt-1 flex items-center gap-1">
+                      <span className="material-symbols-rounded text-[14px]">check_circle</span>
+                      Receipt uploaded
+                    </p>
+                  )}
+                </div>
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
                 <div className="flex gap-3 mt-2">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setShowExpense(false)}>Cancel</Button>
-                  <Button type="submit" loading={addExpenseMutation.isPending} className="flex-1">Add Expense</Button>
+                  <Button type="submit" loading={addExpenseMutation.isPending || receiptUploading} className="flex-1">Add Expense</Button>
                 </div>
               </form>
             </motion.div>
