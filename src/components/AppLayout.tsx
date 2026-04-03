@@ -29,7 +29,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Reports', href: '/reports', icon: 'analytics', roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Broadcasts', href: '/broadcasts', icon: 'campaign', roles: ['super_admin'] },
   { label: 'Settings', href: '/settings', icon: 'settings', roles: ['super_admin', 'accountant'] },
-  { label: 'Change Password', href: '/change-password', icon: 'lock', roles: ['super_admin', 'accountant', 'hr', 'driver', 'owner'] },
   { label: 'Audit Log', href: '/audit', icon: 'shield', roles: ['super_admin'] },
 ]
 
@@ -94,7 +93,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* User + Signout */}
+        {/* User + Actions */}
         <div className="p-3 border-t border-white/10">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
             <AvatarUpload size="sm" />
@@ -103,6 +102,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <p className="text-xs text-white/50 truncate">{user?.email}</p>
             </div>
           </div>
+          <button
+            onClick={() => navigate('/change-password')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full"
+          >
+            <span className="material-symbols-rounded text-[20px]">lock</span>
+            Change Password
+          </button>
           <button
             onClick={handleSignOut}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full"

@@ -53,29 +53,6 @@ function KpiCard({
   )
 }
 
-function PlaceholderCard({
-  icon,
-  title,
-  message,
-  colSpan,
-}: {
-  icon: string
-  title: string
-  message: string
-  colSpan?: string
-}) {
-  return (
-    <div className={`bg-white rounded-2xl border border-border p-6 hover-lift flex flex-col ${colSpan ?? ''}`}>
-      <p className="text-sm font-semibold text-primary mb-4">{title}</p>
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 py-6">
-        <div className="w-12 h-12 rounded-2xl bg-accent-light flex items-center justify-center">
-          <MsIcon name={icon} className="text-primary text-2xl" />
-        </div>
-        <p className="text-sm text-muted text-center">{message}</p>
-      </div>
-    </div>
-  )
-}
 
 // Custom tooltip for area chart
 function AreaTooltip({ active, payload, label }: {

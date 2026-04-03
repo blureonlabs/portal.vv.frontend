@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { apiGet } from '../lib/api'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { apiGet, apiPut } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { formatDate, formatAed } from '../lib/utils'
+import { useAuthStore } from '../store/authStore'
 import type {
   User,
   Driver,
@@ -71,6 +72,124 @@ function Row({ label, value, children }: { label: string; value?: string | null;
     <div className="flex items-start justify-between gap-4">
       <dt className="text-muted shrink-0 text-sm">{label}</dt>
       <dd className="text-primary text-right text-sm">{children ?? (value || <span className="text-muted">—</span>)}</dd>
+    </div>
+  )
+}
+
+// ── Reset Password Modal ───────────────────────────────────────────────────────
+
+function ResetPasswordModal({
+  userId,
+  userName,
+  onClose,
+}: {
+  userId: string
+  userName: string
+  onClose: () => void
+}) {
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
+  const mutation = useMutation({
+    mutationFn: (newPassword: string) =>
+      apiPut(`/users/${userId}/password`, { password: newPassword }),
+    onSuccess: () => {
+      setToast({ type: 'success', message: 'Password reset successfully. An email has been sent to the user.' })
+      setPassword('')
+      setConfirm('')
+      setTimeout(onClose, 2000)
+    },
+    onError: (err: Error) => {
+      setToast({ type: 'error', message: err.message })
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setToast(null)
+    if (password.length < 8) {
+      setToast({ type: 'error', message: 'Password must be at least 8 characters.' })
+      return
+    }
+    if (password !== confirm) {
+      setToast({ type: 'error', message: 'Passwords do not match.' })
+      return
+    }
+    mutation.mutate(password)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-semibold text-primary">Reset Password</h2>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-surface text-muted hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-rounded text-[20px]">close</span>
+          </button>
+        </div>
+
+        <p className="text-sm text-muted mb-5">
+          Set a new password for <span className="font-medium text-primary">{userName}</span>. They will receive an email with the new password.
+        </p>
+
+        {toast && (
+          <div
+            className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium ${
+              toast.type === 'success'
+                ? 'bg-success/10 text-success'
+                : 'bg-danger/10 text-danger'
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1.5">New Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Min. 8 characters"
+              required
+              className="w-full px-3 py-2.5 rounded-xl border border-border text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1.5">Confirm Password</label>
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Repeat password"
+              required
+              className="w-full px-3 py-2.5 rounded-xl border border-border text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted hover:bg-surface transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
+            >
+              {mutation.isPending ? 'Resetting…' : 'Reset Password'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
@@ -391,6 +510,8 @@ function AuditTab({ actorId }: { actorId: string }) {
 export default function UserDetail() {
   const { id } = useParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState<Tab>('profile')
+  const [showResetModal, setShowResetModal] = useState(false)
+  const { user: currentUser } = useAuthStore()
 
   // Fetch all users and find by id (no GET /users/:id endpoint)
   const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
@@ -434,6 +555,14 @@ export default function UserDetail() {
       : user?.role === 'owner'
       ? OWNER_TABS
       : BASE_TABS
+
+  // Determine if the current user can reset this user's password
+  const canResetPassword = (() => {
+    if (!currentUser || !user) return false
+    if (currentUser.role === 'super_admin') return true
+    if (currentUser.role === 'hr' && (user.role === 'driver' || user.role === 'owner')) return true
+    return false
+  })()
 
   if (isLoading) {
     return (
@@ -492,6 +621,15 @@ export default function UserDetail() {
           <Badge variant={user.is_active ? 'success' : 'danger'}>
             {user.is_active ? 'Active' : 'Inactive'}
           </Badge>
+          {canResetPassword && (
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted hover:bg-surface hover:text-primary transition-colors"
+            >
+              <span className="material-symbols-rounded text-[16px]">lock_reset</span>
+              Reset Password
+            </button>
+          )}
         </div>
       </div>
 
@@ -541,6 +679,15 @@ export default function UserDetail() {
 
       {/* Common audit tab */}
       {activeTab === 'audit' && <AuditTab actorId={user.id} />}
+
+      {/* Reset Password Modal */}
+      {showResetModal && (
+        <ResetPasswordModal
+          userId={user.id}
+          userName={user.full_name}
+          onClose={() => setShowResetModal(false)}
+        />
+      )}
     </div>
   )
 }
