@@ -24,6 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Salary', href: '/salary', icon: 'account_balance_wallet', roles: ['super_admin', 'accountant'] },
   { label: 'Invoices', href: '/invoices', icon: 'receipt_long', roles: ['super_admin', 'accountant'] },
   { label: 'Reports', href: '/reports', icon: 'analytics', roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Broadcasts', href: '/broadcasts', icon: 'campaign', roles: ['super_admin'] },
   { label: 'Settings', href: '/settings', icon: 'settings', roles: ['super_admin', 'accountant'] },
   { label: 'Audit Log', href: '/audit', icon: 'shield', roles: ['super_admin'] },
 ]

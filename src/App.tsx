@@ -26,6 +26,7 @@ import Settings from './pages/Settings'
 import AuditLog from './pages/AuditLog'
 import Reports from './pages/Reports'
 import SalaryPage from './pages/Salary'
+import Broadcasts from './pages/Broadcasts'
 
 import PortalHome from './pages/portal/Home'
 import OwnerHome from './pages/portal/OwnerHome'
@@ -131,6 +132,14 @@ export default function App() {
                     <Route path="/salary" element={<SalaryPage />} />
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/reports" element={<Reports />} />
+                    <Route
+                      path="/broadcasts"
+                      element={
+                        <ProtectedRoute allowedRoles={['super_admin']}>
+                          <Broadcasts />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/settings" element={<Settings />} />
                     <Route
                       path="/audit"

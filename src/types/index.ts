@@ -349,6 +349,18 @@ export interface DayRevenue {
   trips_count: number
 }
 
+export interface Broadcast {
+  id: string
+  subject: string
+  body: string
+  channel: 'email' | 'whatsapp'
+  target: 'all_drivers' | 'selected_drivers'
+  recipient_count: number
+  status: 'draft' | 'sending' | 'sent' | 'failed'
+  sent_by_name: string
+  created_at: string
+}
+
 export interface DashboardKpis {
   revenue_mtd: string
   trips_mtd: number
