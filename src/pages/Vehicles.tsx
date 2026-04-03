@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, AlertTriangle, Car } from 'lucide-react'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -121,14 +120,14 @@ export default function Vehicles() {
         </div>
         {isSuperAdmin && (
           <Button onClick={() => { setShowCreate(true); setApiError(''); form.reset() }}>
-            <Plus className="h-4 w-4" />
+            <span className="material-symbols-rounded text-[16px]">add</span>
             Add Vehicle
           </Button>
         )}
       </div>
 
       <div className="relative mb-6 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+        <span className="material-symbols-rounded text-[16px] absolute left-3 top-1/2 -translate-y-1/2 text-muted">search</span>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -158,7 +157,7 @@ export default function Vehicles() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-                    <Car className="h-5 w-5 text-muted" />
+                    <span className="material-symbols-rounded text-[20px] text-muted">directions_car</span>
                   </div>
                   <div>
                     <Link to={`/vehicles/${v.id}`} className="font-semibold text-primary hover:text-accent transition-colors">
@@ -176,7 +175,7 @@ export default function Vehicles() {
 
               {insuranceAlert && (
                 <div className="flex items-center gap-1.5 text-xs text-warning bg-amber-50 rounded-lg px-2.5 py-1.5">
-                  <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="material-symbols-rounded text-[14px] flex-shrink-0">warning</span>
                   Insurance expires {insLeft! <= 0 ? 'NOW' : `in ${insLeft}d`} ({v.insurance_expiry && formatDate(v.insurance_expiry)})
                 </div>
               )}

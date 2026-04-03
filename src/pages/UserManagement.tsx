@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { UserPlus, RotateCcw, XCircle, Clock } from 'lucide-react'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -106,7 +105,7 @@ export default function UserManagement() {
           <p className="text-sm text-muted mt-1">Manage team members and invitations</p>
         </div>
         <Button onClick={() => setShowInviteModal(true)}>
-          <UserPlus className="h-4 w-4" />
+          <span className="material-symbols-rounded text-[16px]">person_add</span>
           Invite User
         </Button>
       </div>
@@ -187,7 +186,7 @@ export default function UserManagement() {
                     <td className="px-4 py-3">
                       {inv.status === 'pending' && (
                         <span className="flex items-center gap-1 text-warning text-xs">
-                          <Clock className="h-3 w-3" />
+                          <span className="material-symbols-rounded text-[12px]">schedule</span>
                           {expiryCountdown(inv.expires_at)}
                         </span>
                       )}
@@ -201,14 +200,14 @@ export default function UserManagement() {
                             className="p-1.5 rounded-lg hover:bg-surface text-muted hover:text-primary transition-colors"
                             title="Resend"
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            <span className="material-symbols-rounded text-[16px]">refresh</span>
                           </button>
                           <button
                             onClick={() => revokeMutation.mutate(inv.id)}
                             className="p-1.5 rounded-lg hover:bg-red-50 text-muted hover:text-danger transition-colors"
                             title="Revoke"
                           >
-                            <XCircle className="h-4 w-4" />
+                            <span className="material-symbols-rounded text-[16px]">cancel</span>
                           </button>
                         </div>
                       )}

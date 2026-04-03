@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Building2, Phone, Mail, Car } from 'lucide-react'
 import { apiGet } from '../../lib/api'
 import { Badge } from '../../components/ui/Badge'
 
@@ -33,7 +32,7 @@ export default function OwnerHome() {
   if (isLoading) {
     return (
       <div className="p-4 flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin h-6 w-6 border-2 border-brand border-t-transparent rounded-full" />
+        <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -41,7 +40,7 @@ export default function OwnerHome() {
   if (!ctx) {
     return (
       <div className="p-4">
-        <p className="text-sm text-gray-500">Unable to load owner information.</p>
+        <p className="text-sm text-muted">Unable to load owner information.</p>
       </div>
     )
   }
@@ -50,29 +49,29 @@ export default function OwnerHome() {
     <div className="p-4 space-y-5">
       {/* Greeting */}
       <div className="pt-2">
-        <p className="text-sm text-gray-500">Welcome back,</p>
-        <h1 className="text-2xl font-bold text-gray-900">{ctx.full_name}</h1>
+        <p className="text-sm text-muted">Welcome back,</p>
+        <h1 className="text-2xl font-bold text-primary">{ctx.full_name}</h1>
       </div>
 
       {/* Owner Info Card */}
       <div className="bg-white rounded-2xl border border-border p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700">Your Information</h3>
+        <h3 className="text-sm font-semibold text-primary">Your Information</h3>
 
         <div className="space-y-2.5">
           <div className="flex items-center gap-3 text-sm">
-            <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className="text-gray-700">{ctx.email}</span>
+            <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">mail</span>
+            <span className="text-primary">{ctx.email}</span>
           </div>
           {ctx.phone && (
             <div className="flex items-center gap-3 text-sm">
-              <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700">{ctx.phone}</span>
+              <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">phone</span>
+              <span className="text-primary">{ctx.phone}</span>
             </div>
           )}
           {ctx.company_name && (
             <div className="flex items-center gap-3 text-sm">
-              <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700">{ctx.company_name}</span>
+              <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">apartment</span>
+              <span className="text-primary">{ctx.company_name}</span>
             </div>
           )}
         </div>
@@ -80,27 +79,27 @@ export default function OwnerHome() {
 
       {/* Vehicles */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700">Your Vehicles</h3>
+        <h3 className="text-sm font-semibold text-primary">Your Vehicles</h3>
 
         {ctx.vehicles.length === 0 && (
           <div className="bg-white rounded-2xl border border-border p-5 text-center">
-            <Car className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No vehicles linked to your account yet.</p>
+            <span className="material-symbols-rounded text-[32px] text-muted mx-auto mb-2">directions_car</span>
+            <p className="text-sm text-muted">No vehicles linked to your account yet.</p>
           </div>
         )}
 
         {ctx.vehicles.map((v) => (
           <div key={v.id} className="bg-white rounded-2xl border border-border p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <Car className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-rounded text-[20px] text-primary">directions_car</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900">{v.plate_number}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-primary">{v.plate_number}</p>
+              <p className="text-xs text-muted">
                 {v.make} {v.model} {v.year}{v.color ? ` - ${v.color}` : ''}
               </p>
               {v.assigned_driver_name && (
-                <p className="text-xs text-gray-400 mt-0.5">Driver: {v.assigned_driver_name}</p>
+                <p className="text-xs text-muted mt-0.5">Driver: {v.assigned_driver_name}</p>
               )}
             </div>
             <Badge variant={v.status === 'available' ? 'success' : v.status === 'assigned' ? 'default' : 'muted'}>

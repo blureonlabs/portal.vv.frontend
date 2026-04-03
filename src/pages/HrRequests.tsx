@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Check, X } from 'lucide-react'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -136,7 +135,7 @@ export default function HrRequests() {
           </p>
         </div>
         <Button onClick={() => { setShowSubmit(true); setApiError('') }}>
-          <Plus className="h-4 w-4" />
+          <span className="material-symbols-rounded text-[16px]">add</span>
           New Request
         </Button>
       </div>
@@ -217,13 +216,13 @@ export default function HrRequests() {
                             onClick={() => { setApiError(''); approveMutation.mutate(r.id) }}
                             className="flex items-center gap-1 text-xs text-success hover:text-green-700 transition-colors"
                           >
-                            <Check className="h-3 w-3" /> Approve
+                            <span className="material-symbols-rounded text-[12px]">check</span> Approve
                           </button>
                           <button
                             onClick={() => { setApiError(''); setRejectTarget(r); rejectForm.reset() }}
                             className="flex items-center gap-1 text-xs text-danger hover:text-red-700 transition-colors"
                           >
-                            <X className="h-3 w-3" /> Reject
+                            <span className="material-symbols-rounded text-[12px]">close</span> Reject
                           </button>
                         </div>
                       )}

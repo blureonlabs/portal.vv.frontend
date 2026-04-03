@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Upload, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react'
 import { apiGet, apiPost, apiDelete } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -143,11 +142,11 @@ export default function Trips() {
         {canManage && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => { setShowCsv(true); setApiError('') }}>
-              <Upload className="h-4 w-4" />
+              <span className="material-symbols-rounded text-[16px]">upload</span>
               CSV Import
             </Button>
             <Button onClick={() => { setShowCreate(true); setApiError('') }}>
-              <Plus className="h-4 w-4" />
+              <span className="material-symbols-rounded text-[16px]">add</span>
               Add Trip
             </Button>
           </div>
@@ -227,7 +226,7 @@ export default function Trips() {
                     <td className="py-3 px-4">
                       <button onClick={() => deleteMutation.mutate(t.id)}
                         className="text-danger hover:text-red-700 transition-colors p-1">
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <span className="material-symbols-rounded text-[14px]">delete</span>
                       </button>
                     </td>
                   )}
@@ -305,7 +304,7 @@ export default function Trips() {
                   <label className="block text-sm font-medium text-primary mb-1.5">CSV File</label>
                   <input ref={fileRef} type="file" accept=".csv,text/csv" disabled={!csvDriverId}
                     onChange={handleFileSelect}
-                    className="block w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-accent file:text-white hover:file:bg-indigo-700 disabled:opacity-50" />
+                    className="block w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-accent file:text-white hover:file:bg-primary disabled:opacity-50" />
                 </div>
               </div>
 
@@ -313,11 +312,11 @@ export default function Trips() {
                 <div className="mb-6">
                   <div className="flex items-center gap-4 mb-3 text-sm">
                     <span className="flex items-center gap-1 text-success">
-                      <CheckCircle className="h-4 w-4" /> {validRows.length} valid
+                      <span className="material-symbols-rounded text-[16px]">check_circle</span> {validRows.length} valid
                     </span>
                     {errorRows.length > 0 && (
                       <span className="flex items-center gap-1 text-danger">
-                        <AlertTriangle className="h-4 w-4" /> {errorRows.length} errors
+                        <span className="material-symbols-rounded text-[16px]">warning</span> {errorRows.length} errors
                       </span>
                     )}
                   </div>

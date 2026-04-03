@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, HandCoins } from 'lucide-react'
 import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -131,11 +130,11 @@ export default function Finance() {
         {canManage && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => { setShowHandover(true); setApiError('') }}>
-              <HandCoins className="h-4 w-4" />
+              <span className="material-symbols-rounded text-[16px]">handshake</span>
               Record Handover
             </Button>
             <Button onClick={() => { setShowExpense(true); setApiError('') }}>
-              <Plus className="h-4 w-4" />
+              <span className="material-symbols-rounded text-[16px]">add</span>
               Add Expense
             </Button>
           </div>

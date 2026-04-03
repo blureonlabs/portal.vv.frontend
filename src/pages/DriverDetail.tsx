@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, User, Car, DollarSign, CreditCard, Calendar, ClipboardList } from 'lucide-react'
 import { apiGet } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { formatDate, formatAed } from '../lib/utils'
@@ -16,12 +15,12 @@ const SALARY_LABELS: Record<string, string> = {
 type Tab = 'profile' | 'trips' | 'financials' | 'advances' | 'leave' | 'audit'
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-  { key: 'profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
-  { key: 'trips', label: 'Trips', icon: <Car className="h-4 w-4" /> },
-  { key: 'financials', label: 'Financials', icon: <DollarSign className="h-4 w-4" /> },
-  { key: 'advances', label: 'Advances', icon: <CreditCard className="h-4 w-4" /> },
-  { key: 'leave', label: 'Leave', icon: <Calendar className="h-4 w-4" /> },
-  { key: 'audit', label: 'Audit', icon: <ClipboardList className="h-4 w-4" /> },
+  { key: 'profile', label: 'Profile', icon: <span className="material-symbols-rounded text-[16px]">person</span> },
+  { key: 'trips', label: 'Trips', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
+  { key: 'financials', label: 'Financials', icon: <span className="material-symbols-rounded text-[16px]">payments</span> },
+  { key: 'advances', label: 'Advances', icon: <span className="material-symbols-rounded text-[16px]">credit_card</span> },
+  { key: 'leave', label: 'Leave', icon: <span className="material-symbols-rounded text-[16px]">event_busy</span> },
+  { key: 'audit', label: 'Audit', icon: <span className="material-symbols-rounded text-[16px]">assignment</span> },
 ]
 
 function PlaceholderTab({ label }: { label: string }) {
@@ -245,7 +244,7 @@ export default function DriverDetail() {
       {/* Header */}
       <div className="mb-6">
         <Link to="/drivers" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">
-          <ArrowLeft className="h-4 w-4" />
+          <span className="material-symbols-rounded text-[16px]">arrow_back</span>
           Back to Drivers
         </Link>
         <div className="flex items-center gap-4">

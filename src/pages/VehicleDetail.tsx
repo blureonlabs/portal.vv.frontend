@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Car, AlertTriangle, Plus, Wrench, History } from 'lucide-react'
 import { apiGet, apiPost } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -68,7 +67,7 @@ function OverviewTab({ vehicle }: { vehicle: Vehicle }) {
             {vehicle.insurance_expiry ? (
               insuranceAlert ? (
                 <span className="inline-flex items-center gap-1 text-warning font-medium">
-                  <AlertTriangle className="h-3.5 w-3.5" />
+                  <span className="material-symbols-rounded text-[14px]">warning</span>
                   {formatDate(vehicle.insurance_expiry)}
                   {insLeft! <= 0 ? ' (EXPIRED)' : ` (${insLeft}d left)`}
                 </span>
@@ -134,7 +133,7 @@ function ServiceTab({ vehicleId }: { vehicleId: string }) {
       {isSuperAdmin && (
         <div className="flex justify-end mb-4">
           <Button onClick={() => { setShowAdd(true); setApiError('') }} size="sm">
-            <Plus className="h-4 w-4" />
+            <span className="material-symbols-rounded text-[16px]">add</span>
             Add Record
           </Button>
         </div>
@@ -264,9 +263,9 @@ function Row({ label, value, children }: { label: string; value?: string; childr
 }
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-  { key: 'overview', label: 'Overview', icon: <Car className="h-4 w-4" /> },
-  { key: 'service', label: 'Service History', icon: <Wrench className="h-4 w-4" /> },
-  { key: 'assignments', label: 'Assignments', icon: <History className="h-4 w-4" /> },
+  { key: 'overview', label: 'Overview', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
+  { key: 'service', label: 'Service History', icon: <span className="material-symbols-rounded text-[16px]">build</span> },
+  { key: 'assignments', label: 'Assignments', icon: <span className="material-symbols-rounded text-[16px]">history</span> },
 ]
 
 export default function VehicleDetail() {
@@ -301,12 +300,12 @@ export default function VehicleDetail() {
       {/* Header */}
       <div className="mb-6">
         <Link to="/vehicles" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">
-          <ArrowLeft className="h-4 w-4" />
+          <span className="material-symbols-rounded text-[16px]">arrow_back</span>
           Back to Vehicles
         </Link>
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-            <Car className="h-7 w-7 text-muted" />
+            <span className="material-symbols-rounded text-[28px] text-muted">directions_car</span>
           </div>
           <div>
             <h1 className="text-2xl font-bold text-primary">{vehicle.plate_number}</h1>

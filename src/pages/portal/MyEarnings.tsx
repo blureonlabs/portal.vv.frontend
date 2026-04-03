@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { apiGet } from '../../lib/api'
 import { formatAed } from '../../lib/utils'
 import type { EarningsReport } from '../../types'
@@ -33,22 +32,22 @@ export default function MyEarnings() {
     <div className="p-4 space-y-4">
       {/* Month selector */}
       <div className="flex items-center justify-between">
-        <button onClick={() => setMonth(prevMonth(month))} className="p-2 rounded-lg hover:bg-gray-100">
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+        <button onClick={() => setMonth(prevMonth(month))} className="p-2 rounded-lg hover:bg-surface">
+          <span className="material-symbols-rounded text-[20px] text-muted">chevron_left</span>
         </button>
-        <h2 className="text-base font-bold text-gray-900">{monthLabel}</h2>
+        <h2 className="text-base font-bold text-primary">{monthLabel}</h2>
         <button
           onClick={() => setMonth(nextMonth(month))}
           disabled={isCurrentMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30"
+          className="p-2 rounded-lg hover:bg-surface disabled:opacity-30"
         >
-          <ChevronRight className="w-5 h-5 text-gray-600" />
+          <span className="material-symbols-rounded text-[20px] text-muted">chevron_right</span>
         </button>
       </div>
 
       {/* Summary */}
       {earnings && (
-        <div className="bg-gradient-to-br from-brand to-brand/80 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-5 text-white">
           <p className="text-sm opacity-80 mb-1">Total Earnings</p>
           <p className="text-3xl font-bold">{formatAed(earnings.grand_total)}</p>
           <div className="flex gap-4 mt-3 text-sm opacity-80">
@@ -62,36 +61,36 @@ export default function MyEarnings() {
       {/* Daily breakdown */}
       {isLoading ? (
         <div className="py-10 flex justify-center">
-          <div className="animate-spin w-6 h-6 border-2 border-brand border-t-transparent rounded-full" />
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : !earnings || earnings.days.length === 0 ? (
-        <div className="py-12 text-center text-gray-400">No earnings data for this month</div>
+        <div className="py-12 text-center text-muted">No earnings data for this month</div>
       ) : (
         <div className="bg-white rounded-2xl border border-border overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-gray-50">
-            <p className="text-sm font-semibold text-gray-700">Daily Breakdown</p>
+          <div className="px-4 py-3 border-b border-border bg-surface">
+            <p className="text-sm font-semibold text-primary">Daily Breakdown</p>
           </div>
           {earnings.days.map((d) => (
             <div key={d.date} className="px-4 py-3 border-b border-border last:border-0 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-primary">
                   {new Date(d.date).toLocaleDateString('en-GB', {
                     weekday: 'short', day: 'numeric', month: 'short'
                   })}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted">
                   C {formatAed(d.cash_aed)}
                   {parseFloat(d.card_aed) > 0 && ` · K ${formatAed(d.card_aed)}`}
                   {parseFloat(d.other_aed) > 0 && ` · O ${formatAed(d.other_aed)}`}
                 </p>
               </div>
-              <p className="text-sm font-bold text-gray-900">{formatAed(d.total_aed)}</p>
+              <p className="text-sm font-bold text-primary">{formatAed(d.total_aed)}</p>
             </div>
           ))}
           {/* Total row */}
-          <div className="px-4 py-3 bg-gray-50 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">Total</p>
-            <p className="text-sm font-bold text-gray-900">{formatAed(earnings.grand_total)}</p>
+          <div className="px-4 py-3 bg-surface flex items-center justify-between">
+            <p className="text-sm font-semibold text-primary">Total</p>
+            <p className="text-sm font-bold text-primary">{formatAed(earnings.grand_total)}</p>
           </div>
         </div>
       )}

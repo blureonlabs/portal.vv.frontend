@@ -28,9 +28,9 @@ function KpiCard({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+          <p className="text-sm text-muted">{label}</p>
+          <p className="text-2xl font-bold text-primary mt-1">{value}</p>
+          {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
         </div>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
           <MsIcon name={icon} className="text-white text-xl" />
@@ -62,8 +62,8 @@ export default function Dashboard() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm">Welcome back, {user?.full_name} · {monthLabel}</p>
+        <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
+        <p className="text-muted text-sm">Welcome back, {user?.full_name} · {monthLabel}</p>
       </div>
 
       {/* Insurance alerts */}
@@ -155,9 +155,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue trend chart */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-4">Revenue — Last 30 Days</p>
+          <p className="text-sm font-semibold text-primary mb-4">Revenue — Last 30 Days</p>
           {chartData.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+            <div className="h-48 flex items-center justify-center text-muted text-sm">No data yet</div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={chartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
@@ -189,19 +189,19 @@ export default function Dashboard() {
 
         {/* Top drivers */}
         <div className="bg-white rounded-2xl border border-border p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Top Drivers (MTD)</p>
+          <p className="text-sm font-semibold text-primary mb-3">Top Drivers (MTD)</p>
           {!kpis || kpis.top_drivers.length === 0 ? (
-            <div className="text-gray-400 text-sm py-8 text-center">No trips this month</div>
+            <div className="text-muted text-sm py-8 text-center">No trips this month</div>
           ) : (
             <div className="space-y-3">
               {kpis.top_drivers.map((d, i) => (
                 <div key={d.driver_id} className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-gray-400 w-4">{i + 1}</span>
+                  <span className="text-xs font-bold text-muted w-4">{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{d.driver_name}</p>
-                    <p className="text-xs text-gray-400">{d.trips_count} trips</p>
+                    <p className="text-sm font-medium text-primary truncate">{d.driver_name}</p>
+                    <p className="text-xs text-muted">{d.trips_count} trips</p>
                   </div>
-                  <p className="text-sm font-bold text-gray-900 whitespace-nowrap">{formatAed(d.revenue_aed)}</p>
+                  <p className="text-sm font-bold text-primary whitespace-nowrap">{formatAed(d.revenue_aed)}</p>
                 </div>
               ))}
             </div>

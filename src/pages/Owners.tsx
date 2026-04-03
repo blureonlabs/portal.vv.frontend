@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { UserPlus, Search, UserCheck, UserX } from 'lucide-react'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -71,7 +70,7 @@ export default function Owners() {
         </div>
         {isSuperAdmin && (
           <Button onClick={() => { setShowCreate(true); setApiError('') }}>
-            <UserPlus className="h-4 w-4" />
+            <span className="material-symbols-rounded text-[16px]">person_add</span>
             Add Owner
           </Button>
         )}
@@ -79,7 +78,7 @@ export default function Owners() {
 
       {/* Search */}
       <div className="relative mb-6 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+        <span className="material-symbols-rounded text-[16px] absolute left-3 top-1/2 -translate-y-1/2 text-muted">search</span>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -136,14 +135,14 @@ export default function Owners() {
                     onClick={() => deactivateMutation.mutate(owner.id)}
                     className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                   >
-                    <UserX className="h-3 w-3" /> Deactivate
+                    <span className="material-symbols-rounded text-[12px]">person_off</span> Deactivate
                   </button>
                 ) : (
                   <button
                     onClick={() => activateMutation.mutate(owner.id)}
                     className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                   >
-                    <UserCheck className="h-3 w-3" /> Activate
+                    <span className="material-symbols-rounded text-[12px]">how_to_reg</span> Activate
                   </button>
                 )}
               </div>

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Check, X, Banknote } from 'lucide-react'
 import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -130,7 +129,7 @@ export default function Advances() {
           <p className="text-sm text-muted mt-1">Driver salary advance requests</p>
         </div>
         <Button onClick={() => { setShowRequest(true); setApiError('') }}>
-          <Plus className="h-4 w-4" />
+          <span className="material-symbols-rounded text-[16px]">add</span>
           Request Advance
         </Button>
       </div>
@@ -152,7 +151,7 @@ export default function Advances() {
                     <p className="text-xs text-muted text-center py-8">No {label.toLowerCase()} advances</p>
                   )}
                   {cards.map((adv) => (
-                    <div key={adv.id} className="bg-surface rounded-lg border border-border p-3 flex flex-col gap-2">
+                    <div key={adv.id} className="bg-surface rounded-2xl border border-border p-3 flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold text-primary">{adv.driver_name}</p>
                         <Badge variant={statusBadge[adv.status]} className="text-xs shrink-0">
@@ -181,13 +180,13 @@ export default function Advances() {
                             onClick={() => { setApiError(''); approveMutation.mutate(adv.id) }}
                             className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                           >
-                            <Check className="h-3 w-3" /> Approve
+                            <span className="material-symbols-rounded text-[12px]">check</span> Approve
                           </button>
                           <button
                             onClick={() => { setApiError(''); setRejectTarget(adv); rejectForm.reset() }}
                             className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                           >
-                            <X className="h-3 w-3" /> Reject
+                            <span className="material-symbols-rounded text-[12px]">close</span> Reject
                           </button>
                         </div>
                       )}
@@ -202,7 +201,7 @@ export default function Advances() {
                             }}
                             className="w-full flex items-center justify-center gap-1 text-xs text-accent hover:text-blue-700 transition-colors py-1"
                           >
-                            <Banknote className="h-3 w-3" /> Mark Paid
+                            <span className="material-symbols-rounded text-[12px]">payments</span> Mark Paid
                           </button>
                         </div>
                       )}

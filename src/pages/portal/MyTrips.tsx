@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus } from 'lucide-react'
 import { apiGet, apiPost } from '../../lib/api'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -66,20 +65,20 @@ export default function MyTrips() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">My Trips</h2>
-          <p className="text-sm text-gray-500">{new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })}</p>
+          <h2 className="text-lg font-bold text-primary">My Trips</h2>
+          <p className="text-sm text-muted">{new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })}</p>
         </div>
         {ctx?.self_entry_enabled && (
           <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-            <Plus className="w-4 h-4 mr-1" /> Add Trip
+            <span className="material-symbols-rounded text-[16px] mr-1">add</span> Add Trip
           </Button>
         )}
       </div>
 
       {/* Monthly total */}
-      <div className="bg-brand/10 rounded-2xl px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-brand font-medium">Month total</span>
-        <span className="text-lg font-bold text-brand">{formatAed(monthTotal)}</span>
+      <div className="bg-primary/10 rounded-2xl px-4 py-3 flex items-center justify-between">
+        <span className="text-sm text-primary font-medium">Month total</span>
+        <span className="text-lg font-bold text-primary">{formatAed(monthTotal)}</span>
       </div>
 
       {/* Add trip form */}
@@ -88,28 +87,28 @@ export default function MyTrips() {
           onSubmit={handleSubmit((d: Form) => mutate(d))}
           className="bg-white rounded-2xl border border-border p-4 space-y-3"
         >
-          <h3 className="font-semibold text-gray-900">New Trip</h3>
+          <h3 className="font-semibold text-primary">New Trip</h3>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Date</label>
+            <label className="block text-xs text-muted mb-1">Date</label>
             <Input type="date" {...register('trip_date')} max={today()} />
             {errors.trip_date && <p className="text-xs text-red-500 mt-1">{errors.trip_date.message}</p>}
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Cash (AED)</label>
+              <label className="block text-xs text-muted mb-1">Cash (AED)</label>
               <Input type="number" step="0.01" min="0" {...register('cash_aed')} />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Card (AED)</label>
+              <label className="block text-xs text-muted mb-1">Card (AED)</label>
               <Input type="number" step="0.01" min="0" {...register('card_aed')} />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Other (AED)</label>
+              <label className="block text-xs text-muted mb-1">Other (AED)</label>
               <Input type="number" step="0.01" min="0" {...register('other_aed')} />
             </div>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Notes</label>
+            <label className="block text-xs text-muted mb-1">Notes</label>
             <Input {...register('notes')} placeholder="Optional" />
           </div>
           <div className="flex gap-2">
@@ -124,10 +123,10 @@ export default function MyTrips() {
       {/* Trips list */}
       {isLoading ? (
         <div className="py-10 flex justify-center">
-          <div className="animate-spin w-6 h-6 border-2 border-brand border-t-transparent rounded-full" />
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : trips.length === 0 ? (
-        <div className="py-12 text-center text-gray-400">No trips this month</div>
+        <div className="py-12 text-center text-muted">No trips this month</div>
       ) : (
         <div className="space-y-2">
           {trips.map((t) => {
@@ -135,14 +134,14 @@ export default function MyTrips() {
             return (
               <div key={t.id} className="bg-white rounded-xl border border-border px-4 py-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{formatDate(t.trip_date)}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium text-primary">{formatDate(t.trip_date)}</p>
+                  <p className="text-xs text-muted">
                     Cash {formatAed(t.cash_aed)}
                     {parseFloat(t.card_aed) > 0 && ` · Card ${formatAed(t.card_aed)}`}
                     {parseFloat(t.other_aed) > 0 && ` · Other ${formatAed(t.other_aed)}`}
                   </p>
                 </div>
-                <span className="text-sm font-bold text-gray-900">{formatAed(total)}</span>
+                <span className="text-sm font-bold text-primary">{formatAed(total)}</span>
               </div>
             )
           })}

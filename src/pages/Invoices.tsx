@@ -4,7 +4,6 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, FileText, Download } from 'lucide-react'
 import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -86,7 +85,7 @@ export default function Invoices() {
         </div>
         {canManage && (
           <Button onClick={() => { setShowGenerate(true); setApiError('') }}>
-            <Plus className="h-4 w-4" />
+            <span className="material-symbols-rounded text-[16px]">add</span>
             Generate Invoice
           </Button>
         )}
@@ -142,7 +141,7 @@ export default function Invoices() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
                       >
-                        <Download className="h-3 w-3" /> Download
+                        <span className="material-symbols-rounded text-[12px]">download</span> Download
                       </a>
                     ) : (
                       <span className="text-xs text-muted">—</span>
@@ -205,7 +204,7 @@ export default function Invoices() {
                       onClick={() => append({ description: '', amount_aed: 0 })}
                       className="text-xs text-accent hover:underline flex items-center gap-1"
                     >
-                      <Plus className="h-3 w-3" /> Add
+                      <span className="material-symbols-rounded text-[12px]">add</span> Add
                     </button>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -233,7 +232,7 @@ export default function Invoices() {
                             onClick={() => remove(idx)}
                             className="h-9 px-2 text-danger hover:text-red-700 transition-colors"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <span className="material-symbols-rounded text-[16px]">delete</span>
                           </button>
                         )}
                       </div>
@@ -255,7 +254,7 @@ export default function Invoices() {
                     Cancel
                   </Button>
                   <Button type="submit" loading={generateMutation.isPending} className="flex-1">
-                    <FileText className="h-4 w-4" />
+                    <span className="material-symbols-rounded text-[16px]">description</span>
                     Generate
                   </Button>
                 </div>

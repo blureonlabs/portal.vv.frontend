@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Shield, ChevronLeft, ChevronRight } from 'lucide-react'
 import { apiGet } from '../lib/api'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
@@ -32,8 +31,8 @@ export default function AuditLog() {
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-center gap-3">
-        <Shield className="w-6 h-6 text-brand" />
-        <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
+        <span className="material-symbols-rounded text-[24px] text-primary">shield</span>
+        <h1 className="text-2xl font-bold text-primary">Audit Log</h1>
       </div>
 
       {/* Filters */}
@@ -60,51 +59,51 @@ export default function AuditLog() {
       <div className="bg-white rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-gray-50">
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Timestamp</th>
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Actor Role</th>
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Entity</th>
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Action</th>
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Entity ID</th>
-              <th className="py-3 px-4 text-left font-medium text-gray-500">Metadata</th>
+            <tr className="border-b border-border bg-surface">
+              <th className="py-3 px-4 text-left font-medium text-muted">Timestamp</th>
+              <th className="py-3 px-4 text-left font-medium text-muted">Actor Role</th>
+              <th className="py-3 px-4 text-left font-medium text-muted">Entity</th>
+              <th className="py-3 px-4 text-left font-medium text-muted">Action</th>
+              <th className="py-3 px-4 text-left font-medium text-muted">Entity ID</th>
+              <th className="py-3 px-4 text-left font-medium text-muted">Metadata</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-gray-400">
+                <td colSpan={6} className="py-12 text-center text-muted">
                   <div className="flex justify-center">
-                    <div className="animate-spin w-5 h-5 border-2 border-brand border-t-transparent rounded-full" />
+                    <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 </td>
               </tr>
             ) : entries.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-gray-400">No audit entries found</td>
+                <td colSpan={6} className="py-12 text-center text-muted">No audit entries found</td>
               </tr>
             ) : (
               entries.map((e) => (
-                <tr key={e.id} className="border-b border-border last:border-0 hover:bg-gray-50">
-                  <td className="py-2.5 px-4 text-gray-600 whitespace-nowrap">
+                <tr key={e.id} className="border-b border-border last:border-0 hover:bg-surface">
+                  <td className="py-2.5 px-4 text-muted whitespace-nowrap">
                     {new Date(e.created_at).toLocaleString()}
                   </td>
                   <td className="py-2.5 px-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface text-primary">
                       {e.actor_role}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 text-gray-700 capitalize">{e.entity_type}</td>
+                  <td className="py-2.5 px-4 text-primary capitalize">{e.entity_type}</td>
                   <td className="py-2.5 px-4">
                     <span className="font-mono text-xs text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
                       {e.action}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 font-mono text-xs text-gray-400">
+                  <td className="py-2.5 px-4 font-mono text-xs text-muted">
                     {e.entity_id ? e.entity_id.slice(0, 8) + '…' : '—'}
                   </td>
                   <td className="py-2.5 px-4 max-w-xs">
                     {e.metadata ? (
-                      <span className="font-mono text-xs text-gray-500 truncate block">
+                      <span className="font-mono text-xs text-muted truncate block">
                         {JSON.stringify(e.metadata)}
                       </span>
                     ) : '—'}
@@ -118,7 +117,7 @@ export default function AuditLog() {
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted">
           Page {page + 1}
         </span>
         <div className="flex gap-2">
@@ -128,7 +127,7 @@ export default function AuditLog() {
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <span className="material-symbols-rounded text-[16px]">chevron_left</span>
           </Button>
           <Button
             variant="outline"
@@ -136,7 +135,7 @@ export default function AuditLog() {
             onClick={() => setPage((p) => p + 1)}
             disabled={entries.length < PAGE_SIZE}
           >
-            <ChevronRight className="w-4 h-4" />
+            <span className="material-symbols-rounded text-[16px]">chevron_right</span>
           </Button>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, Download } from 'lucide-react'
 import { apiGet, apiFetchRaw } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -91,23 +90,23 @@ export default function Reports() {
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-6 h-6 text-brand" />
-          <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+          <span className="material-symbols-rounded text-[24px] text-primary">bar_chart</span>
+          <h1 className="text-2xl font-bold text-primary">Reports</h1>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
-          <Download className="w-4 h-4 mr-1" />
+          <span className="material-symbols-rounded text-[16px] mr-1">download</span>
           Export CSV
         </Button>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-surface p-1 rounded-lg w-fit">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t.id ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600 hover:text-gray-900'
+              tab === t.id ? 'bg-white shadow-sm text-primary' : 'text-muted hover:text-primary'
             }`}
           >
             {t.label}
@@ -118,16 +117,16 @@ export default function Reports() {
       {/* Filters */}
       <div className="flex gap-3 flex-wrap items-end">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">From</label>
+          <label className="block text-xs text-muted mb-1">From</label>
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">To</label>
+          <label className="block text-xs text-muted mb-1">To</label>
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" />
         </div>
         {tab === 'trips' && (
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Driver</label>
+            <label className="block text-xs text-muted mb-1">Driver</label>
             <Select value={driverId} onChange={(e) => setDriverId(e.target.value)} className="w-48">
               <option value="">All drivers</option>
               {drivers.map((d) => (
@@ -167,34 +166,34 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
     <div className="bg-white rounded-xl border border-border overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border bg-gray-50">
-            <th className="py-3 px-4 text-left font-medium text-gray-500">Driver</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Trips</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Revenue (AED)</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Expenses (AED)</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Net (AED)</th>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Trips</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Revenue (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Expenses (AED)</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Net (AED)</th>
           </tr>
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={5} className="py-12 text-center text-gray-400">Loading…</td></tr>
+            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading…</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={5} className="py-12 text-center text-gray-400">No data for selected period</td></tr>
+            <tr><td colSpan={5} className="py-12 text-center text-muted">No data for selected period</td></tr>
           ) : (
             <>
               {rows.map((r) => (
-                <tr key={r.driver_id} className="border-b border-border last:border-0 hover:bg-gray-50">
-                  <td className="py-2.5 px-4 font-medium text-gray-900">{r.driver_name}</td>
-                  <td className="py-2.5 px-4 text-right text-gray-700">{r.trips_count}</td>
-                  <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.total_revenue_aed)}</td>
+                <tr key={r.driver_id} className="border-b border-border last:border-0 hover:bg-surface">
+                  <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-right text-primary">{r.trips_count}</td>
+                  <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_revenue_aed)}</td>
                   <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.total_expenses_aed)}</td>
                   <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.net_aed) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                     {formatAed(r.net_aed)}
                   </td>
                 </tr>
               ))}
-              <tr className="bg-gray-50 font-semibold text-sm border-t-2 border-gray-200">
-                <td className="py-3 px-4 text-gray-700">Total</td>
+              <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
+                <td className="py-3 px-4 text-primary">Total</td>
                 <td className="py-3 px-4 text-right">{totals.trips}</td>
                 <td className="py-3 px-4 text-right">{formatAed(totals.revenue)}</td>
                 <td className="py-3 px-4 text-right text-red-600">{formatAed(totals.expenses)}</td>
@@ -215,31 +214,31 @@ function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading:
     <div className="bg-white rounded-xl border border-border overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border bg-gray-50">
-            <th className="py-3 px-4 text-left font-medium text-gray-500">Driver</th>
-            <th className="py-3 px-4 text-left font-medium text-gray-500">Date</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Cash</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Card</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Other</th>
-            <th className="py-3 px-4 text-right font-medium text-gray-500">Total</th>
-            <th className="py-3 px-4 text-left font-medium text-gray-500">Notes</th>
+          <tr className="border-b border-border bg-surface">
+            <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Date</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Cash</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Card</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Other</th>
+            <th className="py-3 px-4 text-right font-medium text-muted">Total</th>
+            <th className="py-3 px-4 text-left font-medium text-muted">Notes</th>
           </tr>
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={7} className="py-12 text-center text-gray-400">Loading…</td></tr>
+            <tr><td colSpan={7} className="py-12 text-center text-muted">Loading…</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={7} className="py-12 text-center text-gray-400">No trips in selected period</td></tr>
+            <tr><td colSpan={7} className="py-12 text-center text-muted">No trips in selected period</td></tr>
           ) : (
             rows.map((r) => (
-              <tr key={r.trip_id} className="border-b border-border last:border-0 hover:bg-gray-50">
-                <td className="py-2.5 px-4 font-medium text-gray-900">{r.driver_name}</td>
-                <td className="py-2.5 px-4 text-gray-600">{r.trip_date}</td>
-                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.cash_aed)}</td>
-                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.card_aed)}</td>
-                <td className="py-2.5 px-4 text-right text-gray-700">{formatAed(r.other_aed)}</td>
-                <td className="py-2.5 px-4 text-right font-semibold text-gray-900">{formatAed(r.total_aed)}</td>
-                <td className="py-2.5 px-4 text-gray-500 text-xs">{r.notes ?? '—'}</td>
+              <tr key={r.trip_id} className="border-b border-border last:border-0 hover:bg-surface">
+                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                <td className="py-2.5 px-4 text-muted">{r.trip_date}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.cash_aed)}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.card_aed)}</td>
+                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.other_aed)}</td>
+                <td className="py-2.5 px-4 text-right font-semibold text-primary">{formatAed(r.total_aed)}</td>
+                <td className="py-2.5 px-4 text-muted text-xs">{r.notes ?? '—'}</td>
               </tr>
             ))
           )}
@@ -252,15 +251,15 @@ function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading:
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-white rounded-xl border border-border p-4">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+      <p className="text-xs text-muted mb-1">{label}</p>
+      <p className="text-xl font-bold text-primary">{value}</p>
+      {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
     </div>
   )
 }
 
 function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; loading: boolean }) {
-  if (loading) return <div className="py-12 text-center text-gray-400">Loading…</div>
+  if (loading) return <div className="py-12 text-center text-muted">Loading…</div>
   if (!data) return null
 
   return (
@@ -275,18 +274,18 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
 
       {/* Revenue breakdown */}
       <div className="bg-white rounded-xl border border-border p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Revenue Breakdown</h3>
+        <h3 className="text-sm font-semibold text-primary mb-3">Revenue Breakdown</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-xs text-gray-500">Cash</p>
+            <p className="text-xs text-muted">Cash</p>
             <p className="text-base font-semibold">{formatAed(data.trip_revenue_cash)}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Card</p>
+            <p className="text-xs text-muted">Card</p>
             <p className="text-base font-semibold">{formatAed(data.trip_revenue_card)}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Other</p>
+            <p className="text-xs text-muted">Other</p>
             <p className="text-base font-semibold">{formatAed(data.trip_revenue_other)}</p>
           </div>
         </div>
@@ -295,19 +294,19 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
       {/* Expenses by category */}
       {data.expense_by_category.length > 0 && (
         <div className="bg-white rounded-xl border border-border overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-gray-50">
-            <h3 className="text-sm font-semibold text-gray-700">Expenses by Category</h3>
+          <div className="px-4 py-3 border-b border-border bg-surface">
+            <h3 className="text-sm font-semibold text-primary">Expenses by Category</h3>
           </div>
           <table className="w-full text-sm">
             <tbody>
               {data.expense_by_category.map((cat) => (
                 <tr key={cat.category} className="border-b border-border last:border-0">
-                  <td className="py-2.5 px-4 text-gray-700 capitalize">{cat.category.replace(/_/g, ' ')}</td>
+                  <td className="py-2.5 px-4 text-primary capitalize">{cat.category.replace(/_/g, ' ')}</td>
                   <td className="py-2.5 px-4 text-right font-medium text-red-600">{formatAed(cat.total_aed)}</td>
                 </tr>
               ))}
-              <tr className="bg-gray-50 font-semibold border-t-2 border-gray-200">
-                <td className="py-3 px-4 text-gray-700">Total</td>
+              <tr className="bg-surface font-semibold border-t-2 border-border">
+                <td className="py-3 px-4 text-primary">Total</td>
                 <td className="py-3 px-4 text-right text-red-700">{formatAed(data.total_expenses)}</td>
               </tr>
             </tbody>

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { apiGet, apiPost } from '../../lib/api'
 import { Button } from '../../components/ui/Button'
@@ -84,12 +83,12 @@ export default function MyAdvances() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">My Advances</h2>
-          <p className="text-sm text-gray-500">Updates in real-time</p>
+          <h2 className="text-lg font-bold text-primary">My Advances</h2>
+          <p className="text-sm text-muted">Updates in real-time</p>
         </div>
         {!hasPending && (
           <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-            <Plus className="w-4 h-4 mr-1" /> Request
+            <span className="material-symbols-rounded text-[16px] mr-1">add</span> Request
           </Button>
         )}
       </div>
@@ -106,14 +105,14 @@ export default function MyAdvances() {
           onSubmit={handleSubmit((d: Form) => mutate(d))}
           className="bg-white rounded-2xl border border-border p-4 space-y-3"
         >
-          <h3 className="font-semibold text-gray-900">New Advance Request</h3>
+          <h3 className="font-semibold text-primary">New Advance Request</h3>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Amount (AED)</label>
+            <label className="block text-xs text-muted mb-1">Amount (AED)</label>
             <Input type="number" step="0.01" min="1" {...register('amount_aed')} />
             {errors.amount_aed && <p className="text-xs text-red-500 mt-1">{errors.amount_aed.message}</p>}
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Reason</label>
+            <label className="block text-xs text-muted mb-1">Reason</label>
             <Input {...register('reason')} placeholder="Why do you need this advance?" />
             {errors.reason && <p className="text-xs text-red-500 mt-1">{errors.reason.message}</p>}
           </div>
@@ -129,22 +128,22 @@ export default function MyAdvances() {
       {/* Advances list */}
       {isLoading ? (
         <div className="py-10 flex justify-center">
-          <div className="animate-spin w-6 h-6 border-2 border-brand border-t-transparent rounded-full" />
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : advances.length === 0 ? (
-        <div className="py-12 text-center text-gray-400">No advance requests</div>
+        <div className="py-12 text-center text-muted">No advance requests</div>
       ) : (
         <div className="space-y-3">
           {advances.map((a) => (
             <div key={a.id} className="bg-white rounded-2xl border border-border p-4">
               <div className="flex items-start justify-between mb-2">
-                <p className="text-lg font-bold text-gray-900">{formatAed(a.amount_aed)}</p>
+                <p className="text-lg font-bold text-primary">{formatAed(a.amount_aed)}</p>
                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_COLORS[a.status]}`}>
                   {a.status}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{a.reason}</p>
-              <p className="text-xs text-gray-400">{formatDate(a.created_at)}</p>
+              <p className="text-sm text-muted mb-2">{a.reason}</p>
+              <p className="text-xs text-muted">{formatDate(a.created_at)}</p>
               {a.rejection_reason && (
                 <p className="text-xs text-red-600 mt-2 bg-red-50 rounded p-2">
                   Rejected: {a.rejection_reason}

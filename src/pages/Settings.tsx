@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Settings2, Pencil, Check, X } from 'lucide-react'
 import { apiGet, apiPut } from '../lib/api'
 import { Input } from '../components/ui/Input'
 import { useAuthStore } from '../store/authStore'
@@ -37,18 +36,18 @@ function SettingsSection({ title, settings, canEdit }: { title: string; settings
   if (settings.length === 0) return null
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+      <div className="px-4 py-3 border-b border-border bg-surface">
+        <h3 className="text-sm font-semibold text-primary">{title}</h3>
       </div>
       <table className="w-full">
         <tbody>
           {settings.map((s) => (
             <tr key={s.key} className="group border-b border-border last:border-0">
-              <td className="py-3 px-4 text-sm font-medium text-gray-700 w-64">{formatKey(s.key)}</td>
+              <td className="py-3 px-4 text-sm font-medium text-primary w-64">{formatKey(s.key)}</td>
               <td className="py-3 px-4">
                 <EditRowInner setting={s} canEdit={canEdit} />
               </td>
-              <td className="py-3 px-4 text-xs text-gray-400">
+              <td className="py-3 px-4 text-xs text-muted">
                 {s.updated_at ? new Date(s.updated_at).toLocaleDateString() : '—'}
               </td>
             </tr>
@@ -72,7 +71,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
     },
   })
 
-  if (!canEdit) return <span className="text-sm text-gray-900">{setting.value || '—'}</span>
+  if (!canEdit) return <span className="text-sm text-primary">{setting.value || '—'}</span>
 
   return editing ? (
     <div className="flex items-center gap-2">
@@ -87,23 +86,23 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
         disabled={isPending}
         className="p-1.5 text-green-600 hover:bg-green-50 rounded"
       >
-        <Check className="w-4 h-4" />
+        <span className="material-symbols-rounded text-[16px]">check</span>
       </button>
       <button
         onClick={() => { setEditing(false); setValue(setting.value) }}
-        className="p-1.5 text-gray-400 hover:bg-gray-50 rounded"
+        className="p-1.5 text-muted hover:bg-surface rounded"
       >
-        <X className="w-4 h-4" />
+        <span className="material-symbols-rounded text-[16px]">close</span>
       </button>
     </div>
   ) : (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-900">{setting.value || '—'}</span>
+      <span className="text-sm text-primary">{setting.value || '—'}</span>
       <button
         onClick={() => { setValue(setting.value); setEditing(true) }}
-        className="p-1 text-gray-400 hover:text-gray-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+        className="p-1 text-muted hover:text-primary rounded opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <Pencil className="w-3.5 h-3.5" />
+        <span className="material-symbols-rounded text-[14px]">edit</span>
       </button>
     </div>
   )
@@ -123,7 +122,7 @@ export default function Settings() {
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center h-48">
-        <div className="animate-spin w-6 h-6 border-2 border-brand border-t-transparent rounded-full" />
+        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -131,8 +130,8 @@ export default function Settings() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Settings2 className="w-6 h-6 text-brand" />
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <span className="material-symbols-rounded text-[24px] text-primary">settings</span>
+        <h1 className="text-2xl font-bold text-primary">Settings</h1>
       </div>
 
       <div className="space-y-4">
