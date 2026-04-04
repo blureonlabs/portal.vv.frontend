@@ -18,6 +18,18 @@ export async function apiGet<T>(path: string): Promise<T> {
   return json.data
 }
 
+export interface PaginatedResult<T> {
+  data: T[]
+  meta: { page: number; limit: number; total: number }
+}
+
+export async function apiGetPaginated<T>(path: string): Promise<PaginatedResult<T>> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: await getAuthHeaders() })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error ?? 'Request failed')
+  return { data: json.data, meta: json.meta }
+}
+
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
