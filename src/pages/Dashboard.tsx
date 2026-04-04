@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -93,10 +94,23 @@ const PIE_COLORS = {
   other: '#9baad6',
 }
 
+const LS_KEY = 'fms-dismissed-notifications'
+function getDismissed(): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem(LS_KEY) || '[]')) } catch { return new Set() }
+}
+
 export default function Dashboard() {
   const { user } = useAuthStore()
   const navigate = useNavigate()
   const monthLabel = new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })
+  const [dismissed, setDismissed] = useState<Set<string>>(getDismissed)
+  const dismiss = useCallback((id: string) => {
+    setDismissed(prev => {
+      const next = new Set(prev); next.add(id)
+      localStorage.setItem(LS_KEY, JSON.stringify([...next]))
+      return next
+    })
+  }, [])
 
   const { data: kpis, isLoading, isError } = useQuery<DashboardKpis>({
     queryKey: ['dashboard'],
@@ -162,9 +176,9 @@ export default function Dashboard() {
       {/* TODO: Document expiry alerts when backend endpoint is added */}
 
       {/* ── Insurance Alerts ── */}
-      {kpis && kpis.insurance_expiring_soon.length > 0 && (
+      {kpis && kpis.insurance_expiring_soon.filter(a => !dismissed.has(`insurance-${a.vehicle_id}`)).length > 0 && (
         <div className="space-y-2">
-          {kpis.insurance_expiring_soon.map((a) => (
+          {kpis.insurance_expiring_soon.filter(a => !dismissed.has(`insurance-${a.vehicle_id}`)).map((a) => (
             <div
               key={a.vehicle_id}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
@@ -176,18 +190,16 @@ export default function Dashboard() {
               }`}
             >
               <MsIcon name="warning" className="text-lg flex-shrink-0" />
-              <span>
+              <span className="flex-1">
                 Vehicle <strong>{a.plate_number}</strong>{' '}
                 {a.is_expired
                   ? <>insurance <strong>expired</strong> on {new Date(a.insurance_expiry).toLocaleDateString('en-GB')}</>
                   : <>insurance expires in <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}({new Date(a.insurance_expiry).toLocaleDateString('en-GB')})</>
                 }
               </span>
-              <button
-                onClick={() => navigate('/vehicles')}
-                className="ml-auto text-xs underline underline-offset-2 whitespace-nowrap"
-              >
-                View vehicles
+              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap">View</button>
+              <button onClick={() => dismiss(`insurance-${a.vehicle_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+                <MsIcon name="close" className="text-lg" />
               </button>
             </div>
           ))}
@@ -195,42 +207,37 @@ export default function Dashboard() {
       )}
 
       {/* ── Cash Shortfall Alerts ── */}
-      {kpis && kpis.cash_shortfall_drivers.length > 0 && (
+      {kpis && kpis.cash_shortfall_drivers.filter(a => !dismissed.has(`shortfall-${a.driver_id}`)).length > 0 && (
         <div className="space-y-2">
-          {kpis.cash_shortfall_drivers.map((a) => (
-            <div
-              key={a.driver_id}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-red-50 border border-red-200 text-red-800"
-            >
+          {kpis.cash_shortfall_drivers.filter(a => !dismissed.has(`shortfall-${a.driver_id}`)).map((a) => (
+            <div key={a.driver_id} className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-red-50 border border-red-200 text-red-800">
               <MsIcon name="account_balance_wallet" className="text-lg flex-shrink-0" />
-              <span>
+              <span className="flex-1">
                 <strong>{a.driver_name}</strong> has a cash shortfall of{' '}
                 <strong>{formatAed(a.shortfall)}</strong>{' '}
                 (received {formatAed(a.cash_received)}, submitted {formatAed(a.cash_submitted)})
               </span>
+              <button onClick={() => dismiss(`shortfall-${a.driver_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+                <MsIcon name="close" className="text-lg" />
+              </button>
             </div>
           ))}
         </div>
       )}
 
       {/* ── Service Overdue Alerts ── */}
-      {kpis && kpis.service_overdue_vehicles.length > 0 && (
+      {kpis && kpis.service_overdue_vehicles.filter(a => !dismissed.has(`svc-overdue-${a.vehicle_id}`)).length > 0 && (
         <div className="space-y-2">
-          {kpis.service_overdue_vehicles.map((a) => (
-            <div
-              key={a.vehicle_id}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-amber-50 border border-amber-200 text-amber-800"
-            >
+          {kpis.service_overdue_vehicles.filter(a => !dismissed.has(`svc-overdue-${a.vehicle_id}`)).map((a) => (
+            <div key={a.vehicle_id} className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium bg-amber-50 border border-amber-200 text-amber-800">
               <MsIcon name="build" className="text-lg flex-shrink-0" />
-              <span>
+              <span className="flex-1">
                 Vehicle <strong>{a.plate_number}</strong> — {a.service_type} service was due on{' '}
                 <strong>{new Date(a.next_due).toLocaleDateString('en-GB')}</strong>
               </span>
-              <button
-                onClick={() => navigate('/vehicles')}
-                className="ml-auto text-xs underline underline-offset-2 whitespace-nowrap"
-              >
-                View vehicles
+              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap">View</button>
+              <button onClick={() => dismiss(`svc-overdue-${a.vehicle_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+                <MsIcon name="close" className="text-lg" />
               </button>
             </div>
           ))}
