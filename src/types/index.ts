@@ -31,6 +31,8 @@ export interface Driver {
   salary_type: SalaryType
   is_active: boolean
   self_entry_enabled: boolean
+  room_rent_aed: string
+  commission_rate: string | null
   created_at: string
 }
 

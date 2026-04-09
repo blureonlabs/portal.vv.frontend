@@ -137,6 +137,7 @@ export default function SalaryPage() {
   const [showForm, setShowForm] = useState(false)
   const [filterDriver, setFilterDriver] = useState('')
   const [filterMonth, setFilterMonth] = useState('')
+  const [filterType, setFilterType] = useState<SalaryType | ''>('')
 
   const { data: drivers = [] } = useQuery<Driver[]>({
     queryKey: ['drivers'],
@@ -181,6 +182,10 @@ export default function SalaryPage() {
   })
 
   const activeDrivers = drivers.filter((d) => d.is_active)
+
+  const filteredSalaries = filterType
+    ? salaries.filter((s) => s.salary_type_snapshot === filterType)
+    : salaries
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
@@ -269,7 +274,7 @@ export default function SalaryPage() {
       )}
 
       {/* Filters */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Select value={filterDriver} onChange={(e) => setFilterDriver(e.target.value)} className="max-w-xs">
           <option value="">All Drivers</option>
           {drivers.map((d) => (
@@ -282,6 +287,16 @@ export default function SalaryPage() {
           onChange={(e) => setFilterMonth(e.target.value)}
           className="max-w-[200px]"
         />
+        <Select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value as SalaryType | '')}
+          className="max-w-[180px]"
+        >
+          <option value="">All Types</option>
+          <option value="commission">Commission</option>
+          <option value="target_high">Target High</option>
+          <option value="target_low">Target Low</option>
+        </Select>
       </div>
 
       {/* Salary list */}
@@ -289,11 +304,11 @@ export default function SalaryPage() {
         <div className="py-16 flex justify-center">
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
-      ) : salaries.length === 0 ? (
+      ) : filteredSalaries.length === 0 ? (
         <div className="py-16 text-center text-muted">No salary records found</div>
       ) : (
         <div className="space-y-3">
-          {salaries.map((s) => <SalaryRow key={s.id} s={s} />)}
+          {filteredSalaries.map((s) => <SalaryRow key={s.id} s={s} />)}
         </div>
       )}
     </div>

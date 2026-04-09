@@ -25,11 +25,15 @@ const createSchema = z.object({
   profile_id: z.string().uuid('Select a user'),
   nationality: z.string().min(2, 'Required'),
   salary_type: z.enum(['commission', 'target_high', 'target_low']),
+  room_rent_aed: z.coerce.number().min(0).default(0),
+  commission_rate: z.coerce.number().min(0).max(100).optional(),
 })
 
 const editSchema = z.object({
   nationality: z.string().min(2, 'Required'),
   salary_type: z.enum(['commission', 'target_high', 'target_low']),
+  room_rent_aed: z.coerce.number().min(0).default(0),
+  commission_rate: z.coerce.number().min(0).max(100).optional(),
 })
 
 type CreateForm = z.infer<typeof createSchema>
@@ -69,14 +73,24 @@ export default function Drivers() {
     d.nationality.toLowerCase().includes(search.toLowerCase())
   )
 
+  function toDriverPayload(form: CreateForm | EditForm) {
+    return {
+      ...form,
+      room_rent_aed: form.room_rent_aed ?? 0,
+      commission_rate: form.commission_rate != null && form.commission_rate > 0
+        ? form.commission_rate / 100
+        : null,
+    }
+  }
+
   const createMutation = useMutation({
-    mutationFn: (body: CreateForm) => apiPost('/drivers', body),
+    mutationFn: (body: CreateForm) => apiPost('/drivers', toDriverPayload(body)),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setShowCreate(false); createForm.reset() },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
 
   const editMutation = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: EditForm }) => apiPut(`/drivers/${id}`, body),
+    mutationFn: ({ id, body }: { id: string; body: EditForm }) => apiPut(`/drivers/${id}`, toDriverPayload(body)),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setEditDriver(null) },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
@@ -98,12 +112,12 @@ export default function Drivers() {
   })
 
   const createForm = useForm<CreateForm>({
-    resolver: zodResolver(createSchema),
+    resolver: zodResolver(createSchema) as never,
     defaultValues: { salary_type: 'commission' },
   })
 
   const editForm = useForm<EditForm>({
-    resolver: zodResolver(editSchema),
+    resolver: zodResolver(editSchema) as never,
   })
 
   // Profiles that don't already have a driver record
@@ -115,7 +129,12 @@ export default function Drivers() {
   const onEdit = (driver: Driver) => {
     setEditDriver(driver)
     setApiError('')
-    editForm.reset({ nationality: driver.nationality, salary_type: driver.salary_type })
+    editForm.reset({
+      nationality: driver.nationality,
+      salary_type: driver.salary_type,
+      room_rent_aed: parseFloat(driver.room_rent_aed) || 0,
+      commission_rate: driver.commission_rate != null ? parseFloat(driver.commission_rate) * 100 : undefined,
+    })
   }
 
   return (
@@ -182,6 +201,12 @@ export default function Drivers() {
             <div className="text-xs text-muted space-y-1">
               <p>Nationality: <span className="text-primary">{driver.nationality}</span></p>
               <p>Salary: <span className="text-primary">{salaryLabel(driver.salary_type)}</span></p>
+              {parseFloat(driver.room_rent_aed) > 0 && (
+                <p>Room Rent: <span className="text-primary">AED {parseFloat(driver.room_rent_aed).toFixed(2)}</span></p>
+              )}
+              {driver.commission_rate != null && (
+                <p>Commission: <span className="text-primary">{(parseFloat(driver.commission_rate) * 100).toFixed(2)}%</span></p>
+              )}
               {isSuperAdmin && (
                 <div className="flex items-center justify-between pt-1">
                   <span>Self-entry</span>
@@ -264,6 +289,12 @@ export default function Drivers() {
                 <Select id="salary_type" label="Salary Type" options={SALARY_OPTIONS}
                   error={createForm.formState.errors.salary_type?.message}
                   {...createForm.register('salary_type')} />
+                <Input id="room_rent_aed" label="Room Rent (AED)" type="number" step="0.01" min="0" placeholder="0"
+                  error={createForm.formState.errors.room_rent_aed?.message}
+                  {...createForm.register('room_rent_aed')} />
+                <Input id="commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
+                  error={createForm.formState.errors.commission_rate?.message}
+                  {...createForm.register('commission_rate')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 
@@ -308,6 +339,12 @@ export default function Drivers() {
                 <Select id="edit-salary_type" label="Salary Type" options={SALARY_OPTIONS}
                   error={editForm.formState.errors.salary_type?.message}
                   {...editForm.register('salary_type')} />
+                <Input id="edit-room_rent_aed" label="Room Rent (AED)" type="number" step="0.01" min="0" placeholder="0"
+                  error={editForm.formState.errors.room_rent_aed?.message}
+                  {...editForm.register('room_rent_aed')} />
+                <Input id="edit-commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
+                  error={editForm.formState.errors.commission_rate?.message}
+                  {...editForm.register('commission_rate')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 

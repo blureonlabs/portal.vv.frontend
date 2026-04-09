@@ -47,6 +47,8 @@ const driverSchema = baseSchema.extend({
   nationality: z.string().min(2, 'Nationality required'),
   salary_type: z.enum(['commission', 'target_high', 'target_low']),
   company_name: z.string().optional(),
+  room_rent_aed: z.coerce.number().min(0).default(0),
+  commission_rate: z.coerce.number().min(0).max(100).optional(),
 })
 
 // Owner creation: requires password, optional company_name
@@ -63,6 +65,8 @@ const inviteSchema = baseSchema.extend({
   nationality: z.string().optional(),
   salary_type: z.enum(['commission', 'target_high', 'target_low']).optional(),
   company_name: z.string().optional(),
+  room_rent_aed: z.coerce.number().min(0).default(0),
+  commission_rate: z.coerce.number().min(0).max(100).optional(),
 })
 
 // Combined discriminated schema — we use the loose inviteSchema for the form
@@ -135,6 +139,8 @@ export default function UserManagement() {
       phone?: string
       nationality: string
       salary_type: string
+      room_rent_aed: number
+      commission_rate: number | null
     }) => apiPost('/drivers/create-with-account', body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['users'] })
@@ -178,7 +184,7 @@ export default function UserManagement() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<UserForm>({
-    resolver: zodResolver(inviteSchema),
+    resolver: zodResolver(inviteSchema) as never,
     defaultValues: { role: 'super_admin' },
   })
 
@@ -211,6 +217,10 @@ export default function UserManagement() {
         phone: data.phone || undefined,
         nationality: data.nationality!,
         salary_type: data.salary_type!,
+        room_rent_aed: data.room_rent_aed ?? 0,
+        commission_rate: data.commission_rate != null && data.commission_rate > 0
+          ? data.commission_rate / 100
+          : null,
       })
       return
     }
@@ -487,6 +497,27 @@ export default function UserManagement() {
                       options={SALARY_OPTIONS}
                       error={errors.salary_type?.message}
                       {...register('salary_type')}
+                    />
+                    <Input
+                      id="um-room-rent"
+                      label="Room Rent (AED)"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0"
+                      error={errors.room_rent_aed?.message}
+                      {...register('room_rent_aed')}
+                    />
+                    <Input
+                      id="um-commission-rate"
+                      label="Commission Rate (%)"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      placeholder="Default (from settings)"
+                      error={errors.commission_rate?.message}
+                      {...register('commission_rate')}
                     />
                   </>
                 )}
