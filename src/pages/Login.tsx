@@ -88,16 +88,19 @@ export default function Login() {
             />
 
             {error && (
-              <p className="text-sm text-danger bg-red-50 rounded-xl px-3 py-2">{error}</p>
+              <p role="alert" className="text-sm text-danger bg-red-50 rounded-xl px-3 py-2">{error}</p>
             )}
 
-            <Button type="submit" loading={isSubmitting} className="w-full mt-2">
+            <Button type="submit" size="lg" loading={isSubmitting} className="w-full mt-2">
               Sign in
             </Button>
           </form>
 
           <div className="mt-4 text-center">
-            <Link to="/forgot-password" className="text-sm text-muted hover:text-primary transition-colors">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-muted hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:underline"
+            >
               Forgot your password?
             </Link>
           </div>

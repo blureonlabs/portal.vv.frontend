@@ -26,22 +26,23 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        aria-label="Previous page"
+        className="w-10 h-10 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
+        aria-label="Go to previous page"
       >
         <span className="material-symbols-rounded text-[18px]">chevron_left</span>
       </button>
 
       {pages.map((p, i) =>
         p === '...' ? (
-          <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-sm text-muted">
+          <span key={`ellipsis-${i}`} className="w-10 h-10 flex items-center justify-center text-sm text-muted">
             …
           </span>
         ) : (
           <button
             key={p}
             onClick={() => onPageChange(p as number)}
-            className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+            aria-current={p === page ? 'page' : undefined}
+            className={`w-10 h-10 rounded-full text-sm font-medium transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 ${
               p === page
                 ? 'bg-primary text-white'
                 : 'text-muted hover:text-primary hover:bg-surface'
@@ -55,8 +56,8 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        aria-label="Next page"
+        className="w-10 h-10 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
+        aria-label="Go to next page"
       >
         <span className="material-symbols-rounded text-[18px]">chevron_right</span>
       </button>

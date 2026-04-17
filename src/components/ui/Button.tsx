@@ -9,16 +9,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, disabled, children, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 rounded-full font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+    const base = 'inline-flex items-center justify-center gap-2 rounded-full font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
 
     const variants = {
       primary: 'bg-primary text-white hover:bg-primary/90 active:bg-primary/80 shadow-sm hover:shadow-md',
       outline: 'border border-border bg-white text-primary hover:bg-surface hover:border-primary/20',
       ghost: 'text-muted hover:bg-surface hover:text-primary',
-      danger: 'bg-danger text-white hover:bg-red-600 shadow-sm',
+      danger: 'bg-danger text-white hover:bg-red-600 active:bg-red-700 shadow-sm',
     }
 
     const sizes = {
+      // sm: suitable for secondary/compact actions (e.g. table row buttons, inline controls)
       sm: 'h-8 px-4 text-xs',
       md: 'h-10 px-5 text-sm',
       lg: 'h-11 px-7 text-sm',

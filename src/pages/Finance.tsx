@@ -173,14 +173,14 @@ export default function Finance() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-muted">From</label>
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
+          <label htmlFor="finance-from" className="text-sm text-muted">From</label>
+          <input id="finance-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)}
+            className="h-10 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-muted">To</label>
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
+          <label htmlFor="finance-to" className="text-sm text-muted">To</label>
+          <input id="finance-to" type="date" value={to} onChange={(e) => setTo(e.target.value)}
+            className="h-10 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         {canManage && (
           <Select

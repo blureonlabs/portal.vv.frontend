@@ -35,22 +35,32 @@ function KpiCard({
   accent: string
   onClick?: () => void
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`bg-white rounded-2xl border border-border p-5 text-left w-full hover-lift ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0 pr-2">
-          <p className="text-xs font-medium text-muted uppercase tracking-wide">{label}</p>
-          <p className="text-2xl font-bold text-primary mt-1 truncate">{value}</p>
-          {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
-        </div>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accent}`}>
-          <MsIcon name={icon} className="text-white text-[20px]" />
-        </div>
+  const inner = (
+    <div className="flex items-start justify-between">
+      <div className="flex-1 min-w-0 pr-2">
+        <p className="text-xs font-medium text-muted uppercase tracking-wide">{label}</p>
+        <p className="text-2xl font-bold text-primary mt-1 truncate">{value}</p>
+        {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
       </div>
-    </button>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accent}`}>
+        <MsIcon name={icon} className="text-white text-[20px]" />
+      </div>
+    </div>
+  )
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className="bg-white rounded-2xl border border-border p-5 text-left w-full hover-lift motion-reduce:transform-none cursor-pointer"
+      >
+        {inner}
+      </button>
+    )
+  }
+  return (
+    <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
+      {inner}
+    </div>
   )
 }
 
@@ -231,13 +241,14 @@ export default function Dashboard() {
               </span>
               <button
                 onClick={() => navigate(a.entity_type === 'driver' ? '/drivers' : '/vehicles')}
-                className="text-xs underline underline-offset-2 whitespace-nowrap"
+                className="text-xs underline underline-offset-2 whitespace-nowrap cursor-pointer"
               >
                 View
               </button>
               <button
                 onClick={() => dismiss(docAlertKey(a))}
-                className="opacity-50 hover:opacity-100 transition-opacity"
+                aria-label="Dismiss"
+                className="p-2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer rounded"
               >
                 <MsIcon name="close" className="text-lg" />
               </button>
@@ -268,8 +279,8 @@ export default function Dashboard() {
                   : <>insurance expires in <strong>{a.days_left} day{a.days_left !== 1 ? 's' : ''}</strong>{' '}({new Date(a.insurance_expiry).toLocaleDateString('en-GB')})</>
                 }
               </span>
-              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap">View</button>
-              <button onClick={() => dismiss(`insurance-${a.vehicle_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap cursor-pointer">View</button>
+              <button onClick={() => dismiss(`insurance-${a.vehicle_id}`)} aria-label="Dismiss" className="p-2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer rounded">
                 <MsIcon name="close" className="text-lg" />
               </button>
             </div>
@@ -288,7 +299,7 @@ export default function Dashboard() {
                 <strong>{formatAed(a.shortfall)}</strong>{' '}
                 (received {formatAed(a.cash_received)}, submitted {formatAed(a.cash_submitted)})
               </span>
-              <button onClick={() => dismiss(`shortfall-${a.driver_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+              <button onClick={() => dismiss(`shortfall-${a.driver_id}`)} aria-label="Dismiss" className="p-2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer rounded">
                 <MsIcon name="close" className="text-lg" />
               </button>
             </div>
@@ -306,8 +317,8 @@ export default function Dashboard() {
                 Vehicle <strong>{a.plate_number}</strong> — {a.service_type} service was due on{' '}
                 <strong>{new Date(a.next_due).toLocaleDateString('en-GB')}</strong>
               </span>
-              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap">View</button>
-              <button onClick={() => dismiss(`svc-overdue-${a.vehicle_id}`)} className="opacity-50 hover:opacity-100 transition-opacity">
+              <button onClick={() => navigate('/vehicles')} className="text-xs underline underline-offset-2 whitespace-nowrap cursor-pointer">View</button>
+              <button onClick={() => dismiss(`svc-overdue-${a.vehicle_id}`)} aria-label="Dismiss" className="p-2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer rounded">
                 <MsIcon name="close" className="text-lg" />
               </button>
             </div>
@@ -402,7 +413,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Revenue Trend (area chart) — spans 2 cols */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-5 hover-lift">
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
             <div className="flex items-start justify-between mb-1">
               <div>
                 <p className="text-sm font-semibold text-primary">Revenue — Last 30 Days</p>
@@ -466,7 +477,7 @@ export default function Dashboard() {
           </div>
 
           {/* Income Breakdown Pie */}
-          <div className="bg-white rounded-2xl border border-border p-5 hover-lift flex flex-col">
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none flex flex-col">
             <p className="text-sm font-semibold text-primary">Income Breakdown</p>
             <p className="text-xs text-muted mt-0.5 mb-4">Current month · by payment type</p>
 
@@ -574,7 +585,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Top Drivers */}
-          <div className="bg-white rounded-2xl border border-border p-5 hover-lift">
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Top Drivers</p>
               <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
@@ -630,7 +641,7 @@ export default function Dashboard() {
           </div>
 
           {/* Bottom Drivers */}
-          <div className="bg-white rounded-2xl border border-border p-5 hover-lift">
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Bottom Drivers</p>
               <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
@@ -677,7 +688,7 @@ export default function Dashboard() {
           </div>
 
           {/* Per-Driver Financials */}
-          <div className="bg-white rounded-2xl border border-border p-5 hover-lift flex flex-col">
+          <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Per-Driver Financials</p>
               <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">

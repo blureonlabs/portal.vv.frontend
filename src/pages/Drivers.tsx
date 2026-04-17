@@ -55,6 +55,7 @@ export default function Drivers() {
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
   const [confirmMsg, setConfirmMsg] = useState('')
   const [confirmTitle, setConfirmTitle] = useState('')
+  const [confirmVariant, setConfirmVariant] = useState<'danger' | 'primary'>('danger')
   const isSuperAdmin = user?.role === 'super_admin'
 
   const { data: drivers = [], isLoading: driversLoading } = useQuery<Driver[]>({
@@ -219,9 +220,11 @@ export default function Drivers() {
                   <span>Self-entry</span>
                   <button
                     onClick={() => selfEntryMutation.mutate({ id: driver.id, enabled: !driver.self_entry_enabled })}
-                    className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${driver.self_entry_enabled ? 'bg-accent' : 'bg-border'}`}
+                    aria-label={driver.self_entry_enabled ? 'Disable self-entry' : 'Enable self-entry'}
+                    aria-pressed={driver.self_entry_enabled}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent/50 ${driver.self_entry_enabled ? 'bg-accent' : 'bg-border'}`}
                   >
-                    <span className={`inline-block h-3 w-3 rounded-full bg-white transition-transform ${driver.self_entry_enabled ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                    <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${driver.self_entry_enabled ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
                   </button>
                 </div>
               )}
@@ -231,7 +234,7 @@ export default function Drivers() {
               <div className="flex gap-2 pt-1 border-t border-border mt-1">
                 <button
                   onClick={() => onEdit(driver)}
-                  className="flex-1 text-xs text-muted hover:text-primary transition-colors py-1"
+                  className="flex-1 text-xs text-muted hover:text-primary transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
                 >
                   Edit
                 </button>
@@ -241,9 +244,10 @@ export default function Drivers() {
                       onClick={() => {
                         setConfirmTitle('Deactivate Driver')
                         setConfirmMsg(`Are you sure you want to deactivate ${driver.full_name}? They will no longer be able to log in.`)
+                        setConfirmVariant('danger')
                         setConfirmAction(() => () => deactivateMutation.mutate(driver.id))
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
+                      className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-danger/30"
                     >
                       <span className="material-symbols-rounded text-[12px]">person_off</span> Deactivate
                     </button>
@@ -252,9 +256,10 @@ export default function Drivers() {
                       onClick={() => {
                         setConfirmTitle('Reactivate Driver')
                         setConfirmMsg(`Reactivate ${driver.full_name} and restore their access?`)
+                        setConfirmVariant('primary')
                         setConfirmAction(() => () => activateMutation.mutate(driver.id))
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
+                      className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-success/30"
                     >
                       <span className="material-symbols-rounded text-[12px]">how_to_reg</span> Activate
                     </button>
@@ -324,7 +329,7 @@ export default function Drivers() {
         title={confirmTitle}
         message={confirmMsg}
         confirmLabel="Confirm"
-        variant="danger"
+        variant={confirmVariant}
         onConfirm={() => { confirmAction?.(); setConfirmAction(null) }}
         onCancel={() => setConfirmAction(null)}
       />

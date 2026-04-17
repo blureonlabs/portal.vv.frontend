@@ -38,6 +38,9 @@ export function ConfirmDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.18 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-dialog-title"
             className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-sm p-6"
           >
             {/* Icon + Title */}
@@ -52,7 +55,7 @@ export function ConfirmDialog({
                 </span>
               </div>
               <div>
-                <h3 className="text-base font-bold text-primary leading-snug">{title}</h3>
+                <h3 id="confirm-dialog-title" className="text-base font-bold text-primary leading-snug">{title}</h3>
                 <p className="text-sm text-muted mt-1 leading-relaxed">{message}</p>
               </div>
             </div>

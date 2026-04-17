@@ -10,9 +10,9 @@ interface BadgeProps {
 
 const variants: Record<BadgeVariant, string> = {
   default: 'bg-accent-light text-accent',
-  success: 'bg-emerald-50 text-success',
-  warning: 'bg-amber-50 text-warning',
-  danger: 'bg-red-50 text-danger',
+  success: 'bg-emerald-100 text-emerald-800',
+  warning: 'bg-amber-100 text-amber-800',
+  danger: 'bg-red-100 text-red-800',
   muted: 'bg-surface text-muted',
 }
 

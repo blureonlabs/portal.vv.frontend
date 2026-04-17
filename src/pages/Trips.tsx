@@ -254,14 +254,14 @@ export default function Trips() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-muted">From</label>
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
+          <label htmlFor="trips-from" className="text-sm text-muted">From</label>
+          <input id="trips-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)}
+            className="h-10 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-muted">To</label>
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
+          <label htmlFor="trips-to" className="text-sm text-muted">To</label>
+          <input id="trips-to" type="date" value={to} onChange={(e) => setTo(e.target.value)}
+            className="h-10 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         {canManage && (
           <Select
@@ -343,7 +343,8 @@ export default function Trips() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEdit(t)}
-                          className="text-accent hover:text-primary transition-colors p-1"
+                          className="text-accent hover:text-primary transition-colors p-2 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-primary/30"
+                          aria-label="Edit trip"
                           title="Edit trip"
                         >
                           <span className="material-symbols-rounded text-[14px]">edit</span>
@@ -353,7 +354,8 @@ export default function Trips() {
                             setConfirmMsg(`Delete the trip for ${t.driver_name ?? 'this driver'} on ${formatDate(t.trip_date)}? This cannot be undone.`)
                             setConfirmAction(() => () => deleteMutation.mutate(t.id))
                           }}
-                          className="text-danger hover:text-red-700 transition-colors p-1"
+                          className="text-danger hover:text-red-700 transition-colors p-2 cursor-pointer rounded focus-visible:ring-2 focus-visible:ring-primary/30"
+                          aria-label="Delete trip"
                           title="Delete trip"
                         >
                           <span className="material-symbols-rounded text-[14px]">delete</span>
@@ -386,9 +388,19 @@ export default function Trips() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/40" onClick={closeForm} />
             <motion.div
+              role="dialog"
+              aria-modal="true"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
             >
+              <button
+                type="button"
+                onClick={closeForm}
+                aria-label="Close"
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
+              >
+                <span className="material-symbols-rounded text-[18px]">close</span>
+              </button>
               <h2 className="text-lg font-bold text-primary mb-6">{formTitle}</h2>
               <form onSubmit={form.handleSubmit(handleFormSubmit)}
                 className="flex flex-col gap-4">
@@ -432,9 +444,19 @@ export default function Trips() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/40" onClick={() => { setShowCsv(false); setCsvPreview(null) }} />
             <motion.div
+              role="dialog"
+              aria-modal="true"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto"
             >
+              <button
+                type="button"
+                onClick={() => { setShowCsv(false); setCsvPreview(null); setCsvDriverId('') }}
+                aria-label="Close"
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
+              >
+                <span className="material-symbols-rounded text-[18px]">close</span>
+              </button>
               <h2 className="text-lg font-bold text-primary mb-1">CSV Import</h2>
               <p className="text-sm text-muted mb-6">Format: <code className="text-xs bg-surface px-1 py-0.5 rounded">date,cash_aed,uber_cash_aed,bolt_cash_aed,card_aed,notes</code></p>
 
