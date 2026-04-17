@@ -8,7 +8,7 @@ import {
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
-import type { DashboardKpis, DriverFinancial } from '../types'
+import type { DashboardKpis, DocumentExpiryAlert, DriverFinancial } from '../types'
 
 /** Material Symbols icon helper */
 function MsIcon({ name, className }: { name: string; className?: string }) {
@@ -94,6 +94,26 @@ const PIE_COLORS = {
   other: '#9baad6',
 }
 
+const DOC_TYPE_LABELS: Record<string, string> = {
+  license: 'Driving License',
+  visa: 'Visa',
+  passport: 'Passport',
+  emirates_id: 'Emirates ID',
+  medical: 'Medical Certificate',
+  registration_card: 'Registration Card',
+  insurance_certificate: 'Insurance Certificate',
+  receipt: 'Receipt',
+  other: 'Other',
+}
+
+function docTypeLabel(dt: string): string {
+  return DOC_TYPE_LABELS[dt] ?? dt
+}
+
+function docAlertKey(a: DocumentExpiryAlert): string {
+  return `doc-expiry-${a.document_id}`
+}
+
 const LS_KEY = 'fms-dismissed-notifications'
 function getDismissed(): Set<string> {
   try { return new Set(JSON.parse(localStorage.getItem(LS_KEY) || '[]')) } catch { return new Set() }
@@ -173,7 +193,58 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* TODO: Document expiry alerts when backend endpoint is added */}
+      {/* ── Document Expiry Alerts ── */}
+      {kpis && kpis.document_expiry_alerts.filter(a => !dismissed.has(docAlertKey(a))).length > 0 && (
+        <div className="space-y-2">
+          {kpis.document_expiry_alerts.filter(a => !dismissed.has(docAlertKey(a))).map((a) => (
+            <div
+              key={a.document_id}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                a.is_expired
+                  ? 'bg-red-100 border border-red-300 text-red-900'
+                  : a.days_until_expiry <= 7
+                  ? 'bg-red-50 border border-red-200 text-red-800'
+                  : 'bg-amber-50 border border-amber-200 text-amber-800'
+              }`}
+            >
+              <MsIcon
+                name={a.is_expired ? 'error' : 'warning'}
+                className="text-lg flex-shrink-0"
+              />
+              <span className="flex-1">
+                <strong>{a.entity_name}</strong>{' '}
+                <span className="opacity-75">({a.entity_type})</span>
+                {' — '}
+                {docTypeLabel(a.doc_type)}{' '}
+                {a.is_expired
+                  ? <>
+                      <strong>expired</strong> on{' '}
+                      {new Date(a.expiry_date).toLocaleDateString('en-GB')}{' '}
+                      ({Math.abs(a.days_until_expiry)} day{Math.abs(a.days_until_expiry) !== 1 ? 's' : ''} ago)
+                    </>
+                  : <>
+                      expires in{' '}
+                      <strong>{a.days_until_expiry} day{a.days_until_expiry !== 1 ? 's' : ''}</strong>{' '}
+                      ({new Date(a.expiry_date).toLocaleDateString('en-GB')})
+                    </>
+                }
+              </span>
+              <button
+                onClick={() => navigate(a.entity_type === 'driver' ? '/drivers' : '/vehicles')}
+                className="text-xs underline underline-offset-2 whitespace-nowrap"
+              >
+                View
+              </button>
+              <button
+                onClick={() => dismiss(docAlertKey(a))}
+                className="opacity-50 hover:opacity-100 transition-opacity"
+              >
+                <MsIcon name="close" className="text-lg" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ── Insurance Alerts ── */}
       {kpis && kpis.insurance_expiring_soon.filter(a => !dismissed.has(`insurance-${a.vehicle_id}`)).length > 0 && (

@@ -27,6 +27,7 @@ const createSchema = z.object({
   salary_type: z.enum(['commission', 'target_high', 'target_low']),
   room_rent_aed: z.coerce.number().min(0).default(0),
   commission_rate: z.coerce.number().min(0).max(100).optional(),
+  joining_date: z.string().optional().nullable(),
 })
 
 const editSchema = z.object({
@@ -34,6 +35,7 @@ const editSchema = z.object({
   salary_type: z.enum(['commission', 'target_high', 'target_low']),
   room_rent_aed: z.coerce.number().min(0).default(0),
   commission_rate: z.coerce.number().min(0).max(100).optional(),
+  joining_date: z.string().optional().nullable(),
 })
 
 type CreateForm = z.infer<typeof createSchema>
@@ -80,6 +82,7 @@ export default function Drivers() {
       commission_rate: form.commission_rate != null && form.commission_rate > 0
         ? form.commission_rate / 100
         : null,
+      joining_date: form.joining_date || null,
     }
   }
 
@@ -134,6 +137,7 @@ export default function Drivers() {
       salary_type: driver.salary_type,
       room_rent_aed: parseFloat(driver.room_rent_aed) || 0,
       commission_rate: driver.commission_rate != null ? parseFloat(driver.commission_rate) * 100 : undefined,
+      joining_date: driver.joining_date ?? '',
     })
   }
 
@@ -206,6 +210,9 @@ export default function Drivers() {
               )}
               {driver.commission_rate != null && (
                 <p>Commission: <span className="text-primary">{(parseFloat(driver.commission_rate) * 100).toFixed(2)}%</span></p>
+              )}
+              {driver.joining_date && (
+                <p>Joined: <span className="text-primary">{new Date(driver.joining_date).toLocaleDateString('en-GB')}</span></p>
               )}
               {isSuperAdmin && (
                 <div className="flex items-center justify-between pt-1">
@@ -295,6 +302,9 @@ export default function Drivers() {
                 <Input id="commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
                   error={createForm.formState.errors.commission_rate?.message}
                   {...createForm.register('commission_rate')} />
+                <Input id="joining_date" label="Joining Date" type="date"
+                  error={createForm.formState.errors.joining_date?.message}
+                  {...createForm.register('joining_date')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 
@@ -345,6 +355,9 @@ export default function Drivers() {
                 <Input id="edit-commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
                   error={editForm.formState.errors.commission_rate?.message}
                   {...editForm.register('commission_rate')} />
+                <Input id="edit-joining_date" label="Joining Date" type="date"
+                  error={editForm.formState.errors.joining_date?.message}
+                  {...editForm.register('joining_date')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 

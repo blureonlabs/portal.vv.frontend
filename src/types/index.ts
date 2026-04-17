@@ -33,6 +33,7 @@ export interface Driver {
   self_entry_enabled: boolean
   room_rent_aed: string
   commission_rate: string | null
+  joining_date: string | null
   created_at: string
 }
 
@@ -58,7 +59,10 @@ export interface Trip {
   vehicle_id: string | null
   trip_date: string
   cash_aed: string
+  uber_cash_aed: string
+  bolt_cash_aed: string
   card_aed: string
+  /** Backward compat alias for uber_cash_aed */
   other_aed: string
   total_aed: string
   source: TripSource
@@ -70,8 +74,9 @@ export interface CsvPreviewRow {
   row_num: number
   trip_date: string
   cash_aed: string
+  uber_cash_aed: string
+  bolt_cash_aed: string
   card_aed: string
-  other_aed: string
   notes: string | null
   error: string | null
   cap_warning: string | null
@@ -299,6 +304,17 @@ export interface FinanceSummaryReport {
   net_aed: string
 }
 
+export type SalaryStatusType = 'draft' | 'approved' | 'paid'
+
+export interface MonthlyEarnings {
+  cash_aed: string
+  uber_cash_aed: string
+  bolt_cash_aed: string
+  card_aed: string
+  total_aed: string
+  trip_count: number
+}
+
 export interface Salary {
   id: string
   driver_id: string
@@ -331,6 +347,13 @@ export interface Salary {
   generated_by: string
   generated_by_name: string
   generated_at: string
+  status: SalaryStatusType
+  approved_by: string | null
+  approved_at: string | null
+  payment_date: string | null
+  payment_mode: string | null
+  payment_reference: string | null
+  paid_at: string | null
 }
 
 export interface InsuranceAlert {
@@ -396,6 +419,18 @@ export interface ServiceOverdueAlert {
   next_due: string
 }
 
+export interface DocumentExpiryAlert {
+  document_id: string
+  entity_type: string
+  entity_id: string
+  entity_name: string
+  doc_type: string
+  file_name: string
+  expiry_date: string
+  days_until_expiry: number
+  is_expired: boolean
+}
+
 export interface DriverFinancial {
   driver_id: string
   driver_name: string
@@ -424,6 +459,7 @@ export interface DashboardKpis {
   revenue_trend: DayRevenue[]
   cash_shortfall_drivers: CashShortfallAlert[]
   service_overdue_vehicles: ServiceOverdueAlert[]
+  document_expiry_alerts: DocumentExpiryAlert[]
 }
 
 export interface AdvanceReport {
