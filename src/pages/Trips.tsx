@@ -239,11 +239,11 @@ export default function Trips() {
               <span className="material-symbols-rounded text-[16px]">table_view</span>
               Export CSV
             </Button>
-            <Button variant="outline" onClick={() => { setShowCsv(true); setApiError('') }}>
+            <Button variant="outline" size="sm" onClick={() => { setShowCsv(true); setApiError('') }}>
               <span className="material-symbols-rounded text-[16px]">upload</span>
               CSV Import
             </Button>
-            <Button onClick={() => { setShowCreate(true); setApiError(''); form.reset({ trip_date: today, cash_aed: 0 }) }}>
+            <Button size="sm" onClick={() => { setShowCreate(true); setApiError(''); form.reset({ trip_date: today, cash_aed: 0 }) }}>
               <span className="material-symbols-rounded text-[16px]">add</span>
               Add Trip
             </Button>
