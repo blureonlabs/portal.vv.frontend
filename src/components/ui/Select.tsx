@@ -15,7 +15,16 @@ interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onC
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, id, options, children, onChange, value, name, placeholder = 'Select...', disabled, ...props }, ref) => {
     const [open, setOpen] = useState(false)
+    const [internalValue, setInternalValue] = useState(value ?? '')
     const containerRef = useRef<HTMLDivElement>(null)
+    const hiddenRef = useRef<HTMLSelectElement | null>(null)
+
+    // Sync internal value when controlled value prop changes
+    useEffect(() => {
+      if (value !== undefined) {
+        setInternalValue(value)
+      }
+    }, [value])
 
     // If using children (native <option>) fallback to native select
     if (!options) {
@@ -50,7 +59,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       )
     }
 
-    const selected = options.find((o) => o.value === value)
+    const currentValue = internalValue
+    const selected = options.find((o) => o.value === currentValue)
 
     useEffect(() => {
       const handleClick = (e: MouseEvent) => {
@@ -63,6 +73,17 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     }, [])
 
     const handleSelect = (val: string) => {
+      setInternalValue(val)
+
+      // Fire onChange for both controlled (value+onChange) and register() patterns
+      // Use the hidden native select to dispatch a real event for react-hook-form register()
+      const hidden = hiddenRef.current
+      if (hidden) {
+        const nativeSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set
+        nativeSetter?.call(hidden, val)
+        hidden.dispatchEvent(new Event('change', { bubbles: true }))
+      }
+
       onChange?.({ target: { value: val, name } })
       setOpen(false)
     }
@@ -70,7 +91,22 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="flex flex-col gap-1.5" ref={containerRef}>
         {/* Hidden native select for form compatibility */}
-        <select ref={ref} name={name} value={value} onChange={() => {}} className="sr-only" tabIndex={-1} {...props}>
+        <select
+          ref={(el) => {
+            hiddenRef.current = el
+            if (typeof ref === 'function') ref(el)
+            else if (ref) (ref as React.MutableRefObject<HTMLSelectElement | null>).current = el
+          }}
+          name={name}
+          value={currentValue}
+          onChange={(e) => {
+            setInternalValue(e.target.value)
+            onChange?.({ target: { value: e.target.value, name } })
+          }}
+          className="sr-only"
+          tabIndex={-1}
+          {...props}
+        >
           <option value="">{placeholder}</option>
           {options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -124,13 +160,13 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     onClick={() => handleSelect(o.value)}
                     className={cn(
                       'w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between',
-                      o.value === value
+                      o.value === currentValue
                         ? 'bg-primary/5 text-primary font-medium'
                         : 'text-primary/80 hover:bg-surface'
                     )}
                   >
                     {o.label}
-                    {o.value === value && (
+                    {o.value === currentValue && (
                       <span className="material-symbols-rounded text-[18px] text-primary">check</span>
                     )}
                   </button>
