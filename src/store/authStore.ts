@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'fms-auth',
-      partialize: (state) => ({ session: state.session, user: state.user }),
+      partialize: (state) => ({ user: state.user }),
     }
   )
 )
