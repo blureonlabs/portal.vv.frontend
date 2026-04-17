@@ -9,6 +9,7 @@ import { apiGet, apiPost } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { Select } from '../components/ui/Select'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Vehicle, VehicleAssignment, VehicleServiceRecord, Document, DocumentType } from '../types'
@@ -435,15 +436,12 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
               <div className="flex flex-col gap-4">
                 <div>
                   <label className="block text-xs font-medium text-muted mb-1">Document Type</label>
-                  <select
+                  <Select
                     value={form.doc_type}
                     onChange={(e) => setForm((f) => ({ ...f, doc_type: e.target.value as DocumentType }))}
-                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-primary bg-white focus:outline-none focus:ring-2 focus:ring-accent/20"
-                  >
-                    {(Object.entries(DOC_TYPE_LABELS) as [DocumentType, string][]).map(([k, v]) => (
-                      <option key={k} value={k}>{v}</option>
-                    ))}
-                  </select>
+                    options={(Object.entries(DOC_TYPE_LABELS) as [DocumentType, string][]).map(([k, v]) => ({ value: k, label: v }))}
+                    placeholder="Select type"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-muted mb-1">File</label>

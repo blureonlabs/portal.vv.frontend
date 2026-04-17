@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { apiGet, apiPost } from '../../lib/api'
@@ -36,7 +36,7 @@ export default function MyLeave() {
     queryFn: () => apiGet(`/hr/requests?from=${yearStart()}&to=${today()}`),
   })
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form, any, Form>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<Form, any, Form>({
     resolver: zodResolver(schema),
     defaultValues: { type: 'leave', from_date: today(), to_date: today() },
   })
@@ -82,10 +82,21 @@ export default function MyLeave() {
           )}
           <div>
             <label className="block text-xs text-muted mb-1">Type</label>
-            <Select {...register('type')}>
-              <option value="leave">Leave</option>
-              <option value="permission">Permission</option>
-            </Select>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  name={field.name}
+                  options={[
+                    { value: 'leave', label: 'Leave' },
+                    { value: 'permission', label: 'Permission' },
+                  ]}
+                />
+              )}
+            />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>

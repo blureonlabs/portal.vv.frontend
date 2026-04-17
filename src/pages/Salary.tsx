@@ -71,7 +71,7 @@ function MarkPaidDialog({
   onClose: () => void
 }) {
   const qc = useQueryClient()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<MarkPaidForm>({
+  const { register, handleSubmit, reset, control: payControl, formState: { errors } } = useForm<MarkPaidForm>({
     resolver: zodResolver(markPaidSchema),
     defaultValues: { payment_mode: 'bank_transfer' },
   })
@@ -119,11 +119,23 @@ function MarkPaidDialog({
             </div>
             <div>
               <label className="block text-xs text-muted mb-1">Payment Mode</label>
-              <Select {...register('payment_mode')}>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="cash">Cash</option>
-                <option value="cheque">Cheque</option>
-              </Select>
+              <Controller
+                name="payment_mode"
+                control={payControl}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    name={field.name}
+                    options={[
+                      { value: 'bank_transfer', label: 'Bank Transfer' },
+                      { value: 'cash', label: 'Cash' },
+                      { value: 'cheque', label: 'Cheque' },
+                    ]}
+                    placeholder="Select mode"
+                  />
+                )}
+              />
             </div>
             <div>
               <label className="block text-xs text-muted mb-1">Reference Number (optional)</label>
@@ -401,12 +413,13 @@ export default function SalaryPage() {
                 name="driver_id"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field}>
-                    <option value="">Select driver…</option>
-                    {activeDrivers.map((d) => (
-                      <option key={d.id} value={d.id}>{d.full_name}</option>
-                    ))}
-                  </Select>
+                  <Select
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    name={field.name}
+                    options={[{ value: '', label: 'Select driver…' }, ...activeDrivers.map((d) => ({ value: d.id, label: d.full_name }))]}
+                    placeholder="Select driver…"
+                  />
                 )}
               />
               {errors.driver_id && <p className="text-xs text-danger mt-1">{errors.driver_id.message}</p>}
@@ -417,11 +430,23 @@ export default function SalaryPage() {
             </div>
             <div>
               <label className="block text-xs text-muted mb-1">Salary Type</label>
-              <Select {...register('salary_type')}>
-                <option value="commission">Commission</option>
-                <option value="target_high">Target High</option>
-                <option value="target_low">Target Low</option>
-              </Select>
+              <Controller
+                name="salary_type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    name={field.name}
+                    options={[
+                      { value: 'commission', label: 'Commission' },
+                      { value: 'target_high', label: 'Target High' },
+                      { value: 'target_low', label: 'Target Low' },
+                    ]}
+                    placeholder="Select type"
+                  />
+                )}
+              />
             </div>
           </div>
 
@@ -510,12 +535,13 @@ export default function SalaryPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        <Select value={filterDriver} onChange={(e) => setFilterDriver(e.target.value)} className="max-w-xs">
-          <option value="">All Drivers</option>
-          {drivers.map((d) => (
-            <option key={d.id} value={d.id}>{d.full_name}</option>
-          ))}
-        </Select>
+        <Select
+          value={filterDriver}
+          onChange={(e) => setFilterDriver(e.target.value)}
+          options={[{ value: '', label: 'All Drivers' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}
+          placeholder="All Drivers"
+          className="min-w-[180px]"
+        />
         <Input
           type="month"
           value={filterMonth}
@@ -525,13 +551,15 @@ export default function SalaryPage() {
         <Select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value as SalaryType | '')}
-          className="max-w-[180px]"
-        >
-          <option value="">All Types</option>
-          <option value="commission">Commission</option>
-          <option value="target_high">Target High</option>
-          <option value="target_low">Target Low</option>
-        </Select>
+          options={[
+            { value: '', label: 'All Types' },
+            { value: 'commission', label: 'Commission' },
+            { value: 'target_high', label: 'Target High' },
+            { value: 'target_low', label: 'Target Low' },
+          ]}
+          placeholder="All Types"
+          className="min-w-[160px]"
+        />
       </div>
 
       {/* Salary list */}

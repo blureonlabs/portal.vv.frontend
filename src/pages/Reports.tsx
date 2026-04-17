@@ -191,12 +191,15 @@ export default function Reports() {
         {tab === 'trips' && (
           <div>
             <label className="block text-xs text-muted mb-1">Driver</label>
-            <Select value={driverId} onChange={(e) => setDriverId(e.target.value)} className="w-48">
-              <option value="">All drivers</option>
-              {drivers.map((d) => (
-                <option key={d.id} value={d.id}>{d.full_name}</option>
-              ))}
-            </Select>
+            <Select
+              value={driverId}
+              onChange={(e) => setDriverId(e.target.value)}
+              className="w-48"
+              options={[
+                { value: '', label: 'All drivers' },
+                ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
+              ]}
+            />
           </div>
         )}
       </div>

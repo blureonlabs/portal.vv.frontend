@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -45,7 +45,7 @@ export default function Broadcasts() {
     enabled: showModal,
   })
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<Form>({
+  const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema) as never,
     defaultValues: { channel: 'email', target: 'all_drivers' },
   })
@@ -174,14 +174,38 @@ export default function Broadcasts() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Select label="Channel" {...register('channel')}>
-                    <option value="email">Email</option>
-                    <option value="whatsapp">WhatsApp (Coming Soon)</option>
-                  </Select>
-                  <Select label="Target" {...register('target')}>
-                    <option value="all_drivers">All Drivers</option>
-                    <option value="selected_drivers">Select Drivers</option>
-                  </Select>
+                  <Controller
+                    name="channel"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        label="Channel"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        name={field.name}
+                        options={[
+                          { value: 'email', label: 'Email' },
+                          { value: 'whatsapp', label: 'WhatsApp (Coming Soon)' },
+                        ]}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="target"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        label="Target"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        name={field.name}
+                        options={[
+                          { value: 'all_drivers', label: 'All Drivers' },
+                          { value: 'selected_drivers', label: 'Select Drivers' },
+                        ]}
+                      />
+                    )}
+                  />
                 </div>
 
                 {target === 'selected_drivers' && (

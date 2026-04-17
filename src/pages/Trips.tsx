@@ -264,10 +264,13 @@ export default function Trips() {
             className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         {canManage && (
-          <select value={driverFilter} onChange={(e) => setDriverFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent">
-            {driverOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <Select
+            value={driverFilter}
+            onChange={(e) => setDriverFilter(e.target.value)}
+            options={driverOptions}
+            placeholder="All drivers"
+            className="min-w-[180px]"
+          />
         )}
       </div>
 
@@ -436,14 +439,13 @@ export default function Trips() {
               <p className="text-sm text-muted mb-6">Format: <code className="text-xs bg-surface px-1 py-0.5 rounded">date,cash_aed,uber_cash_aed,bolt_cash_aed,card_aed,notes</code></p>
 
               <div className="flex flex-col gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-1.5">Driver</label>
-                  <select value={csvDriverId} onChange={(e) => { setCsvDriverId(e.target.value); setCsvPreview(null) }}
-                    className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent">
-                    <option value="">Select driver…</option>
-                    {drivers.map((d) => <option key={d.id} value={d.id}>{d.full_name}</option>)}
-                  </select>
-                </div>
+                <Select
+                  label="Driver"
+                  value={csvDriverId}
+                  onChange={(e) => { setCsvDriverId(e.target.value); setCsvPreview(null) }}
+                  options={[{ value: '', label: 'Select driver…' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}
+                  placeholder="Select driver…"
+                />
                 <div>
                   <label className="block text-sm font-medium text-primary mb-1.5">CSV File</label>
                   <input ref={fileRef} type="file" accept=".csv,text/csv" disabled={!csvDriverId}

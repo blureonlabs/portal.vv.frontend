@@ -335,16 +335,15 @@ export default function Vehicles() {
               <p className="text-sm text-muted mb-6">{assignVehicle.plate_number} — {assignVehicle.make} {assignVehicle.model}</p>
 
               <div className="flex flex-col gap-4">
-                <select
+                <Select
                   value={selectedDriver}
                   onChange={(e) => setSelectedDriver(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-                >
-                  <option value="">Select driver…</option>
-                  {availableDrivers.map((d) => (
-                    <option key={d.id} value={d.id}>{d.full_name}</option>
-                  ))}
-                </select>
+                  placeholder="Select driver…"
+                  options={[
+                    { value: '', label: 'Select driver…' },
+                    ...availableDrivers.map((d) => ({ value: d.id, label: d.full_name })),
+                  ]}
+                />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 

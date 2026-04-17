@@ -41,12 +41,11 @@ export default function AuditLog() {
           value={entityType}
           onChange={(e) => { setEntityType(e.target.value); handleFilter() }}
           className="w-44"
-        >
-          <option value="">All entities</option>
-          {ENTITY_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </Select>
+          options={[
+            { value: '', label: 'All entities' },
+            ...ENTITY_TYPES.map((t) => ({ value: t, label: t })),
+          ]}
+        />
         <Input
           placeholder="Filter by action…"
           value={action}

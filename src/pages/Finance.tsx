@@ -183,10 +183,13 @@ export default function Finance() {
             className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent" />
         </div>
         {canManage && (
-          <select value={driverFilter} onChange={(e) => setDriverFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent">
-            {driverOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <Select
+            value={driverFilter}
+            onChange={(e) => setDriverFilter(e.target.value)}
+            options={driverOptions}
+            placeholder="All drivers"
+            className="min-w-[180px]"
+          />
         )}
       </div>
 

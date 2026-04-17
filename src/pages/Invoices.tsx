@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -100,13 +100,13 @@ export default function Invoices() {
       {/* Filter */}
       {canManage && (
         <div className="mb-6">
-          <select
+          <Select
             value={driverFilter}
             onChange={(e) => setDriverFilter(e.target.value)}
-            className="h-9 px-3 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            {driverOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+            options={driverOptions}
+            placeholder="All drivers"
+            className="min-w-[180px]"
+          />
         </div>
       )}
 
@@ -194,15 +194,24 @@ export default function Invoices() {
               <p className="text-sm text-muted mb-6">A PDF will be generated and stored automatically.</p>
 
               <form onSubmit={form.handleSubmit(handleGenerate)} className="flex flex-col gap-4">
-                <Select
-                  id="inv-driver"
-                  label="Driver"
-                  error={form.formState.errors.driver_id?.message}
-                  {...form.register('driver_id')}
-                >
-                  <option value="">Select driver...</option>
-                  {drivers.map((d) => <option key={d.id} value={d.id}>{d.full_name}</option>)}
-                </Select>
+                <Controller
+                  name="driver_id"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select
+                      id="inv-driver"
+                      label="Driver"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      name={field.name}
+                      options={[
+                        { value: '', label: 'Select driver...' },
+                        ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
+                      ]}
+                      error={form.formState.errors.driver_id?.message}
+                    />
+                  )}
+                />
                 <div className="grid grid-cols-2 gap-3">
                   <Input
                     id="inv-start"

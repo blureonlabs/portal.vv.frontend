@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -173,28 +173,28 @@ export default function HrRequests() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <select
+        <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as LeaveStatus | '')}
-          className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <select
+          options={STATUS_OPTIONS}
+          placeholder="All Statuses"
+          className="min-w-[150px]"
+        />
+        <Select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as LeaveType | '')}
-          className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+          options={TYPE_OPTIONS}
+          placeholder="All Types"
+          className="min-w-[150px]"
+        />
         {canManage && (
-          <select
+          <Select
             value={driverFilter}
             onChange={(e) => setDriverFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            {driverOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+            options={driverOptions}
+            placeholder="All drivers"
+            className="min-w-[180px]"
+          />
         )}
       </div>
 
@@ -300,26 +300,42 @@ export default function HrRequests() {
                 className="flex flex-col gap-4"
               >
                 {canManage && (
-                  <Select
-                    id="lr-driver"
-                    label="Driver"
-                    options={[
-                      { value: '', label: 'Select driver…' },
-                      ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
-                    ]}
-                    error={submitForm.formState.errors.driver_id?.message}
-                    {...submitForm.register('driver_id')}
+                  <Controller
+                    name="driver_id"
+                    control={submitForm.control}
+                    render={({ field }) => (
+                      <Select
+                        id="lr-driver"
+                        label="Driver"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        name={field.name}
+                        options={[
+                          { value: '', label: 'Select driver…' },
+                          ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
+                        ]}
+                        error={submitForm.formState.errors.driver_id?.message}
+                      />
+                    )}
                   />
                 )}
-                <Select
-                  id="lr-type"
-                  label="Type"
-                  options={[
-                    { value: 'leave', label: 'Leave' },
-                    { value: 'permission', label: 'Permission' },
-                  ]}
-                  error={submitForm.formState.errors.type?.message}
-                  {...submitForm.register('type')}
+                <Controller
+                  name="type"
+                  control={submitForm.control}
+                  render={({ field }) => (
+                    <Select
+                      id="lr-type"
+                      label="Type"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      name={field.name}
+                      options={[
+                        { value: 'leave', label: 'Leave' },
+                        { value: 'permission', label: 'Permission' },
+                      ]}
+                      error={submitForm.formState.errors.type?.message}
+                    />
+                  )}
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <Input
