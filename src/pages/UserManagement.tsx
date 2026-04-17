@@ -257,7 +257,7 @@ export default function UserManagement() {
   const pagedUsers = users.slice((usersPage - 1) * PAGE_SIZE, usersPage * PAGE_SIZE)
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">Users</h1>
@@ -274,7 +274,7 @@ export default function UserManagement() {
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
           Active Members ({users.filter((u) => u.is_active).length})
         </h2>
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
           {users.length === 0 ? (
             <p className="text-center text-muted py-8 text-sm">No users yet</p>
           ) : (
@@ -323,7 +323,7 @@ export default function UserManagement() {
         <h2 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">
           Invitations ({invites.filter((i) => i.status === 'pending').length} pending)
         </h2>
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
           {invites.length === 0 ? (
             <p className="text-center text-muted py-8 text-sm">No invitations sent</p>
           ) : (

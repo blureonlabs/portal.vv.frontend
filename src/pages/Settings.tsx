@@ -35,7 +35,7 @@ function groupSettings(settings: Setting[], isSuperAdmin: boolean) {
 function SettingsSection({ title, settings, canEdit }: { title: string; settings: Setting[]; canEdit: boolean }) {
   if (settings.length === 0) return null
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <div className="px-4 py-3 border-b border-border bg-surface">
         <h3 className="text-sm font-semibold text-primary">{title}</h3>
       </div>
@@ -43,7 +43,7 @@ function SettingsSection({ title, settings, canEdit }: { title: string; settings
         <tbody>
           {settings.map((s) => (
             <tr key={s.key} className="group border-b border-border last:border-0">
-              <td className="py-3 px-4 text-sm font-medium text-primary w-64">{formatKey(s.key)}</td>
+              <td className="py-3 px-4 text-sm font-medium text-primary w-48 min-w-[120px]">{formatKey(s.key)}</td>
               <td className="py-3 px-4">
                 <EditRowInner setting={s} canEdit={canEdit} />
               </td>
@@ -78,7 +78,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="h-8 text-sm w-64"
+        className="h-8 text-sm w-full max-w-[256px]"
         autoFocus
       />
       <button
@@ -121,14 +121,14 @@ export default function Settings() {
 
   if (isLoading) {
     return (
-      <div className="p-6 flex items-center justify-center h-48">
+      <div className="p-4 md:p-6 flex items-center justify-center h-48">
         <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     )
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-3">
         <span className="material-symbols-rounded text-[24px] text-primary">settings</span>
         <h1 className="text-2xl font-bold text-primary">Settings</h1>

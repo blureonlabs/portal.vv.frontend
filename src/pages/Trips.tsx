@@ -222,7 +222,7 @@ export default function Trips() {
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -230,7 +230,7 @@ export default function Trips() {
           <p className="text-sm text-muted mt-1">{trips.length} trip{trips.length !== 1 ? 's' : ''} in range</p>
         </div>
         {canManage && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={downloadTemplate}>
               <span className="material-symbols-rounded text-[16px]">download</span>
               Template

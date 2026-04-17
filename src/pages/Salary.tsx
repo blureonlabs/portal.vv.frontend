@@ -175,7 +175,7 @@ function SalaryRow({ s, canAdmin }: { s: Salary; canAdmin: boolean }) {
     <>
       <div className="bg-white border border-border rounded-xl overflow-hidden">
         <button
-          className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
+          className="w-full px-4 py-3 flex items-center justify-between flex-wrap gap-2 text-left hover:bg-surface transition-colors"
           onClick={() => setOpen((v) => !v)}
         >
           <div className="flex items-center gap-3">
@@ -382,7 +382,7 @@ export default function SalaryPage() {
     : salaries
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Salary</h1>

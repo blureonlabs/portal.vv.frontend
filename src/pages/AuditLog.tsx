@@ -29,7 +29,7 @@ export default function AuditLog() {
   const handleFilter = () => setPage(0)
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5">
       <div className="flex items-center gap-3">
         <span className="material-symbols-rounded text-[24px] text-primary">shield</span>
         <h1 className="text-2xl font-bold text-primary">Audit Log</h1>
@@ -55,7 +55,7 @@ export default function AuditLog() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <div className="bg-white rounded-xl border border-border overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-surface">

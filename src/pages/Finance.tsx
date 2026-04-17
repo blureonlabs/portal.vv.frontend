@@ -140,8 +140,8 @@ export default function Finance() {
   const pagedHandovers = handovers.slice((handoverPage - 1) * PAGE_SIZE, handoverPage * PAGE_SIZE)
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">Finance</h1>
           <p className="text-sm text-muted mt-1">Expenses & Cash Handovers</p>

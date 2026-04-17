@@ -151,7 +151,7 @@ export default function Reports() {
   ]
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="material-symbols-rounded text-[24px] text-primary">bar_chart</span>
@@ -164,7 +164,7 @@ export default function Reports() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface p-1 rounded-lg w-fit flex-wrap">
+      <div className="flex gap-1 bg-surface p-1 rounded-lg w-full flex-wrap">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -245,7 +245,7 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
   )
 
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -293,7 +293,7 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
 
 function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -375,7 +375,7 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
 
       {/* Expenses by category */}
       {data.expense_by_category.length > 0 && (
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
           <div className="px-4 py-3 border-b border-border bg-surface">
             <h3 className="text-sm font-semibold text-primary">Expenses by Category</h3>
           </div>
@@ -401,7 +401,7 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
 
 function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -438,7 +438,7 @@ function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading:
 
 function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -473,7 +473,7 @@ function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boo
 
 function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -510,7 +510,7 @@ function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boo
 
 function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">
@@ -547,7 +547,7 @@ function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: b
 
 function VehicleReportTable({ rows, loading }: { rows: VehicleReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-hidden">
+    <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-surface">

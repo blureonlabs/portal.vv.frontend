@@ -496,7 +496,7 @@ export default function DriverDetail() {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 max-w-5xl mx-auto">
         <p className="text-muted text-sm">Loading driver…</p>
       </div>
     )
@@ -504,7 +504,7 @@ export default function DriverDetail() {
 
   if (isError || !driver) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 max-w-5xl mx-auto">
         <p className="text-danger text-sm">Driver not found.</p>
         <Link to="/drivers" className="text-accent text-sm hover:underline mt-2 block">← Back to Drivers</Link>
       </div>
@@ -512,7 +512,7 @@ export default function DriverDetail() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <Link to="/drivers" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">

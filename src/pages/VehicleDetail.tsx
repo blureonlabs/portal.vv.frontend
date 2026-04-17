@@ -549,7 +549,7 @@ export default function VehicleDetail() {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 max-w-5xl mx-auto">
         <p className="text-muted text-sm">Loading vehicle…</p>
       </div>
     )
@@ -557,7 +557,7 @@ export default function VehicleDetail() {
 
   if (isError || !vehicle) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 md:p-6 max-w-5xl mx-auto">
         <p className="text-danger text-sm">Vehicle not found.</p>
         <Link to="/vehicles" className="text-accent text-sm hover:underline mt-2 block">← Back to Vehicles</Link>
       </div>
@@ -565,7 +565,7 @@ export default function VehicleDetail() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <Link to="/vehicles" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">
@@ -587,7 +587,7 @@ export default function VehicleDetail() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border mb-6">
+      <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab.key}

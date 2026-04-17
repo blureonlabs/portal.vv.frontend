@@ -45,7 +45,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-20">
-        <div className="flex">
+        <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {NAV.map((item) => (
             <NavLink
               key={item.href}

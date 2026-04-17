@@ -82,7 +82,7 @@ export default function Broadcasts() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">Broadcasts</h1>
@@ -102,7 +102,7 @@ export default function Broadcasts() {
           <p className="mt-2">No broadcasts sent yet</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-border overflow-hidden">
+        <div className="bg-white rounded-2xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-surface/50">

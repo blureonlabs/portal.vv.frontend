@@ -145,8 +145,8 @@ export default function HrRequests() {
   const pending = requests.filter((r) => r.status === 'pending').length
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">Leave & Permissions</h1>
           <p className="text-sm text-muted mt-1">
