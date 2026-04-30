@@ -87,37 +87,18 @@ function ResetPasswordModal({
   userName: string
   onClose: () => void
 }) {
-  const [password, setPassword] = useState('')
-  const [confirm, setConfirm] = useState('')
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const mutation = useMutation({
-    mutationFn: (newPassword: string) =>
-      apiPut(`/users/${userId}/password`, { password: newPassword }),
+    mutationFn: () => apiPut(`/users/${userId}/password`, {}),
     onSuccess: () => {
-      setToast({ type: 'success', message: 'Password reset successfully. An email has been sent to the user.' })
-      setPassword('')
-      setConfirm('')
-      setTimeout(onClose, 2000)
+      setToast({ type: 'success', message: 'Password reset email sent. The user will receive a link to set their new password.' })
+      setTimeout(onClose, 3000)
     },
     onError: (err: Error) => {
       setToast({ type: 'error', message: err.message })
     },
   })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setToast(null)
-    if (password.length < 8) {
-      setToast({ type: 'error', message: 'Password must be at least 8 characters.' })
-      return
-    }
-    if (password !== confirm) {
-      setToast({ type: 'error', message: 'Passwords do not match.' })
-      return
-    }
-    mutation.mutate(password)
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -133,7 +114,7 @@ function ResetPasswordModal({
         </div>
 
         <p className="text-sm text-muted mb-5">
-          Set a new password for <span className="font-medium text-primary">{userName}</span>. They will receive an email with the new password.
+          Send a password reset link to <span className="font-medium text-primary">{userName}</span>. They will receive an email with a secure link to set their own password.
         </p>
 
         {toast && (
@@ -148,47 +129,23 @@ function ResetPasswordModal({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1.5">New Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min. 8 characters"
-              required
-              className="w-full px-3 py-2.5 rounded-xl border border-border text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1.5">Confirm Password</label>
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              placeholder="Repeat password"
-              required
-              className="w-full px-3 py-2.5 rounded-xl border border-border text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted hover:bg-surface transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
-            >
-              {mutation.isPending ? 'Resetting…' : 'Reset Password'}
-            </button>
-          </div>
-        </form>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted hover:bg-surface transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending || mutation.isSuccess}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
+          >
+            {mutation.isPending ? 'Sending…' : 'Send Reset Link'}
+          </button>
+        </div>
       </div>
     </div>
   )
