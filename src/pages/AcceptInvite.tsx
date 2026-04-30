@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -31,6 +31,13 @@ export default function AcceptInvite() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
+
+  useEffect(() => {
+    if (done) {
+      const t = setTimeout(() => navigate('/login'), 3000)
+      return () => clearTimeout(t)
+    }
+  }, [done, navigate])
 
   if (!token || tokenInvalid) {
     return (

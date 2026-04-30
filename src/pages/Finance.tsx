@@ -38,7 +38,7 @@ function categoryBadge(c: string) {
 
 const expenseSchema = z.object({
   driver_id: z.string().optional(),
-  amount_aed: z.coerce.number().positive('Required'),
+  amount_aed: z.coerce.number().positive('Required').max(1000000, 'Amount cannot exceed AED 1,000,000'),
   category: z.enum(['fuel', 'maintenance', 'toll', 'insurance', 'fines', 'other']),
   date: z.string().min(1, 'Required'),
   notes: z.string().optional(),
@@ -47,7 +47,7 @@ type ExpenseForm = z.infer<typeof expenseSchema>
 
 const handoverSchema = z.object({
   driver_id: z.string().uuid('Select driver'),
-  amount_aed: z.coerce.number().positive('Required'),
+  amount_aed: z.coerce.number().positive('Required').max(1000000, 'Amount cannot exceed AED 1,000,000'),
 })
 type HandoverForm = z.infer<typeof handoverSchema>
 
@@ -317,7 +317,7 @@ export default function Finance() {
         {showExpense && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40" onClick={() => setShowExpense(false)} />
+              className="absolute inset-0 bg-black/40" onClick={() => { setShowExpense(false); setReceiptUrl('') }} />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6"
@@ -385,7 +385,7 @@ export default function Finance() {
                 </div>
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
                 <div className="flex gap-3 mt-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowExpense(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => { setShowExpense(false); setReceiptUrl('') }}>Cancel</Button>
                   <Button type="submit" loading={addExpenseMutation.isPending || receiptUploading} className="flex-1">Add Expense</Button>
                 </div>
               </form>

@@ -20,7 +20,10 @@ const schema = z.object({
   type: z.enum(['leave', 'permission']),
   from_date: z.string().min(1, 'Required'),
   to_date: z.string().min(1, 'Required'),
-  reason: z.string().min(5, 'Please describe the reason'),
+  reason: z.string().min(5, 'Please describe the reason').max(2000, 'Maximum 2000 characters'),
+}).refine(data => !data.from_date || !data.to_date || data.from_date <= data.to_date, {
+  message: 'End date must be after start date',
+  path: ['to_date'],
 })
 type Form = z.infer<typeof schema>
 
@@ -45,7 +48,8 @@ export default function MyLeave() {
     mutationFn: (data: Form) => apiPost('/hr/requests', data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['portal-leave-all'] })
-      qc.invalidateQueries({ queryKey: ['portal-leave'] })
+      qc.invalidateQueries({ queryKey: ['portal-leave', 'this-month'] })
+      qc.invalidateQueries({ queryKey: ['portal-leave', 'all'] })
       reset({ type: 'leave', from_date: today(), to_date: today() })
       setShowForm(false)
     },

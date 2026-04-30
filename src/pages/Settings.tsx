@@ -62,38 +62,44 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
   const qc = useQueryClient()
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(setting.value)
+  const [error, setError] = useState('')
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => apiPut(`/settings/${setting.key}`, { value }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['settings'] })
       setEditing(false)
+      setError('')
     },
+    onError: (e) => setError(e instanceof Error ? e.message : 'Failed to save'),
   })
 
   if (!canEdit) return <span className="text-sm text-primary">{setting.value || '—'}</span>
 
   return editing ? (
-    <div className="flex items-center gap-2">
-      <Input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="h-8 text-sm w-full max-w-[256px]"
-        autoFocus
-      />
-      <button
-        onClick={() => mutate()}
-        disabled={isPending}
-        className="p-1.5 text-green-600 hover:bg-green-50 rounded"
-      >
-        <span className="material-symbols-rounded text-[16px]">check</span>
-      </button>
-      <button
-        onClick={() => { setEditing(false); setValue(setting.value) }}
-        className="p-1.5 text-muted hover:bg-surface rounded"
-      >
-        <span className="material-symbols-rounded text-[16px]">close</span>
-      </button>
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="h-8 text-sm w-full max-w-[256px]"
+          autoFocus
+        />
+        <button
+          onClick={() => mutate()}
+          disabled={isPending}
+          className="p-1.5 text-green-600 hover:bg-green-50 rounded"
+        >
+          <span className="material-symbols-rounded text-[16px]">check</span>
+        </button>
+        <button
+          onClick={() => { setEditing(false); setValue(setting.value); setError('') }}
+          className="p-1.5 text-muted hover:bg-surface rounded"
+        >
+          <span className="material-symbols-rounded text-[16px]">close</span>
+        </button>
+      </div>
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   ) : (
     <div className="flex items-center gap-2">

@@ -1,9 +1,9 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
-const NAV = [
+const DRIVER_NAV = [
   { label: 'Home', href: '/portal', icon: 'home', exact: true },
   { label: 'Trips', href: '/portal/trips', icon: 'route' },
   { label: 'Earnings', href: '/portal/earnings', icon: 'trending_up' },
@@ -15,9 +15,17 @@ const NAV = [
   { label: 'Profile', href: '/portal/profile', icon: 'person' },
 ]
 
+const OWNER_NAV = [
+  { label: 'Home', href: '/owner-portal', icon: 'home', exact: true },
+]
+
 export function PortalLayout({ children }: { children: React.ReactNode }) {
   const { clear } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const isOwnerPortal = location.pathname.startsWith('/owner-portal')
+  const NAV = isOwnerPortal ? OWNER_NAV : DRIVER_NAV
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()

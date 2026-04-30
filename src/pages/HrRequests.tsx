@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, LeaveRequest, LeaveStatus, LeaveType } from '../types'
@@ -24,12 +25,15 @@ const submitSchema = z.object({
   type: z.enum(['leave', 'permission']),
   from_date: z.string().min(1, 'Required'),
   to_date: z.string().min(1, 'Required'),
-  reason: z.string().min(5, 'Reason must be at least 5 characters'),
+  reason: z.string().min(5, 'Reason must be at least 5 characters').max(2000, 'Maximum 2000 characters'),
+}).refine(data => !data.from_date || !data.to_date || data.from_date <= data.to_date, {
+  message: 'End date must be after start date',
+  path: ['to_date'],
 })
 type SubmitForm = z.infer<typeof submitSchema>
 
 const rejectSchema = z.object({
-  rejection_reason: z.string().min(3, 'Required'),
+  rejection_reason: z.string().min(3, 'Required').max(500, 'Maximum 500 characters'),
 })
 type RejectForm = z.infer<typeof rejectSchema>
 
@@ -61,6 +65,7 @@ export default function HrRequests() {
   const [driverFilter, setDriverFilter] = useState('')
   const [showSubmit, setShowSubmit] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<LeaveRequest | null>(null)
+  const [confirmApprove, setConfirmApprove] = useState<string | null>(null)
   const [apiError, setApiError] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
@@ -257,7 +262,7 @@ export default function HrRequests() {
                       {r.status === 'pending' && (
                         <div className="flex gap-2">
                           <button
-                            onClick={() => { setApiError(''); approveMutation.mutate(r.id) }}
+                            onClick={() => { setApiError(''); setConfirmApprove(r.id) }}
                             className="flex items-center gap-1 text-xs text-success hover:text-green-700 transition-colors"
                           >
                             <span className="material-symbols-rounded text-[12px]">check</span> Approve
@@ -435,6 +440,17 @@ export default function HrRequests() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Confirm Approve Dialog */}
+      <ConfirmDialog
+        open={confirmApprove !== null}
+        title="Approve Request"
+        message="Are you sure you want to approve this leave/permission request?"
+        confirmLabel="Approve"
+        variant="primary"
+        onConfirm={() => { if (confirmApprove) approveMutation.mutate(confirmApprove); setConfirmApprove(null) }}
+        onCancel={() => setConfirmApprove(null)}
+      />
     </div>
   )
 }

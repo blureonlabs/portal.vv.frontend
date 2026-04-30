@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { apiGet, apiPost } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { formatAed } from '../lib/utils'
@@ -165,6 +166,7 @@ function SalaryRow({ s, canAdmin }: { s: Salary; canAdmin: boolean }) {
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const [payDialog, setPayDialog] = useState(false)
+  const [confirmApprove, setConfirmApprove] = useState(false)
 
   const { mutate: approve, isPending: approving } = useMutation({
     mutationFn: () => apiPost(`/salaries/${s.id}/approve`, {}),
@@ -192,7 +194,7 @@ function SalaryRow({ s, canAdmin }: { s: Salary; canAdmin: boolean }) {
                 variant="outline"
                 size="sm"
                 disabled={approving}
-                onClick={(e) => { e.stopPropagation(); approve() }}
+                onClick={(e) => { e.stopPropagation(); setConfirmApprove(true) }}
               >
                 {approving ? '…' : 'Approve'}
               </Button>
@@ -286,6 +288,15 @@ function SalaryRow({ s, canAdmin }: { s: Salary; canAdmin: boolean }) {
       </div>
 
       <MarkPaidDialog salaryId={s.id} open={payDialog} onClose={() => setPayDialog(false)} />
+      <ConfirmDialog
+        open={confirmApprove}
+        title="Approve Salary"
+        message={`Approve salary for ${s.driver_name} (${s.period_month})?`}
+        confirmLabel="Approve"
+        variant="primary"
+        onConfirm={() => { approve(); setConfirmApprove(false) }}
+        onCancel={() => setConfirmApprove(false)}
+      />
     </>
   )
 }

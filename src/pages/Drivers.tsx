@@ -124,6 +124,9 @@ export default function Drivers() {
     resolver: zodResolver(editSchema) as never,
   })
 
+  const createSalaryType = createForm.watch('salary_type')
+  const editSalaryType = editForm.watch('salary_type')
+
   // Profiles that don't already have a driver record
   const driverProfileIds = new Set(drivers.map((d) => d.profile_id))
   const availableProfiles = users.filter(
@@ -304,9 +307,11 @@ export default function Drivers() {
                 <Input id="room_rent_aed" label="Room Rent (AED)" type="number" step="0.01" min="0" placeholder="0"
                   error={createForm.formState.errors.room_rent_aed?.message}
                   {...createForm.register('room_rent_aed')} />
-                <Input id="commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
-                  error={createForm.formState.errors.commission_rate?.message}
-                  {...createForm.register('commission_rate')} />
+                {createSalaryType === 'commission' && (
+                  <Input id="commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
+                    error={createForm.formState.errors.commission_rate?.message}
+                    {...createForm.register('commission_rate')} />
+                )}
                 <Input id="joining_date" label="Joining Date" type="date"
                   error={createForm.formState.errors.joining_date?.message}
                   {...createForm.register('joining_date')} />
@@ -357,9 +362,11 @@ export default function Drivers() {
                 <Input id="edit-room_rent_aed" label="Room Rent (AED)" type="number" step="0.01" min="0" placeholder="0"
                   error={editForm.formState.errors.room_rent_aed?.message}
                   {...editForm.register('room_rent_aed')} />
-                <Input id="edit-commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
-                  error={editForm.formState.errors.commission_rate?.message}
-                  {...editForm.register('commission_rate')} />
+                {editSalaryType === 'commission' && (
+                  <Input id="edit-commission_rate" label="Commission Rate (%)" type="number" step="0.01" min="0" max="100" placeholder="Default (from settings)"
+                    error={editForm.formState.errors.commission_rate?.message}
+                    {...editForm.register('commission_rate')} />
+                )}
                 <Input id="edit-joining_date" label="Joining Date" type="date"
                   error={editForm.formState.errors.joining_date?.message}
                   {...editForm.register('joining_date')} />

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,6 +20,7 @@ type FormData = z.infer<typeof schema>
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { setSession, setUser } = useAuthStore()
   const [error, setError] = useState('')
 
@@ -44,7 +45,8 @@ export default function Login() {
 
       const profile = await apiGet<User>('/auth/me')
       setUser(profile)
-      navigate('/')
+      const from = (location.state as any)?.from || '/'
+      navigate(from, { replace: true })
     } catch {
       setError('Login failed. Please try again.')
     }

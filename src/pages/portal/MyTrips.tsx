@@ -24,6 +24,7 @@ function today() { return new Date().toISOString().slice(0, 10) }
 export default function MyTrips() {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const { data: ctx } = useQuery<DriverContext>({
     queryKey: ['portal-me'],
@@ -53,7 +54,9 @@ export default function MyTrips() {
       qc.invalidateQueries({ queryKey: ['portal-earnings'] })
       reset({ trip_date: today() })
       setShowForm(false)
+      setApiError('')
     },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed to save trip'),
   })
 
   const monthTotal = trips.reduce(
@@ -84,10 +87,13 @@ export default function MyTrips() {
       {/* Add trip form */}
       {showForm && (
         <form
-          onSubmit={handleSubmit((d: Form) => mutate(d))}
+          onSubmit={handleSubmit((d: Form) => { setApiError(''); mutate(d) })}
           className="bg-white rounded-2xl border border-border p-4 space-y-3"
         >
           <h3 className="font-semibold text-primary">New Trip</h3>
+          {apiError && (
+            <p className="text-xs text-red-600 bg-red-50 rounded p-2">{apiError}</p>
+          )}
           <div>
             <label className="block text-xs text-muted mb-1">Date</label>
             <Input type="date" {...register('trip_date')} max={today()} />

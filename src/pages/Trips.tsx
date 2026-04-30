@@ -22,11 +22,11 @@ const monthStart = CURRENT_MONTH_START.toISOString().slice(0, 10)
 const tripSchema = z.object({
   driver_id: z.string().uuid('Select a driver'),
   trip_date: z.string().min(1, 'Required'),
-  cash_aed: z.coerce.number().min(0),
-  uber_cash_aed: z.coerce.number().min(0).optional(),
-  bolt_cash_aed: z.coerce.number().min(0).optional(),
-  card_aed: z.coerce.number().min(0).optional(),
-  notes: z.string().optional(),
+  cash_aed: z.coerce.number().min(0).max(1000000, 'Amount cannot exceed AED 1,000,000'),
+  uber_cash_aed: z.coerce.number().min(0).max(1000000, 'Amount cannot exceed AED 1,000,000').optional(),
+  bolt_cash_aed: z.coerce.number().min(0).max(1000000, 'Amount cannot exceed AED 1,000,000').optional(),
+  card_aed: z.coerce.number().min(0).max(1000000, 'Amount cannot exceed AED 1,000,000').optional(),
+  notes: z.string().max(2000, 'Maximum 2000 characters').optional(),
 })
 type TripForm = z.infer<typeof tripSchema>
 

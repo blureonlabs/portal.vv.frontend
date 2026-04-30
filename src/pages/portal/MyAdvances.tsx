@@ -19,14 +19,15 @@ const STATUS_COLORS = {
 }
 
 const schema = z.object({
-  amount_aed: z.coerce.number().min(1, 'Minimum AED 1'),
-  reason: z.string().min(5, 'Please describe the reason'),
+  amount_aed: z.coerce.number().min(1, 'Minimum AED 1').max(1000000, 'Amount cannot exceed AED 1,000,000'),
+  reason: z.string().min(5, 'Please describe the reason').max(2000, 'Maximum 2000 characters'),
 })
 type Form = z.infer<typeof schema>
 
 export default function MyAdvances() {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const { data: ctx } = useQuery<DriverContext>({
     queryKey: ['portal-me'],
@@ -76,7 +77,9 @@ export default function MyAdvances() {
       qc.invalidateQueries({ queryKey: ['portal-advances'] })
       reset()
       setShowForm(false)
+      setApiError('')
     },
+    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed to submit request'),
   })
 
   return (
@@ -102,10 +105,13 @@ export default function MyAdvances() {
       {/* Request form */}
       {showForm && (
         <form
-          onSubmit={handleSubmit((d: Form) => mutate(d))}
+          onSubmit={handleSubmit((d: Form) => { setApiError(''); mutate(d) })}
           className="bg-white rounded-2xl border border-border p-4 space-y-3"
         >
           <h3 className="font-semibold text-primary">New Advance Request</h3>
+          {apiError && (
+            <p className="text-xs text-red-600 bg-red-50 rounded p-2">{apiError}</p>
+          )}
           <div>
             <label className="block text-xs text-muted mb-1">Amount (AED)</label>
             <Input type="number" step="0.01" min="1" {...register('amount_aed')} />

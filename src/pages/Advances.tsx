@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Advance, AdvanceStatus, Driver } from '../types'
@@ -29,13 +30,13 @@ const statusBadge: Record<AdvanceStatus, 'warning' | 'default' | 'danger' | 'suc
 
 const requestSchema = z.object({
   driver_id: z.string().optional(),
-  amount_aed: z.coerce.number().positive('Required'),
-  reason: z.string().min(5, 'Reason must be at least 5 characters'),
+  amount_aed: z.coerce.number().positive('Required').max(1000000, 'Amount cannot exceed AED 1,000,000'),
+  reason: z.string().min(5, 'Reason must be at least 5 characters').max(2000, 'Maximum 2000 characters'),
 })
 type RequestForm = z.infer<typeof requestSchema>
 
 const rejectSchema = z.object({
-  rejection_reason: z.string().min(3, 'Required'),
+  rejection_reason: z.string().min(3, 'Required').max(500, 'Maximum 500 characters'),
 })
 type RejectForm = z.infer<typeof rejectSchema>
 
@@ -53,6 +54,7 @@ export default function Advances() {
   const [showRequest, setShowRequest] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<Advance | null>(null)
   const [payTarget, setPayTarget] = useState<Advance | null>(null)
+  const [confirmApprove, setConfirmApprove] = useState<string | null>(null)
   const [apiError, setApiError] = useState('')
 
   const today = new Date().toISOString().slice(0, 10)
@@ -177,7 +179,7 @@ export default function Advances() {
                       {canManage && adv.status === 'pending' && (
                         <div className="flex gap-2 pt-1 border-t border-border">
                           <button
-                            onClick={() => { setApiError(''); approveMutation.mutate(adv.id) }}
+                            onClick={() => { setApiError(''); setConfirmApprove(adv.id) }}
                             className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                           >
                             <span className="material-symbols-rounded text-[12px]">check</span> Approve
@@ -390,6 +392,17 @@ export default function Advances() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Confirm Approve Dialog */}
+      <ConfirmDialog
+        open={confirmApprove !== null}
+        title="Approve Advance"
+        message="Are you sure you want to approve this advance request?"
+        confirmLabel="Approve"
+        variant="primary"
+        onConfirm={() => { if (confirmApprove) approveMutation.mutate(confirmApprove); setConfirmApprove(null) }}
+        onCancel={() => setConfirmApprove(null)}
+      />
     </div>
   )
 }

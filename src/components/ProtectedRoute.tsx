@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { apiGet } from '../lib/api'
@@ -12,6 +12,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, session, setUser, setSession, clear } = useAuthStore()
+  const location = useLocation()
   const [loading, setLoading] = useState(!session)
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   if (!session || !user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {

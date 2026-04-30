@@ -15,7 +15,7 @@ import type { Driver, Invoice } from '../types'
 
 const lineItemSchema = z.object({
   description: z.string().min(1, 'Required'),
-  amount_aed: z.coerce.number(),
+  amount_aed: z.coerce.number().min(0.01, 'Amount must be positive'),
 })
 
 const generateSchema = z.object({

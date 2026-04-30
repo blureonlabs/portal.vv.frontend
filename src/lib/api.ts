@@ -52,11 +52,12 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
   return json.data
 }
 
-export async function apiDelete<T>(path: string): Promise<T> {
+export async function apiDelete<T = void>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'DELETE',
     headers: await getAuthHeaders(),
   })
+  if (res.status === 204) return undefined as T
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json.data

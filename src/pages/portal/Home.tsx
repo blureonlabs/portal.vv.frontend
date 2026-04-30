@@ -28,7 +28,7 @@ export default function PortalHome() {
   })
 
   const { data: leaves = [] } = useQuery<LeaveRequest[]>({
-    queryKey: ['portal-leave'],
+    queryKey: ['portal-leave', 'this-month'],
     queryFn: () => apiGet(`/hr/requests?from=${monthStart()}&to=${today()}`),
   })
 

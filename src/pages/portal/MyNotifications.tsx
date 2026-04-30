@@ -81,7 +81,7 @@ export default function MyNotifications() {
   })
 
   const { data: leaves = [], isLoading: loadingLeave } = useQuery<LeaveRequest[]>({
-    queryKey: ['portal-leave'],
+    queryKey: ['portal-leave', 'all'],
     queryFn: () => apiGet('/hr/requests'),
   })
 
