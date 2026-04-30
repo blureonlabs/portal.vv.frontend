@@ -16,8 +16,15 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   useEffect(() => {
     // Sync with Supabase session
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
+    supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (error || !data.session) {
+          // Invalid/expired refresh token — clear stale token from Supabase storage
+          if (error) supabase.auth.signOut()
+          clear()
+          setLoading(false)
+          return
+        }
         setSession({ access_token: data.session.access_token })
         if (!user) {
           apiGet<User>('/auth/me')
@@ -27,16 +34,18 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         } else {
           setLoading(false)
         }
-      } else {
+      })
+      .catch(() => {
+        // AuthApiError thrown (e.g. Invalid Refresh Token) — force sign out and clear
+        supabase.auth.signOut()
         clear()
         setLoading(false)
-      }
-    })
+      })
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, s) => {
       if (event === 'SIGNED_OUT' || !s) {
         clear()
-      } else {
+      } else if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
         setSession({ access_token: s.access_token })
       }
     })
