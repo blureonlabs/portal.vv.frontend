@@ -399,6 +399,7 @@ function SalaryTab({ driverId }: { driverId: string }) {
             <th className="text-right py-3 px-4 text-muted font-medium">Base</th>
             <th className="text-right py-3 px-4 text-muted font-medium">Advance Deduction</th>
             <th className="text-right py-3 px-4 text-muted font-medium">Net Payable</th>
+            <th className="text-center py-3 px-4 text-muted font-medium">Slip</th>
           </tr>
         </thead>
         <tbody>
@@ -410,6 +411,15 @@ function SalaryTab({ driverId }: { driverId: string }) {
               <td className="py-3 px-4 text-right text-muted">{formatAed(parseFloat(s.base_amount_aed))}</td>
               <td className="py-3 px-4 text-right text-danger">{formatAed(parseFloat(s.advance_deduction_aed))}</td>
               <td className="py-3 px-4 text-right font-semibold text-primary">{formatAed(parseFloat(s.net_payable_aed))}</td>
+              <td className="py-3 px-4 text-center">
+                {s.slip_url?.startsWith('http') ? (
+                  <a href={s.slip_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
+                    <span className="material-symbols-rounded text-[15px]">download</span>
+                  </a>
+                ) : (
+                  <span className="text-muted text-xs">&mdash;</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

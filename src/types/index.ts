@@ -342,6 +342,8 @@ export interface Salary {
   final_salary_aed: string
   advance_deduction_aed: string
   net_payable_aed: string
+  carry_forward_balance_aed: string
+  edited_fields: Record<string, { from: string; to: string }> | null
   deductions_json: object | null
   slip_url: string | null
   generated_by: string

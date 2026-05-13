@@ -82,6 +82,14 @@ function SlipCard({ slip }: { slip: Salary }) {
         {parseFloat(slip.advance_deduction_aed) > 0 && (
           <DetailRow label="Advance Deduction" value={`-${formatAed(slip.advance_deduction_aed)}`} valueClass="text-red-600" />
         )}
+        {parseFloat(slip.carry_forward_balance_aed) > 0 && (
+          <>
+            <p className="text-xs text-muted">Carry Forward</p>
+            <p className="text-xs font-semibold text-right text-danger">
+              {formatAed(parseFloat(slip.carry_forward_balance_aed))}
+            </p>
+          </>
+        )}
         {parseFloat(slip.salik_aed) > 0 && (
           <DetailRow label="Salik" value={`-${formatAed(slip.salik_aed)}`} valueClass="text-red-600" />
         )}
