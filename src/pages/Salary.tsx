@@ -639,15 +639,15 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
     salary_type: z.enum(['commission', 'target_high', 'target_low']),
     total_earnings_aed: z.coerce.number().min(0),
     total_cash_received_aed: z.coerce.number().min(0),
-    total_cash_submit_aed: z.coerce.number().optional(),
+    total_cash_submit_aed: z.coerce.number().min(0).optional(),
     cash_not_handover_aed: z.coerce.number().min(0).default(0),
     car_charging_aed: z.coerce.number().min(0).default(0),
-    car_charging_used_aed: z.coerce.number().optional(),
+    car_charging_used_aed: z.coerce.number().min(0).optional(),
     salik_used_aed: z.coerce.number().min(0).default(0),
     salik_refund_aed: z.coerce.number().min(0).default(0),
     rta_fine_aed: z.coerce.number().min(0).default(0),
     card_service_charges_aed: z.coerce.number().min(0).default(0),
-    room_rent_aed: z.coerce.number().optional(),
+    room_rent_aed: z.coerce.number().min(0).optional(),
   })
   type EditForm = z.infer<typeof editSchema>
 
