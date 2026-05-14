@@ -44,7 +44,7 @@ function KpiCard({
         {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
       </div>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accent}`}>
-        <MsIcon name={icon} className="text-white text-[20px]" />
+        <MsIcon name={icon} className="text-[20px]" />
       </div>
     </div>
   )
@@ -353,54 +353,54 @@ export default function Dashboard() {
               value={formatAed(kpis.revenue_mtd)}
               sub={`${kpis.trips_mtd} trips this month`}
               icon="trending_up"
-              accent="bg-primary"
+              accent="bg-primary/10 text-primary"
             />
             <KpiCard
               label="Net Profit MTD"
               value={formatAed(kpis.net_profit)}
               sub="After all expenses"
               icon="account_balance"
-              accent={parseFloat(kpis.net_profit) >= 0 ? 'bg-success' : 'bg-danger'}
+              accent={parseFloat(kpis.net_profit) >= 0 ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}
             />
             <KpiCard
               label="Total Expenses MTD"
               value={formatAed(kpis.total_expenses_mtd)}
               icon="receipt_long"
-              accent="bg-orange-500"
+              accent="bg-primary/10 text-primary"
             />
             <KpiCard
               label="Active Drivers"
               value={kpis.active_drivers}
               icon="group"
-              accent="bg-success"
+              accent="bg-success/10 text-success"
               onClick={() => navigate('/drivers')}
             />
             <KpiCard
               label="Active Vehicles"
               value={kpis.active_vehicles}
               icon="directions_car"
-              accent="bg-sky-500"
+              accent="bg-primary/10 text-primary"
               onClick={() => navigate('/vehicles')}
             />
             <KpiCard
               label="Pending Advances"
               value={kpis.pending_advances}
               icon="payments"
-              accent={kpis.pending_advances > 0 ? 'bg-warning' : 'bg-gray-400'}
+              accent={kpis.pending_advances > 0 ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-400'}
               onClick={() => navigate('/advances')}
             />
             <KpiCard
               label="Pending Leave"
               value={kpis.pending_leave}
               icon="event_busy"
-              accent={kpis.pending_leave > 0 ? 'bg-warning' : 'bg-gray-400'}
+              accent={kpis.pending_leave > 0 ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-400'}
               onClick={() => navigate('/hr')}
             />
             <KpiCard
               label="Insurance Alerts"
               value={kpis.insurance_expiring_soon.length}
               icon="shield_with_heart"
-              accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-danger' : 'bg-gray-400'}
+              accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-danger/10 text-danger' : 'bg-gray-100 text-gray-400'}
               onClick={() => navigate('/vehicles')}
             />
           </div>
