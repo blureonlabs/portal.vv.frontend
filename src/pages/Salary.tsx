@@ -8,6 +8,7 @@ import { apiGet, apiPost, apiPut } from '../lib/api'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { EmptyState } from '../components/ui/EmptyState'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { formatAed } from '../lib/utils'
@@ -201,7 +202,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
           <div className="flex items-center gap-3">
             {canAdmin && s.status === 'draft' && (
               <button onClick={(e) => { e.stopPropagation(); setEditingSalary(s) }} className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline">
-                <span className="material-symbols-rounded text-[13px]">edit</span>
+                <span className="material-symbols-rounded text-[14px]">edit</span>
                 Edit
               </button>
             )}
@@ -295,7 +296,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
               </p>
               {s.slip_url?.startsWith('http') ? (
                 <a href={s.slip_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
-                  <span className="material-symbols-rounded text-[13px]">download</span>
+                  <span className="material-symbols-rounded text-[14px]">download</span>
                   Download Slip
                 </a>
               ) : (
@@ -304,7 +305,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
                   disabled={generateSlipMut.isPending}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline disabled:opacity-50"
                 >
-                  <span className="material-symbols-rounded text-[13px]">picture_as_pdf</span>
+                  <span className="material-symbols-rounded text-[14px]">picture_as_pdf</span>
                   {generateSlipMut.isPending ? 'Generating\u2026' : 'Generate Slip'}
                 </button>
               )}
@@ -421,7 +422,7 @@ export default function SalaryPage() {
     : salaries
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Salary</h1>
@@ -607,7 +608,7 @@ export default function SalaryPage() {
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : filteredSalaries.length === 0 ? (
-        <div className="py-16 text-center text-muted">No salary records found</div>
+        <EmptyState icon="payments" title="No salary records found" description="Generate a salary to get started." />
       ) : (
         <div className="space-y-3">
           {filteredSalaries.map((s) => <SalaryRow key={s.id} s={s} canAdmin={canAdmin} setEditingSalary={setEditingSalary} />)}
@@ -683,14 +684,14 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-primary">Edit Salary — {salary.driver_name}</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-surface text-muted"><span className="material-symbols-rounded text-[20px]">close</span></button>
+          <button onClick={onClose} aria-label="Close" className="p-1 rounded hover:bg-surface text-muted"><span className="material-symbols-rounded text-[20px]">close</span></button>
         </div>
         <p className="text-xs text-muted mb-4">Period: {salary.period_month} · Recalculation happens on save.</p>
         {error && <p className="text-sm text-danger mb-3">{error}</p>}
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-muted mb-1">Salary Type</label>
-            <select {...reg('salary_type')} className="w-full px-3 py-2 rounded-xl border border-border text-sm">
+            <select {...reg('salary_type')} className="w-full px-3 py-2.5 rounded-xl border border-border text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent">
               <option value="commission">Commission</option>
               <option value="target_high">Target High</option>
               <option value="target_low">Target Low</option>
@@ -710,8 +711,8 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
             <EditNumField label="Room Rent" reg={reg('room_rent_aed')} err={fe.room_rent_aed?.message} />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted hover:bg-surface">Cancel</button>
-            <button type="submit" disabled={mutation.isPending} className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-full border border-border text-sm font-medium text-muted hover:bg-surface">Cancel</button>
+            <button type="submit" disabled={mutation.isPending} className="flex-1 px-4 py-2.5 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60">
               {mutation.isPending ? 'Saving\u2026' : 'Save & Recalculate'}
             </button>
           </div>

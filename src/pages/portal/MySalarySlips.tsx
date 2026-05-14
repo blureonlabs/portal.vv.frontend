@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { formatAed, formatDate } from '../../lib/utils'
+import { EmptyState } from '../../components/ui/EmptyState'
 import type { Salary, SalaryType } from '../../types'
 
 const SALARY_TYPE_LABELS: Record<SalaryType, string> = {
@@ -35,10 +36,7 @@ export default function MySalarySlips() {
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : sorted.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted">
-          <span className="material-symbols-rounded text-[48px] opacity-30">receipt_long</span>
-          <p className="text-sm">No salary slips yet</p>
-        </div>
+        <EmptyState icon="receipt_long" title="No salary slips yet" description="Your salary slips will appear here once generated." />
       ) : (
         <div className="space-y-3">
           {sorted.map((slip) => (
@@ -107,7 +105,7 @@ function SlipCard({ slip }: { slip: Salary }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors"
           >
-            <span className="material-symbols-rounded text-[15px]">picture_as_pdf</span>
+            <span className="material-symbols-rounded text-[16px]">picture_as_pdf</span>
             Download PDF
           </a>
         ) : (

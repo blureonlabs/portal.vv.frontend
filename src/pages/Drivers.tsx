@@ -252,7 +252,7 @@ export default function Drivers() {
                       }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-danger/30"
                     >
-                      <span className="material-symbols-rounded text-[12px]">person_off</span> Deactivate
+                      <span className="material-symbols-rounded text-[14px]">person_off</span> Deactivate
                     </button>
                   ) : (
                     <button
@@ -264,7 +264,7 @@ export default function Drivers() {
                       }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-success/30"
                     >
-                      <span className="material-symbols-rounded text-[12px]">how_to_reg</span> Activate
+                      <span className="material-symbols-rounded text-[14px]">how_to_reg</span> Activate
                     </button>
                   )
                 )}

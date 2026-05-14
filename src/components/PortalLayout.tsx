@@ -40,9 +40,10 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
         <span className="text-white font-bold text-base tracking-tight">Voiture Voyages</span>
         <button
           onClick={handleSignOut}
+          aria-label="Sign out"
           className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
         >
-          <span className="material-symbols-rounded text-[22px]">logout</span>
+          <span className="material-symbols-rounded text-[24px]">logout</span>
         </button>
       </header>
 
@@ -66,7 +67,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
                 )
               }
             >
-              <span className="material-symbols-rounded text-[22px]">{item.icon}</span>
+              <span className="material-symbols-rounded text-[24px]">{item.icon}</span>
               {item.label}
             </NavLink>
           ))}

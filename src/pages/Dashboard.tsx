@@ -8,6 +8,7 @@ import {
 import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
+import { Badge } from '../components/ui/Badge'
 import type { DashboardKpis, DocumentExpiryAlert, DriverFinancial } from '../types'
 
 /** Material Symbols icon helper */
@@ -18,7 +19,7 @@ function MsIcon({ name, className }: { name: string; className?: string }) {
 function SectionHeading({ icon, label }: { icon: string; label: string }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <MsIcon name={icon} className="text-muted text-[18px]" />
+      <MsIcon name={icon} className="text-muted text-[20px]" />
       <span className="text-xs font-semibold text-muted uppercase tracking-widest">{label}</span>
       <div className="flex-1 h-px bg-border ml-1" />
     </div>
@@ -187,7 +188,7 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="p-4 md:p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
 
       {/* ── Page Header ── */}
       <div className="flex items-start justify-between">
@@ -359,7 +360,7 @@ export default function Dashboard() {
               value={formatAed(kpis.net_profit)}
               sub="After all expenses"
               icon="account_balance"
-              accent={parseFloat(kpis.net_profit) >= 0 ? 'bg-emerald-600' : 'bg-red-500'}
+              accent={parseFloat(kpis.net_profit) >= 0 ? 'bg-success' : 'bg-danger'}
             />
             <KpiCard
               label="Total Expenses MTD"
@@ -371,7 +372,7 @@ export default function Dashboard() {
               label="Active Drivers"
               value={kpis.active_drivers}
               icon="group"
-              accent="bg-emerald-500"
+              accent="bg-success"
               onClick={() => navigate('/drivers')}
             />
             <KpiCard
@@ -385,21 +386,21 @@ export default function Dashboard() {
               label="Pending Advances"
               value={kpis.pending_advances}
               icon="payments"
-              accent={kpis.pending_advances > 0 ? 'bg-amber-500' : 'bg-gray-400'}
+              accent={kpis.pending_advances > 0 ? 'bg-warning' : 'bg-gray-400'}
               onClick={() => navigate('/advances')}
             />
             <KpiCard
               label="Pending Leave"
               value={kpis.pending_leave}
               icon="event_busy"
-              accent={kpis.pending_leave > 0 ? 'bg-amber-500' : 'bg-gray-400'}
+              accent={kpis.pending_leave > 0 ? 'bg-warning' : 'bg-gray-400'}
               onClick={() => navigate('/hr')}
             />
             <KpiCard
               label="Insurance Alerts"
               value={kpis.insurance_expiring_soon.length}
               icon="shield_with_heart"
-              accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-red-500' : 'bg-gray-400'}
+              accent={kpis.insurance_expiring_soon.length > 0 ? 'bg-danger' : 'bg-gray-400'}
               onClick={() => navigate('/vehicles')}
             />
           </div>
@@ -588,9 +589,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Top Drivers</p>
-              <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
-                MTD
-              </span>
+              <Badge variant="default" className="text-[10px] uppercase tracking-wide">MTD</Badge>
             </div>
 
             {!kpis || kpis.top_drivers.length === 0 ? (
@@ -644,9 +643,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Bottom Drivers</p>
-              <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
-                MTD
-              </span>
+              <Badge variant="default" className="text-[10px] uppercase tracking-wide">MTD</Badge>
             </div>
 
             {!kpis || kpis.bottom_drivers.length === 0 ? (
@@ -691,9 +688,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-border p-5 hover-lift motion-reduce:transform-none flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-primary">Per-Driver Financials</p>
-              <span className="text-[10px] font-semibold text-muted bg-accent-light rounded-full px-2.5 py-0.5 uppercase tracking-wide">
-                MTD
-              </span>
+              <Badge variant="default" className="text-[10px] uppercase tracking-wide">MTD</Badge>
             </div>
 
             {!driverFinancials ? (

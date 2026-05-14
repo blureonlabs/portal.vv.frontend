@@ -60,7 +60,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors"
           aria-label="Open notifications"
         >
-          <span className="material-symbols-rounded text-[22px] text-white/60 hover:text-white">notifications</span>
+          <span className="material-symbols-rounded text-[24px] text-white/60 hover:text-white">notifications</span>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -152,7 +152,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="p-2.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Open menu"
           >
-            <span className="material-symbols-rounded text-[22px] text-white">menu</span>
+            <span className="material-symbols-rounded text-[24px] text-white">menu</span>
           </button>
           <span className="text-white font-bold text-base tracking-tight">Voiture Voyages</span>
           <button
@@ -160,7 +160,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Open notifications"
           >
-            <span className="material-symbols-rounded text-[22px] text-white/70 hover:text-white">notifications</span>
+            <span className="material-symbols-rounded text-[24px] text-white/70 hover:text-white">notifications</span>
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}

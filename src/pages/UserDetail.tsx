@@ -107,6 +107,7 @@ function ResetPasswordModal({
           <h2 className="text-lg font-semibold text-primary">Reset Password</h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="p-1.5 rounded-lg hover:bg-surface text-muted hover:text-primary transition-colors"
           >
             <span className="material-symbols-rounded text-[20px]">close</span>
@@ -133,7 +134,7 @@ function ResetPasswordModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-medium text-muted hover:bg-surface transition-colors"
+            className="flex-1 px-4 py-2.5 rounded-full border border-border text-sm font-medium text-muted hover:bg-surface transition-colors"
           >
             Cancel
           </button>
@@ -141,7 +142,7 @@ function ResetPasswordModal({
             type="button"
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending || mutation.isSuccess}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
+            className="flex-1 px-4 py-2.5 rounded-full bg-accent text-white text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
           >
             {mutation.isPending ? 'Sending…' : 'Send Reset Link'}
           </button>
@@ -413,8 +414,8 @@ function SalaryTab({ driverId }: { driverId: string }) {
               <td className="py-3 px-4 text-right font-semibold text-primary">{formatAed(parseFloat(s.net_payable_aed))}</td>
               <td className="py-3 px-4 text-center">
                 {s.slip_url?.startsWith('http') ? (
-                  <a href={s.slip_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-xs">
-                    <span className="material-symbols-rounded text-[15px]">download</span>
+                  <a href={s.slip_url} target="_blank" rel="noopener noreferrer" aria-label="Download slip" className="text-accent hover:underline text-xs">
+                    <span className="material-symbols-rounded text-[16px]">download</span>
                   </a>
                 ) : (
                   <span className="text-muted text-xs">&mdash;</span>
@@ -533,7 +534,7 @@ export default function UserDetail() {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-6xl mx-auto">
         <p className="text-muted text-sm">Loading user…</p>
       </div>
     )
@@ -541,7 +542,7 @@ export default function UserDetail() {
 
   if (!user) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-6xl mx-auto">
         <p className="text-danger text-sm">User not found.</p>
         <Link to="/users" className="text-accent text-sm hover:underline mt-2 block">
           ← Back to Users
@@ -559,7 +560,7 @@ export default function UserDetail() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
       {/* Back link */}
       <Link
         to="/users"

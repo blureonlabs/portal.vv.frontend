@@ -25,7 +25,7 @@ export function ConfirmDialog({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -48,7 +48,7 @@ export function ConfirmDialog({
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                 variant === 'danger' ? 'bg-red-50' : 'bg-accent-light'
               }`}>
-                <span className={`material-symbols-rounded text-[22px] ${
+                <span className={`material-symbols-rounded text-[24px] ${
                   variant === 'danger' ? 'text-danger' : 'text-accent'
                 }`}>
                   {variant === 'danger' ? 'warning' : 'info'}
