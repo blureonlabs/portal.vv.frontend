@@ -541,38 +541,17 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              /* Fallback: single-slice pie showing total */
-              <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                <div className="relative">
-                  <ResponsiveContainer width={140} height={140}>
-                    <PieChart>
-                      <Pie
-                        data={[{ name: 'Revenue', value: parseFloat(kpis?.revenue_mtd ?? '0') }]}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={44}
-                        outerRadius={64}
-                        dataKey="value"
-                        strokeWidth={0}
-                      >
-                        <Cell fill="#161f3f" />
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              /* No revenue data yet — show empty donut */
+              <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                <div className="w-32 h-32 rounded-full border-[6px] border-gray-100 flex items-center justify-center">
+                  <div className="text-center">
                     <p className="text-[10px] text-muted leading-tight">Total</p>
-                    <p className="text-xs font-bold text-primary leading-tight">
+                    <p className="text-sm font-bold text-primary leading-tight">
                       {formatAed(kpis?.revenue_mtd ?? '0')}
                     </p>
                   </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs font-medium text-muted">Cash / Card breakdown</p>
-                  <div className="inline-flex items-center gap-1 mt-1 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1">
-                    <MsIcon name="construction" className="text-amber-500 text-[14px]" />
-                    <span className="text-[11px] font-medium text-amber-700">Coming soon</span>
-                  </div>
-                </div>
+                <p className="text-xs text-muted">No revenue breakdown this month</p>
               </div>
             )}
           </div>
