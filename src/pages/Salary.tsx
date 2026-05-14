@@ -651,8 +651,8 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
   })
   type EditForm = z.infer<typeof editSchema>
 
-  const { register: reg, handleSubmit, formState: { errors: fe } } = useForm<EditForm>({
-    resolver: zodResolver(editSchema),
+  const { register: reg, handleSubmit, formState: { errors: fe } } = useForm<EditForm, any, EditForm>({
+    resolver: zodResolver(editSchema) as never,
     defaultValues: {
       salary_type: salary.salary_type_snapshot,
       total_earnings_aed: parseFloat(salary.total_earnings_aed),
