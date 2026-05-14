@@ -133,8 +133,8 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="/drivers" element={<Drivers />} />
-                    <Route path="/drivers/:id" element={<DriverDetail />} />
+                    <Route path="/drivers" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant', 'hr']}><Drivers /></ProtectedRoute>} />
+                    <Route path="/drivers/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant', 'hr']}><DriverDetail /></ProtectedRoute>} />
                     <Route
                       path="/owners"
                       element={
@@ -143,15 +143,15 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="/vehicles" element={<Vehicles />} />
-                    <Route path="/vehicles/:id" element={<VehicleDetail />} />
-                    <Route path="/trips" element={<Trips />} />
-                    <Route path="/finance" element={<Finance />} />
-                    <Route path="/advances" element={<Advances />} />
-                    <Route path="/hr" element={<HrRequests />} />
-                    <Route path="/salary" element={<SalaryPage />} />
-                    <Route path="/invoices" element={<Invoices />} />
-                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/vehicles" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant', 'hr']}><Vehicles /></ProtectedRoute>} />
+                    <Route path="/vehicles/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant', 'hr']}><VehicleDetail /></ProtectedRoute>} />
+                    <Route path="/trips" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant']}><Trips /></ProtectedRoute>} />
+                    <Route path="/finance" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant']}><Finance /></ProtectedRoute>} />
+                    <Route path="/advances" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant']}><Advances /></ProtectedRoute>} />
+                    <Route path="/hr" element={<ProtectedRoute allowedRoles={['super_admin', 'hr']}><HrRequests /></ProtectedRoute>} />
+                    <Route path="/salary" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant']}><SalaryPage /></ProtectedRoute>} />
+                    <Route path="/invoices" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant', 'hr']}><Invoices /></ProtectedRoute>} />
+                    <Route path="/reports" element={<ProtectedRoute allowedRoles={['super_admin', 'accountant']}><Reports /></ProtectedRoute>} />
                     <Route
                       path="/broadcasts"
                       element={
@@ -160,7 +160,7 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/settings" element={<ProtectedRoute allowedRoles={['super_admin']}><Settings /></ProtectedRoute>} />
                     <Route path="/change-password" element={<ChangePassword />} />
                     <Route
                       path="/audit"

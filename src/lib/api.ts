@@ -1,6 +1,15 @@
 import { supabase } from './supabase'
+import { useAuthStore } from '../store/authStore'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1'
+
+function handleUnauthorized(res: Response) {
+  if (res.status === 401) {
+    const { clear } = useAuthStore.getState()
+    clear()
+    throw new Error('Session expired. Please log in again.')
+  }
+}
 
 async function getAuthHeaders() {
   const { data } = await supabase.auth.getSession()
@@ -13,6 +22,7 @@ async function getAuthHeaders() {
 
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { headers: await getAuthHeaders() })
+  handleUnauthorized(res)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json.data
@@ -25,6 +35,7 @@ export interface PaginatedResult<T> {
 
 export async function apiGetPaginated<T>(path: string): Promise<PaginatedResult<T>> {
   const res = await fetch(`${API_BASE}${path}`, { headers: await getAuthHeaders() })
+  handleUnauthorized(res)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return { data: json.data, meta: json.meta }
@@ -36,6 +47,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     headers: await getAuthHeaders(),
     body: JSON.stringify(body),
   })
+  handleUnauthorized(res)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json.data
@@ -47,6 +59,7 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
     headers: await getAuthHeaders(),
     body: JSON.stringify(body),
   })
+  handleUnauthorized(res)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json.data
@@ -57,6 +70,7 @@ export async function apiDelete<T = void>(path: string): Promise<T> {
     method: 'DELETE',
     headers: await getAuthHeaders(),
   })
+  handleUnauthorized(res)
   if (res.status === 204) return undefined as T
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
@@ -66,6 +80,7 @@ export async function apiDelete<T = void>(path: string): Promise<T> {
 /** Fetches raw bytes (e.g. CSV). Caller owns the blob. */
 export async function apiFetchRaw(path: string): Promise<Blob> {
   const res = await fetch(`${API_BASE}${path}`, { headers: await getAuthHeaders() })
+  handleUnauthorized(res)
   if (!res.ok) {
     const json = await res.json().catch(() => ({}))
     throw new Error((json as { error?: string }).error ?? 'Request failed')
