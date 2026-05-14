@@ -173,9 +173,11 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
     onSuccess: () => qc.invalidateQueries({ queryKey: ['salaries'] }),
   })
 
+  const [slipError, setSlipError] = useState('')
   const generateSlipMut = useMutation({
     mutationFn: (salaryId: string) => apiGet<{ slip_url: string }>(`/salaries/${salaryId}/slip`),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['salaries'] }) },
+    onSuccess: () => { setSlipError(''); qc.invalidateQueries({ queryKey: ['salaries'] }) },
+    onError: (e: Error) => setSlipError(e.message),
   })
 
   return (
@@ -306,6 +308,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
                   {generateSlipMut.isPending ? 'Generating\u2026' : 'Generate Slip'}
                 </button>
               )}
+              {slipError && <p className="text-xs text-danger">{slipError}</p>}
             </div>
           </div>
         )}
