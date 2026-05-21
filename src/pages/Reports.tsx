@@ -6,8 +6,8 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
+import { BarChart3, Download, FileText } from 'lucide-react'
 import type {
-import { BarChart3, Download } from 'lucide-react'
   Driver,
   DriverSummaryReport,
   TripDetailReport,
@@ -158,10 +158,19 @@ export default function Reports() {
           <BarChart3 size={24} className="text-primary" />
           <h1 className="text-2xl font-bold text-primary">Reports</h1>
         </div>
-        <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
-          <Download size={16} className="mr-1" />
-          Export CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
+            <Download size={16} className="mr-1" />
+            Export CSV
+          </Button>
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-medium text-muted hover:bg-surface"
+          >
+            <FileText size={16} />
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

@@ -357,7 +357,9 @@ export interface Salary {
   payment_date: string | null
   payment_mode: string | null
   payment_reference: string | null
+  payment_notes: string | null
   paid_at: string | null
+  incentives_aed: string
 }
 
 export interface InsuranceAlert {
@@ -466,6 +468,8 @@ export interface DashboardKpis {
   cash_shortfall_drivers: CashShortfallAlert[]
   service_overdue_vehicles: ServiceOverdueAlert[]
   document_expiry_alerts: DocumentExpiryAlert[]
+  total_advances_mtd: string
+  outstanding_advances: string
 }
 
 export interface AdvanceReport {

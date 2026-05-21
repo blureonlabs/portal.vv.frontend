@@ -42,3 +42,9 @@
     box-shadow: 0 12px 24px -8px rgba(22, 31, 63, 0.12);
   }
 }
+
+@media print {
+  nav, .no-print, button, [role="navigation"] { display: none !important; }
+  body { background: white !important; }
+  main { padding: 0 !important; }
+}

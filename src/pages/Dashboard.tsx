@@ -466,6 +466,12 @@ export default function Dashboard() {
               onClick={() => navigate('/advances')}
             />
             <KpiCard
+              label="Outstanding Advances"
+              value={formatAed(kpis.outstanding_advances ?? '0')}
+              icon="account_balance_wallet"
+              accent="bg-warning/10 text-warning"
+            />
+            <KpiCard
               label="Pending Leave"
               value={kpis.pending_leave}
               icon="event_busy"
