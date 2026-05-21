@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { formatAed } from '../../lib/utils'
 import type { Advance, DriverContext, EarningsReport, LeaveRequest } from '../../types'
+import { Car, TrendingUp, CreditCard, CalendarX, type LucideIcon } from 'lucide-react'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -46,7 +47,7 @@ export default function PortalHome() {
         <h1 className="text-2xl font-bold text-primary">{ctx?.full_name ?? '—'}</h1>
         {ctx?.vehicle && (
           <div className="flex items-center gap-1.5 mt-1 text-sm text-muted">
-            <span className="material-symbols-rounded text-[16px]">directions_car</span>
+            <Car size={16} />
             <span>{ctx.vehicle.plate_number} · {ctx.vehicle.make} {ctx.vehicle.model}</span>
           </div>
         )}
@@ -55,7 +56,7 @@ export default function PortalHome() {
       {/* Monthly earnings card */}
       <div className="bg-primary rounded-2xl p-5 text-white shadow-lg">
         <div className="flex items-center gap-2 mb-1 opacity-80">
-          <span className="material-symbols-rounded text-[18px]">trending_up</span>
+          <TrendingUp size={18} />
           <span className="text-sm font-medium">
             {new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })} Earnings
           </span>
@@ -75,7 +76,7 @@ export default function PortalHome() {
       {/* Status cards */}
       <div className="grid grid-cols-2 gap-3">
         <StatusCard
-          icon="credit_card"
+          icon={CreditCard}
           label="Advance"
           value={
             pendingAdvance
@@ -87,7 +88,7 @@ export default function PortalHome() {
           accent={pendingAdvance ? 'yellow' : approvedAdvance ? 'green' : 'gray'}
         />
         <StatusCard
-          icon="event_busy"
+          icon={CalendarX}
           label="Leave"
           value={activeLeave ? `On ${activeLeave.type} today` : 'No active leave'}
           accent={activeLeave ? 'blue' : 'gray'}
@@ -115,9 +116,9 @@ export default function PortalHome() {
 }
 
 function StatusCard({
-  icon, label, value, accent,
+  icon: Icon, label, value, accent,
 }: {
-  icon: string
+  icon: LucideIcon
   label: string
   value: string
   accent: 'green' | 'yellow' | 'blue' | 'gray'
@@ -131,7 +132,7 @@ function StatusCard({
   return (
     <div className="bg-white rounded-2xl border border-border p-4">
       <div className={`inline-flex p-2 rounded-xl mb-2 ${colors[accent]}`}>
-        <span className="material-symbols-rounded text-[20px]">{icon}</span>
+        <Icon size={20} />
       </div>
       <p className="text-xs text-muted mb-0.5">{label}</p>
       <p className="text-sm font-medium text-primary">{value}</p>

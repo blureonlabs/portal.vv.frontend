@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { Badge } from '../../components/ui/Badge'
+import { Building2, Car, Mail, Phone } from 'lucide-react'
 
 interface OwnerContext {
   id: string
@@ -59,18 +60,18 @@ export default function OwnerHome() {
 
         <div className="space-y-2.5">
           <div className="flex items-center gap-3 text-sm">
-            <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">mail</span>
+            <Mail size={16} className="text-muted flex-shrink-0" />
             <span className="text-primary">{ctx.email}</span>
           </div>
           {ctx.phone && (
             <div className="flex items-center gap-3 text-sm">
-              <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">phone</span>
+              <Phone size={16} className="text-muted flex-shrink-0" />
               <span className="text-primary">{ctx.phone}</span>
             </div>
           )}
           {ctx.company_name && (
             <div className="flex items-center gap-3 text-sm">
-              <span className="material-symbols-rounded text-[16px] text-muted flex-shrink-0">apartment</span>
+              <Building2 size={16} className="text-muted flex-shrink-0" />
               <span className="text-primary">{ctx.company_name}</span>
             </div>
           )}
@@ -83,7 +84,7 @@ export default function OwnerHome() {
 
         {ctx.vehicles.length === 0 && (
           <div className="bg-white rounded-2xl border border-border p-5 text-center">
-            <span className="material-symbols-rounded text-[32px] text-muted mx-auto mb-2">directions_car</span>
+            <Car size={32} className="text-muted mx-auto mb-2" />
             <p className="text-sm text-muted">No vehicles linked to your account yet.</p>
           </div>
         )}
@@ -91,7 +92,7 @@ export default function OwnerHome() {
         {ctx.vehicles.map((v) => (
           <div key={v.id} className="bg-white rounded-2xl border border-border p-4 flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-rounded text-[20px] text-primary">directions_car</span>
+              <Car size={20} className="text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-primary">{v.plate_number}</p>

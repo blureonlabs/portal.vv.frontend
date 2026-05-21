@@ -29,7 +29,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         className="w-10 h-10 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
         aria-label="Go to previous page"
       >
-        <span className="material-symbols-rounded text-[18px]">chevron_left</span>
+        <ChevronLeft size={18} />
       </button>
 
       {pages.map((p, i) =>
@@ -59,7 +59,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         className="w-10 h-10 rounded-full flex items-center justify-center text-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
         aria-label="Go to next page"
       >
-        <span className="material-symbols-rounded text-[18px]">chevron_right</span>
+        <ChevronRight size={18} />
       </button>
     </div>
   )

@@ -11,6 +11,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import type { Broadcast, Driver } from '../types'
+import { Mail, Megaphone, MessageCircle, Send } from 'lucide-react'
 
 const schema = z.object({
   subject: z.string().min(1, 'Subject required'),
@@ -89,7 +90,7 @@ export default function Broadcasts() {
           <p className="text-sm text-muted mt-1">Send communications to drivers</p>
         </div>
         <Button onClick={() => setShowModal(true)}>
-          <span className="material-symbols-rounded text-[18px]">campaign</span>
+          <Megaphone size={18} />
           New Broadcast
         </Button>
       </div>
@@ -98,7 +99,7 @@ export default function Broadcasts() {
         <p className="text-muted text-sm">Loading...</p>
       ) : broadcasts.length === 0 ? (
         <div className="text-center py-16 text-muted">
-          <span className="material-symbols-rounded text-[48px] opacity-30">campaign</span>
+          <Megaphone size={48} className="opacity-30" />
           <p className="mt-2">No broadcasts sent yet</p>
         </div>
       ) : (
@@ -121,9 +122,7 @@ export default function Broadcasts() {
                   <td className="px-4 py-3 font-medium text-primary">{b.subject}</td>
                   <td className="px-4 py-3">
                     <Badge variant={b.channel === 'email' ? 'default' : 'muted'}>
-                      <span className="material-symbols-rounded text-[14px] mr-1">
-                        {b.channel === 'email' ? 'mail' : 'chat'}
-                      </span>
+                      {b.channel === 'email' ? <Mail size={14} className="mr-1" /> : <MessageCircle size={14} className="mr-1" />}
                       {b.channel}
                     </Badge>
                   </td>
@@ -239,7 +238,7 @@ export default function Broadcasts() {
                     Cancel
                   </Button>
                   <Button type="submit" loading={isPending} className="flex-1">
-                    <span className="material-symbols-rounded text-[18px]">send</span>
+                    <Send size={18} />
                     Send Broadcast
                   </Button>
                 </div>

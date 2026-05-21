@@ -1,6 +1,7 @@
 import { cn } from '../../lib/utils'
 import { forwardRef, useState, useRef, useEffect, type SelectHTMLAttributes } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Check, ChevronDown } from 'lucide-react'
 
 interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   label?: string
@@ -137,9 +138,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           <span className={selected ? 'text-primary' : 'text-muted/60'}>
             {selected?.label || placeholder}
           </span>
-          <span className="material-symbols-rounded text-[18px] text-muted transition-transform duration-200" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0)' }}>
-            expand_more
-          </span>
+          <ChevronDown size={18} className="text-muted transition-transform duration-200" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0)' }} />
         </button>
 
         {/* Dropdown */}
@@ -167,7 +166,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                   >
                     {o.label}
                     {o.value === currentValue && (
-                      <span className="material-symbols-rounded text-[18px] text-primary">check</span>
+                      <Check size={18} className="text-primary" />
                     )}
                   </button>
                 ))}

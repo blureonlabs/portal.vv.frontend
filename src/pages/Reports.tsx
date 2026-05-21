@@ -7,6 +7,7 @@ import { Select } from '../components/ui/Select'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
 import type {
+import { BarChart3, Download } from 'lucide-react'
   Driver,
   DriverSummaryReport,
   TripDetailReport,
@@ -154,11 +155,11 @@ export default function Reports() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-rounded text-[24px] text-primary">bar_chart</span>
+          <BarChart3 size={24} className="text-primary" />
           <h1 className="text-2xl font-bold text-primary">Reports</h1>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
-          <span className="material-symbols-rounded text-[16px] mr-1">download</span>
+          <Download size={16} className="mr-1" />
           Export CSV
         </Button>
       </div>

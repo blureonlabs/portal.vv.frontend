@@ -3,6 +3,7 @@ import { apiGet } from '../../lib/api'
 import { formatAed, formatDate } from '../../lib/utils'
 import { EmptyState } from '../../components/ui/EmptyState'
 import type { Salary, SalaryType } from '../../types'
+import { FileText, Receipt } from 'lucide-react'
 
 const SALARY_TYPE_LABELS: Record<SalaryType, string> = {
   commission: 'Commission',
@@ -36,7 +37,7 @@ export default function MySalarySlips() {
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : sorted.length === 0 ? (
-        <EmptyState icon="receipt_long" title="No salary slips yet" description="Your salary slips will appear here once generated." />
+        <EmptyState icon={Receipt} title="No salary slips yet" description="Your salary slips will appear here once generated." />
       ) : (
         <div className="space-y-3">
           {sorted.map((slip) => (
@@ -110,7 +111,7 @@ function SlipCard({ slip }: { slip: Salary }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors"
           >
-            <span className="material-symbols-rounded text-[16px]">picture_as_pdf</span>
+            <FileText size={16} />
             Download PDF
           </a>
         ) : (

@@ -3,10 +3,17 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../lib/api'
 import type { DashboardKpis } from '../types'
+import { Bell, X, ShieldAlert, CreditCard, CalendarX, BellOff, Inbox, type LucideIcon } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type NotificationType = 'insurance' | 'advance' | 'leave'
+
+const NOTIF_ICON_MAP: Record<string, LucideIcon> = {
+  shield_with_heart: ShieldAlert,
+  credit_card: CreditCard,
+  event_busy: CalendarX,
+}
 
 export interface NotificationItem {
   id: string
@@ -191,7 +198,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
             {/* Header */}
             <div className="bg-primary px-5 py-4 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-rounded text-[22px] text-white">notifications</span>
+                <Bell size={22} className="text-white" />
                 <h2 className="text-base font-semibold text-white">Notifications</h2>
                 {unread.length > 0 && (
                   <span className="ml-1 px-2 py-0.5 rounded-full bg-danger text-white text-[10px] font-bold">
@@ -204,7 +211,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
                 className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
                 aria-label="Close notifications"
               >
-                <span className="material-symbols-rounded text-[20px]">close</span>
+                <X size={20} />
               </button>
             </div>
 
@@ -229,9 +236,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
             <div className="flex-1 bg-surface overflow-y-auto">
               {displayed.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-3 py-16 text-center px-8">
-                  <span className="material-symbols-rounded text-[48px] text-muted/40">
-                    {tab === 'unread' ? 'notifications_off' : 'inbox'}
-                  </span>
+                  {tab === 'unread' ? <BellOff size={48} className="text-muted/40" /> : <Inbox size={48} className="text-muted/40" />}
                   <p className="text-sm font-medium text-muted">
                     {tab === 'unread' ? 'All caught up!' : 'No notifications yet'}
                   </p>
@@ -264,11 +269,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
                           >
                             {/* Icon */}
                             <div className="mt-0.5 flex-shrink-0">
-                              <span
-                                className={`material-symbols-rounded text-[22px] ${item.iconColor}`}
-                              >
-                                {item.icon}
-                              </span>
+                              {(() => { const Icon = NOTIF_ICON_MAP[item.icon] ?? Bell; return <Icon size={22} className={item.iconColor} /> })()}
                             </div>
 
                             {/* Text */}
@@ -300,7 +301,7 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
                                 aria-label="Mark as read"
                                 title="Mark as read"
                               >
-                                <span className="material-symbols-rounded text-[16px]">close</span>
+                                <X size={16} />
                               </button>
                             )}
                           </div>

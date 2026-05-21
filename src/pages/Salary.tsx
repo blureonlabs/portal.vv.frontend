@@ -14,6 +14,7 @@ import { Select } from '../components/ui/Select'
 import { formatAed } from '../lib/utils'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, MonthlyEarnings, Salary, SalaryStatusType, SalaryType } from '../types'
+import { ChevronDown, ChevronUp, CreditCard as CreditCardIcon, Download, FileText, Pencil, Plus, X } from 'lucide-react'
 
 const SALARY_TYPE_LABELS: Record<SalaryType, string> = {
   commission: 'Commission',
@@ -202,7 +203,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
           <div className="flex items-center gap-3">
             {canAdmin && s.status === 'draft' && (
               <button onClick={(e) => { e.stopPropagation(); setEditingSalary(s) }} className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline">
-                <span className="material-symbols-rounded text-[14px]">edit</span>
+                <Pencil size={14} />
                 Edit
               </button>
             )}
@@ -229,8 +230,8 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
               <p className="text-base font-bold text-primary">{formatAed(parseFloat(s.net_payable_aed))}</p>
             </div>
             {open
-              ? <span className="material-symbols-rounded text-[16px] text-muted">expand_less</span>
-              : <span className="material-symbols-rounded text-[16px] text-muted">expand_more</span>}
+              ? <ChevronUp size={16} className="text-muted" />
+              : <ChevronDown size={16} className="text-muted" />}
           </div>
         </button>
 
@@ -296,7 +297,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
               </p>
               {s.slip_url?.startsWith('http') ? (
                 <a href={s.slip_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
-                  <span className="material-symbols-rounded text-[14px]">download</span>
+                  <Download size={14} />
                   Download Slip
                 </a>
               ) : (
@@ -305,7 +306,7 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
                   disabled={generateSlipMut.isPending}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline disabled:opacity-50"
                 >
-                  <span className="material-symbols-rounded text-[14px]">picture_as_pdf</span>
+                  <FileText size={14} />
                   {generateSlipMut.isPending ? 'Generating\u2026' : 'Generate Slip'}
                 </button>
               )}
@@ -430,7 +431,7 @@ export default function SalaryPage() {
         </div>
         {canAdmin && (
           <Button onClick={() => setShowForm((v) => !v)}>
-            <span className="material-symbols-rounded text-[16px] mr-2">add</span> Generate
+            <Plus size={16} className="mr-2" /> Generate
           </Button>
         )}
       </div>
@@ -608,7 +609,7 @@ export default function SalaryPage() {
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : filteredSalaries.length === 0 ? (
-        <EmptyState icon="payments" title="No salary records found" description="Generate a salary to get started." />
+        <EmptyState icon={CreditCardIcon} title="No salary records found" description="Generate a salary to get started." />
       ) : (
         <div className="space-y-3">
           {filteredSalaries.map((s) => <SalaryRow key={s.id} s={s} canAdmin={canAdmin} setEditingSalary={setEditingSalary} />)}
@@ -684,7 +685,7 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-primary">Edit Salary — {salary.driver_name}</h3>
-          <button onClick={onClose} aria-label="Close" className="p-1 rounded hover:bg-surface text-muted"><span className="material-symbols-rounded text-[20px]">close</span></button>
+          <button onClick={onClose} aria-label="Close" className="p-1 rounded hover:bg-surface text-muted"><X size={20} /></button>
         </div>
         <p className="text-xs text-muted mb-4">Period: {salary.period_month} · Recalculation happens on save.</p>
         {error && <p className="text-sm text-danger mb-3">{error}</p>}

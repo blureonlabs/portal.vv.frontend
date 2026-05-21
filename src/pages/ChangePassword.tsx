@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import { Input } from '../components/ui/Input'
 import { Button } from '../components/ui/Button'
+import { CheckCircle, Lock } from 'lucide-react'
 
 const schema = z
   .object({
@@ -81,7 +82,7 @@ export default function ChangePassword() {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-full bg-accent-light flex items-center justify-center">
-              <span className="material-symbols-rounded text-[22px] text-accent">lock</span>
+              <Lock size={22} className="text-accent" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-primary">Change Password</h1>
@@ -128,7 +129,7 @@ export default function ChangePassword() {
 
             {success && (
               <div className="flex items-center gap-2 text-sm text-success bg-green-50 rounded-xl px-3 py-2">
-                <span className="material-symbols-rounded text-[16px]">check_circle</span>
+                <CheckCircle size={16} />
                 Password updated successfully.
               </div>
             )}

@@ -15,6 +15,7 @@ import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, Owner, Vehicle } from '../types'
+import { AlertTriangle, Car, Plus, Search } from 'lucide-react'
 
 const vehicleSchema = z.object({
   plate_number: z.string().min(1, 'Required'),
@@ -133,14 +134,14 @@ export default function Vehicles() {
         </div>
         {isSuperAdmin && (
           <Button onClick={() => { setShowCreate(true); setApiError(''); form.reset() }}>
-            <span className="material-symbols-rounded text-[16px]">add</span>
+            <Plus size={16} />
             Add Vehicle
           </Button>
         )}
       </div>
 
       <div className="relative mb-6 max-w-sm">
-        <span className="material-symbols-rounded text-[16px] absolute left-3 top-1/2 -translate-y-1/2 text-muted">search</span>
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -171,7 +172,7 @@ export default function Vehicles() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-rounded text-[20px] text-muted">directions_car</span>
+                    <Car size={20} className="text-muted" />
                   </div>
                   <div>
                     <Link to={`/vehicles/${v.id}`} className="font-semibold text-primary hover:text-accent transition-colors">
@@ -189,7 +190,7 @@ export default function Vehicles() {
 
               {insuranceAlert && (
                 <div className="flex items-center gap-1.5 text-xs text-warning bg-amber-50 rounded-lg px-2.5 py-1.5">
-                  <span className="material-symbols-rounded text-[14px] flex-shrink-0">warning</span>
+                  <AlertTriangle size={14} className="flex-shrink-0" />
                   Insurance expires {insLeft! <= 0 ? 'NOW' : `in ${insLeft}d`} ({v.insurance_expiry && formatDate(v.insurance_expiry)})
                 </div>
               )}

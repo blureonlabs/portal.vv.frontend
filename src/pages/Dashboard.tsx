@@ -9,11 +9,52 @@ import { apiGet } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
 import { Badge } from '../components/ui/Badge'
+import {
+  TrendingUp, Landmark, Receipt, Users, Car, CreditCard, CalendarX, ShieldAlert,
+  Gauge, BarChart3, Clock, AlertCircle, AlertTriangle, X, Wallet, Wrench, CloudOff,
+  type LucideIcon,
+} from 'lucide-react'
 import type { DashboardKpis, DocumentExpiryAlert, DriverFinancial } from '../types'
 
-/** Material Symbols icon helper */
+const ICON_MAP: Record<string, LucideIcon> = {
+  trending_up: TrendingUp,
+  account_balance: Landmark,
+  receipt_long: Receipt,
+  group: Users,
+  directions_car: Car,
+  payments: CreditCard,
+  event_busy: CalendarX,
+  shield_with_heart: ShieldAlert,
+  speed: Gauge,
+  bar_chart_4_bars: BarChart3,
+  groups: Users,
+  schedule: Clock,
+  error: AlertCircle,
+  warning: AlertTriangle,
+  close: X,
+  account_balance_wallet: Wallet,
+  build: Wrench,
+  cloud_off: CloudOff,
+}
+
 function MsIcon({ name, className }: { name: string; className?: string }) {
-  return <span className={`material-symbols-rounded ${className ?? ''}`}>{name}</span>
+  const Icon = ICON_MAP[name]
+  if (!Icon) return null
+  const sizeMatch = className?.match(/text-\[(\d+)px\]/) || className?.match(/text-(\w+)/)
+  let size = 20
+  if (sizeMatch) {
+    const val = parseInt(sizeMatch[1])
+    if (!isNaN(val)) size = val
+  }
+  if (className?.includes('text-4xl')) size = 36
+  if (className?.includes('text-lg')) size = 18
+  const filteredClass = (className ?? '')
+    .replace(/text-\[\d+px\]/g, '')
+    .replace(/text-4xl/g, '')
+    .replace(/text-lg/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return <Icon size={size} className={filteredClass || undefined} />
 }
 
 function SectionHeading({ icon, label }: { icon: string; label: string }) {

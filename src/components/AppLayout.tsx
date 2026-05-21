@@ -5,31 +5,37 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { AvatarUpload } from './AvatarUpload'
 import { NotificationPanel, useNotificationCount } from './NotificationPanel'
+import {
+  Bell, Lock, LogOut, Menu,
+  LayoutDashboard, Users, BadgeCheck, Car, BookUser, Route, CreditCard,
+  CalendarX, Wallet, Receipt, BarChart3, Megaphone, Settings, Shield,
+  type LucideIcon,
+} from 'lucide-react'
 import type { Role } from '../types'
 
 interface NavItem {
   label: string
   href: string
-  icon: string
+  icon: LucideIcon
   roles: Role[]
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/', icon: 'dashboard', roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Users', href: '/users', icon: 'group', roles: ['super_admin'] },
-  { label: 'Drivers', href: '/drivers', icon: 'badge', roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Vehicles', href: '/vehicles', icon: 'directions_car', roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Owners', href: '/owners', icon: 'person_book', roles: ['super_admin'] },
-  { label: 'Trips', href: '/trips', icon: 'route', roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Finance', href: '/finance', icon: 'payments', roles: ['super_admin', 'accountant'] },
-  { label: 'Advances', href: '/advances', icon: 'credit_card', roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Leave', href: '/hr', icon: 'event_busy', roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Salary', href: '/salary', icon: 'account_balance_wallet', roles: ['super_admin', 'accountant'] },
-  { label: 'Invoices', href: '/invoices', icon: 'receipt_long', roles: ['super_admin', 'accountant'] },
-  { label: 'Reports', href: '/reports', icon: 'analytics', roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Broadcasts', href: '/broadcasts', icon: 'campaign', roles: ['super_admin'] },
-  { label: 'Settings', href: '/settings', icon: 'settings', roles: ['super_admin', 'accountant'] },
-  { label: 'Audit Log', href: '/audit', icon: 'shield', roles: ['super_admin'] },
+  { label: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Users', href: '/users', icon: Users, roles: ['super_admin'] },
+  { label: 'Drivers', href: '/drivers', icon: BadgeCheck, roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Owners', href: '/owners', icon: BookUser, roles: ['super_admin'] },
+  { label: 'Trips', href: '/trips', icon: Route, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+  { label: 'Finance', href: '/finance', icon: CreditCard, roles: ['super_admin', 'accountant'] },
+  { label: 'Advances', href: '/advances', icon: CreditCard, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+  { label: 'Leave', href: '/hr', icon: CalendarX, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+  { label: 'Salary', href: '/salary', icon: Wallet, roles: ['super_admin', 'accountant'] },
+  { label: 'Invoices', href: '/invoices', icon: Receipt, roles: ['super_admin', 'accountant'] },
+  { label: 'Reports', href: '/reports', icon: BarChart3, roles: ['super_admin', 'accountant', 'hr'] },
+  { label: 'Broadcasts', href: '/broadcasts', icon: Megaphone, roles: ['super_admin'] },
+  { label: 'Settings', href: '/settings', icon: Settings, roles: ['super_admin', 'accountant'] },
+  { label: 'Audit Log', href: '/audit', icon: Shield, roles: ['super_admin'] },
 ]
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -60,7 +66,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors"
           aria-label="Open notifications"
         >
-          <span className="material-symbols-rounded text-[24px] text-white/60 hover:text-white">notifications</span>
+          <Bell size={24} className="text-white/60 hover:text-white" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -85,7 +91,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   : 'text-white/60 hover:bg-white/8 hover:text-white/90'
               )}
             >
-              <span className="material-symbols-rounded text-[20px]">{item.icon}</span>
+              <item.icon size={20} />
               {item.label}
             </Link>
           )
@@ -105,14 +111,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           onClick={() => { navigate('/change-password'); setSidebarOpen(false) }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full cursor-pointer"
         >
-          <span className="material-symbols-rounded text-[20px]">lock</span>
+          <Lock size={20} />
           Change Password
         </button>
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full cursor-pointer"
         >
-          <span className="material-symbols-rounded text-[20px]">logout</span>
+          <LogOut size={20} />
           Sign out
         </button>
       </div>
@@ -152,7 +158,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="p-2.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Open menu"
           >
-            <span className="material-symbols-rounded text-[24px] text-white">menu</span>
+            <Menu size={24} className="text-white" />
           </button>
           <span className="text-white font-bold text-base tracking-tight">Voiture Voyages</span>
           <button
@@ -160,7 +166,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Open notifications"
           >
-            <span className="material-symbols-rounded text-[24px] text-white/70 hover:text-white">notifications</span>
+            <Bell size={24} className="text-white/70 hover:text-white" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}

@@ -2,21 +2,32 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
+import {
+  LogOut, Home, Route, TrendingUp, CreditCard, CalendarX, Landmark, Receipt, Bell, User,
+  type LucideIcon,
+} from 'lucide-react'
 
-const DRIVER_NAV = [
-  { label: 'Home', href: '/portal', icon: 'home', exact: true },
-  { label: 'Trips', href: '/portal/trips', icon: 'route' },
-  { label: 'Earnings', href: '/portal/earnings', icon: 'trending_up' },
-  { label: 'Advances', href: '/portal/advances', icon: 'credit_card' },
-  { label: 'Leave', href: '/portal/leave', icon: 'event_busy' },
-  { label: 'Cash', href: '/portal/cash', icon: 'account_balance' },
-  { label: 'Slips', href: '/portal/slips', icon: 'receipt' },
-  { label: 'Alerts', href: '/portal/notifications', icon: 'notifications' },
-  { label: 'Profile', href: '/portal/profile', icon: 'person' },
+interface NavItem {
+  label: string
+  href: string
+  icon: LucideIcon
+  exact?: boolean
+}
+
+const DRIVER_NAV: NavItem[] = [
+  { label: 'Home', href: '/portal', icon: Home, exact: true },
+  { label: 'Trips', href: '/portal/trips', icon: Route },
+  { label: 'Earnings', href: '/portal/earnings', icon: TrendingUp },
+  { label: 'Advances', href: '/portal/advances', icon: CreditCard },
+  { label: 'Leave', href: '/portal/leave', icon: CalendarX },
+  { label: 'Cash', href: '/portal/cash', icon: Landmark },
+  { label: 'Slips', href: '/portal/slips', icon: Receipt },
+  { label: 'Alerts', href: '/portal/notifications', icon: Bell },
+  { label: 'Profile', href: '/portal/profile', icon: User },
 ]
 
-const OWNER_NAV = [
-  { label: 'Home', href: '/owner-portal', icon: 'home', exact: true },
+const OWNER_NAV: NavItem[] = [
+  { label: 'Home', href: '/owner-portal', icon: Home, exact: true },
 ]
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -43,7 +54,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
           aria-label="Sign out"
           className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
         >
-          <span className="material-symbols-rounded text-[24px]">logout</span>
+          <LogOut size={24} />
         </button>
       </header>
 
@@ -67,7 +78,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
                 )
               }
             >
-              <span className="material-symbols-rounded text-[24px]">{item.icon}</span>
+              <item.icon size={24} />
               {item.label}
             </NavLink>
           ))}

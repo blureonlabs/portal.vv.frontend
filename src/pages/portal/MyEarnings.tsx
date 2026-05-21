@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { formatAed } from '../../lib/utils'
 import type { EarningsReport } from '../../types'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 function currentMonth() { return new Date().toISOString().slice(0, 7) }
 
@@ -33,7 +34,7 @@ export default function MyEarnings() {
       {/* Month selector */}
       <div className="flex items-center justify-between">
         <button onClick={() => setMonth(prevMonth(month))} className="p-2 rounded-lg hover:bg-surface">
-          <span className="material-symbols-rounded text-[20px] text-muted">chevron_left</span>
+          <ChevronLeft size={20} className="text-muted" />
         </button>
         <h2 className="text-base font-bold text-primary">{monthLabel}</h2>
         <button
@@ -41,7 +42,7 @@ export default function MyEarnings() {
           disabled={isCurrentMonth}
           className="p-2 rounded-lg hover:bg-surface disabled:opacity-30"
         >
-          <span className="material-symbols-rounded text-[20px] text-muted">chevron_right</span>
+          <ChevronRight size={20} className="text-muted" />
         </button>
       </div>
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { AnimatePresence, motion } from 'framer-motion'
+import { X, CheckCircle, AlertCircle, Info, type LucideIcon } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -25,10 +26,10 @@ export const useToast = create<ToastStore>((set) => ({
   remove: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
 
-const icons: Record<ToastType, string> = {
-  success: 'check_circle',
-  error: 'error',
-  info: 'info',
+const icons: Record<ToastType, LucideIcon> = {
+  success: CheckCircle,
+  error: AlertCircle,
+  info: Info,
 }
 
 const colors: Record<ToastType, string> = {
@@ -47,10 +48,10 @@ function ToastItem({ toast }: { toast: Toast }) {
       exit={{ opacity: 0, y: -12, scale: 0.95 }}
       className={`flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-lg backdrop-blur-sm ${colors[toast.type]}`}
     >
-      <span className="material-symbols-rounded text-[20px]">{icons[toast.type]}</span>
+      {(() => { const Icon = icons[toast.type]; return <Icon size={20} /> })()}
       <p className="text-sm font-medium flex-1">{toast.message}</p>
       <button onClick={() => remove(toast.id)} className="opacity-50 hover:opacity-100 transition-opacity">
-        <span className="material-symbols-rounded text-[18px]">close</span>
+        <X size={18} />
       </button>
     </motion.div>
   )

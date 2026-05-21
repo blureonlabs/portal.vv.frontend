@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/Badge'
 import { formatDate, formatAed } from '../lib/utils'
 import { useAuthStore } from '../store/authStore'
 import type {
+import { ArrowLeft, CalendarX, Car, CreditCard, Download, KeyRound, Shield, User, X } from 'lucide-react'
   User,
   Driver,
   Owner,
@@ -46,23 +47,23 @@ interface TabDef {
 }
 
 const BASE_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <span className="material-symbols-rounded text-[16px]">person</span> },
-  { key: 'audit', label: 'Audit', icon: <span className="material-symbols-rounded text-[16px]">shield</span> },
+  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'audit', label: 'Audit', icon: <Shield size={16} /> },
 ]
 
 const DRIVER_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <span className="material-symbols-rounded text-[16px]">person</span> },
-  { key: 'trips', label: 'Trips', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
-  { key: 'advances', label: 'Advances', icon: <span className="material-symbols-rounded text-[16px]">credit_card</span> },
-  { key: 'leave', label: 'Leave', icon: <span className="material-symbols-rounded text-[16px]">event_busy</span> },
-  { key: 'salary', label: 'Salary', icon: <span className="material-symbols-rounded text-[16px]">payments</span> },
-  { key: 'audit', label: 'Audit', icon: <span className="material-symbols-rounded text-[16px]">shield</span> },
+  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'trips', label: 'Trips', icon: <Car size={16} /> },
+  { key: 'advances', label: 'Advances', icon: <CreditCard size={16} /> },
+  { key: 'leave', label: 'Leave', icon: <CalendarX size={16} /> },
+  { key: 'salary', label: 'Salary', icon: <CreditCard size={16} /> },
+  { key: 'audit', label: 'Audit', icon: <Shield size={16} /> },
 ]
 
 const OWNER_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <span className="material-symbols-rounded text-[16px]">person</span> },
-  { key: 'vehicles', label: 'Vehicles', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
-  { key: 'audit', label: 'Audit', icon: <span className="material-symbols-rounded text-[16px]">shield</span> },
+  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'vehicles', label: 'Vehicles', icon: <Car size={16} /> },
+  { key: 'audit', label: 'Audit', icon: <Shield size={16} /> },
 ]
 
 // ── Shared helpers ─────────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ function ResetPasswordModal({
             aria-label="Close"
             className="p-1.5 rounded-lg hover:bg-surface text-muted hover:text-primary transition-colors"
           >
-            <span className="material-symbols-rounded text-[20px]">close</span>
+            <X size={20} />
           </button>
         </div>
 
@@ -415,7 +416,7 @@ function SalaryTab({ driverId }: { driverId: string }) {
               <td className="py-3 px-4 text-center">
                 {s.slip_url?.startsWith('http') ? (
                   <a href={s.slip_url} target="_blank" rel="noopener noreferrer" aria-label="Download slip" className="text-accent hover:underline text-xs">
-                    <span className="material-symbols-rounded text-[16px]">download</span>
+                    <Download size={16} />
                   </a>
                 ) : (
                   <span className="text-muted text-xs">&mdash;</span>
@@ -432,7 +433,7 @@ function SalaryTab({ driverId }: { driverId: string }) {
 function OwnerVehiclesTab() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-muted gap-2">
-      <span className="material-symbols-rounded text-[40px]">directions_car</span>
+      <Car size={40} />
       <p className="text-sm">Vehicle ownership tracking coming in a future sprint.</p>
     </div>
   )
@@ -566,7 +567,7 @@ export default function UserDetail() {
         to="/users"
         className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4"
       >
-        <span className="material-symbols-rounded text-[16px]">arrow_back</span>
+        <ArrowLeft size={16} />
         Back to Users
       </Link>
 
@@ -594,7 +595,7 @@ export default function UserDetail() {
               onClick={() => setShowResetModal(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted hover:bg-surface hover:text-primary transition-colors"
             >
-              <span className="material-symbols-rounded text-[16px]">lock_reset</span>
+              <KeyRound size={16} />
               Reset Password
             </button>
           )}

@@ -12,6 +12,7 @@ import { Pagination } from '../components/ui/Pagination'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Invoice } from '../types'
+import { Download, Eye, FileText, Plus, Printer, Trash2 } from 'lucide-react'
 
 const lineItemSchema = z.object({
   description: z.string().min(1, 'Required'),
@@ -91,7 +92,7 @@ export default function Invoices() {
         </div>
         {canManage && (
           <Button onClick={() => { setShowGenerate(true); setApiError('') }}>
-            <span className="material-symbols-rounded text-[16px]">add</span>
+            <Plus size={16} />
             Generate Invoice
           </Button>
         )}
@@ -147,7 +148,7 @@ export default function Invoices() {
                             onClick={() => window.open(inv.pdf_url!, '_blank')}
                             className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
                           >
-                            <span className="material-symbols-rounded text-[12px]">visibility</span> Preview
+                            <Eye size={12} /> Preview
                           </button>
                           <button
                             onClick={() => {
@@ -156,7 +157,7 @@ export default function Invoices() {
                             }}
                             className="inline-flex items-center gap-1 text-xs text-muted hover:text-primary hover:underline"
                           >
-                            <span className="material-symbols-rounded text-[12px]">print</span> Print
+                            <Printer size={12} /> Print
                           </button>
                           <a
                             href={inv.pdf_url}
@@ -164,7 +165,7 @@ export default function Invoices() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs text-muted hover:underline"
                           >
-                            <span className="material-symbols-rounded text-[12px]">download</span>
+                            <Download size={12} />
                           </a>
                         </div>
                       ) : (
@@ -238,7 +239,7 @@ export default function Invoices() {
                       onClick={() => append({ description: '', amount_aed: 0 })}
                       className="text-xs text-accent hover:underline flex items-center gap-1"
                     >
-                      <span className="material-symbols-rounded text-[12px]">add</span> Add
+                      <Plus size={12} /> Add
                     </button>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -266,7 +267,7 @@ export default function Invoices() {
                             onClick={() => remove(idx)}
                             className="h-9 px-2 text-danger hover:text-red-700 transition-colors"
                           >
-                            <span className="material-symbols-rounded text-[16px]">delete</span>
+                            <Trash2 size={16} />
                           </button>
                         )}
                       </div>
@@ -288,7 +289,7 @@ export default function Invoices() {
                     Cancel
                   </Button>
                   <Button type="submit" loading={generateMutation.isPending} className="flex-1">
-                    <span className="material-symbols-rounded text-[16px]">description</span>
+                    <FileText size={16} />
                     Generate
                   </Button>
                 </div>

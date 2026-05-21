@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { formatAed } from '../../lib/utils'
 import type { EarningsReport } from '../../types'
+import { Calendar, ChevronLeft, ChevronRight, CreditCard, FileBarChart, Wallet, type LucideIcon } from 'lucide-react'
 
 function currentMonth() { return new Date().toISOString().slice(0, 7) }
 
@@ -43,7 +44,7 @@ export default function MyCash() {
       {/* Month selector */}
       <div className="flex items-center justify-between">
         <button onClick={() => setMonth(prevMonth(month))} className="p-2 rounded-lg hover:bg-surface">
-          <span className="material-symbols-rounded text-[20px] text-muted">chevron_left</span>
+          <ChevronLeft size={20} className="text-muted" />
         </button>
         <div className="text-center">
           <h2 className="text-base font-bold text-primary">{monthLabel}</h2>
@@ -54,7 +55,7 @@ export default function MyCash() {
           disabled={isCurrentMonth}
           className="p-2 rounded-lg hover:bg-surface disabled:opacity-30"
         >
-          <span className="material-symbols-rounded text-[20px] text-muted">chevron_right</span>
+          <ChevronRight size={20} className="text-muted" />
         </button>
       </div>
 
@@ -69,7 +70,7 @@ export default function MyCash() {
           {/* Cash received hero */}
           <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-5 text-white">
             <div className="flex items-center gap-2 mb-1 opacity-80">
-              <span className="material-symbols-rounded text-[18px]">payments</span>
+              <CreditCard size={18} />
               <span className="text-sm font-medium">Total Cash Received</span>
             </div>
             <p className="text-3xl font-bold tracking-tight">{formatAed(totalCashReceived)}</p>
@@ -79,14 +80,14 @@ export default function MyCash() {
           {/* Summary cards */}
           <div className="grid grid-cols-2 gap-3">
             <CashCard
-              icon="account_balance_wallet"
+              icon={Wallet}
               label="Cash Trips"
               value={formatAed(totalCashReceived)}
               sub="Total cash collected"
               accent="green"
             />
             <CashCard
-              icon="credit_card"
+              icon={CreditCard}
               label="Card + Other"
               value={formatAed(totalCard + totalOther)}
               sub="Non-cash collections"
@@ -98,7 +99,7 @@ export default function MyCash() {
           <div className="bg-white rounded-2xl border border-border px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-primary/10">
-                <span className="material-symbols-rounded text-[20px] text-primary">summarize</span>
+                <FileBarChart size={20} className="text-primary" />
               </div>
               <div>
                 <p className="text-xs text-muted">Total All Collections</p>
@@ -112,7 +113,7 @@ export default function MyCash() {
           {earnings.days.length > 0 && (
             <div className="bg-white rounded-2xl border border-border overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-surface flex items-center gap-2">
-                <span className="material-symbols-rounded text-[18px] text-muted">calendar_today</span>
+                <Calendar size={18} className="text-muted" />
                 <p className="text-sm font-semibold text-primary">Daily Cash Breakdown</p>
               </div>
               {earnings.days.map((d) => {
@@ -155,13 +156,13 @@ export default function MyCash() {
 }
 
 function CashCard({
-  icon,
+  icon: Icon,
   label,
   value,
   sub,
   accent,
 }: {
-  icon: string
+  icon: LucideIcon
   label: string
   value: string
   sub: string
@@ -175,7 +176,7 @@ function CashCard({
   return (
     <div className="bg-white rounded-2xl border border-border p-4">
       <div className={`inline-flex p-2 rounded-xl mb-2 ${colors[accent]}`}>
-        <span className="material-symbols-rounded text-[20px]">{icon}</span>
+        <Icon size={20} />
       </div>
       <p className="text-xs text-muted mb-0.5">{label}</p>
       <p className="text-sm font-bold text-primary leading-tight">{value}</p>

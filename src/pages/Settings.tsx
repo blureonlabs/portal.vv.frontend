@@ -4,6 +4,7 @@ import { apiGet, apiPut } from '../lib/api'
 import { Input } from '../components/ui/Input'
 import { useAuthStore } from '../store/authStore'
 import type { Setting } from '../types'
+import { Check, Pencil, Settings, X } from 'lucide-react'
 
 const ACCOUNTANT_KEYS = new Set([
   'salary_target_high_aed',
@@ -90,13 +91,13 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
           disabled={isPending}
           className="p-1.5 text-green-600 hover:bg-green-50 rounded"
         >
-          <span className="material-symbols-rounded text-[16px]">check</span>
+          <Check size={16} />
         </button>
         <button
           onClick={() => { setEditing(false); setValue(setting.value); setError('') }}
           className="p-1.5 text-muted hover:bg-surface rounded"
         >
-          <span className="material-symbols-rounded text-[16px]">close</span>
+          <X size={16} />
         </button>
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}
@@ -108,7 +109,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
         onClick={() => { setValue(setting.value); setEditing(true) }}
         className="p-1 text-muted hover:text-primary rounded opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <span className="material-symbols-rounded text-[14px]">edit</span>
+        <Pencil size={14} />
       </button>
     </div>
   )
@@ -136,7 +137,7 @@ export default function Settings() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="material-symbols-rounded text-[24px] text-primary">settings</span>
+        <Settings size={24} className="text-primary" />
         <h1 className="text-2xl font-bold text-primary">Settings</h1>
       </div>
 

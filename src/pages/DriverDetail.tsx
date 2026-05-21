@@ -9,6 +9,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, DriverEdit, LeaveRequest, Vehicle, Trip, Document, DocumentType } from '../types'
+import { AlertCircle, AlertTriangle, ArrowLeft, CalendarX, Car, CheckCircle, ClipboardList, CreditCard, ExternalLink, FileText, FolderOpen, Trash2, Upload, User } from 'lucide-react'
 
 const SALARY_LABELS: Record<string, string> = {
   commission: 'Commission (30%)',
@@ -19,13 +20,13 @@ const SALARY_LABELS: Record<string, string> = {
 type Tab = 'profile' | 'trips' | 'financials' | 'advances' | 'leave' | 'documents' | 'audit'
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-  { key: 'profile', label: 'Profile', icon: <span className="material-symbols-rounded text-[16px]">person</span> },
-  { key: 'trips', label: 'Trips', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
-  { key: 'financials', label: 'Financials', icon: <span className="material-symbols-rounded text-[16px]">payments</span> },
-  { key: 'advances', label: 'Advances', icon: <span className="material-symbols-rounded text-[16px]">credit_card</span> },
-  { key: 'leave', label: 'Leave', icon: <span className="material-symbols-rounded text-[16px]">event_busy</span> },
-  { key: 'documents', label: 'Documents', icon: <span className="material-symbols-rounded text-[16px]">folder_open</span> },
-  { key: 'audit', label: 'Audit', icon: <span className="material-symbols-rounded text-[16px]">assignment</span> },
+  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'trips', label: 'Trips', icon: <Car size={16} /> },
+  { key: 'financials', label: 'Financials', icon: <CreditCard size={16} /> },
+  { key: 'advances', label: 'Advances', icon: <CreditCard size={16} /> },
+  { key: 'leave', label: 'Leave', icon: <CalendarX size={16} /> },
+  { key: 'documents', label: 'Documents', icon: <FolderOpen size={16} /> },
+  { key: 'audit', label: 'Audit', icon: <ClipboardList size={16} /> },
 ]
 
 function PlaceholderTab({ label }: { label: string }) {
@@ -235,7 +236,7 @@ function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
   if (daysLeft < 0) {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-medium text-danger bg-red-50 px-2 py-0.5 rounded-full">
-        <span className="material-symbols-rounded text-[12px]">error</span>
+        <AlertCircle size={12} />
         Expired
       </span>
     )
@@ -243,7 +244,7 @@ function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
   if (daysLeft <= 30) {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-amber-50 px-2 py-0.5 rounded-full">
-        <span className="material-symbols-rounded text-[12px]">warning</span>
+        <AlertTriangle size={12} />
         {daysLeft}d left
       </span>
     )
@@ -327,7 +328,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
     <div>
       <div className="flex justify-end mb-4">
         <Button onClick={() => { setShowUpload(true); setApiError('') }} size="sm">
-          <span className="material-symbols-rounded text-[16px]">upload</span>
+          <Upload size={16} />
           Upload Document
         </Button>
       </div>
@@ -340,7 +341,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
             <div key={doc.id} className="bg-white rounded-2xl border border-border p-4 flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-rounded text-[20px] text-muted">description</span>
+                  <FileText size={20} className="text-muted" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-primary truncate">{doc.file_name}</p>
@@ -360,7 +361,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline rounded-full px-3 py-1.5 border border-border hover:bg-surface transition-colors"
                 >
-                  <span className="material-symbols-rounded text-[14px]">open_in_new</span>
+                  <ExternalLink size={14} />
                   View
                 </a>
                 <button
@@ -368,7 +369,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   disabled={deleteMutation.isPending}
                   className="inline-flex items-center gap-1 text-xs text-danger hover:bg-red-50 rounded-full px-3 py-1.5 border border-border transition-colors"
                 >
-                  <span className="material-symbols-rounded text-[14px]">delete</span>
+                  <Trash2 size={14} />
                   Delete
                 </button>
               </div>
@@ -427,13 +428,13 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   />
                   {uploading && (
                     <p className="text-xs text-muted mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px] animate-spin">progress_activity</span>
+                      <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       Uploading…
                     </p>
                   )}
                   {form.file_url && !uploading && (
                     <p className="text-xs text-success mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px]">check_circle</span>
+                      <CheckCircle size={14} />
                       File uploaded
                     </p>
                   )}
@@ -516,7 +517,7 @@ export default function DriverDetail() {
       {/* Header */}
       <div className="mb-6">
         <Link to="/drivers" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">
-          <span className="material-symbols-rounded text-[16px]">arrow_back</span>
+          <ArrowLeft size={16} />
           Back to Drivers
         </Link>
         <div className="flex items-center gap-4">

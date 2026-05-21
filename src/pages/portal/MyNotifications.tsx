@@ -2,6 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import { formatDate } from '../../lib/utils'
 import type { Advance, LeaveRequest, Salary } from '../../types'
+import {
+  Bell, Clock, CheckCircle, XCircle, CreditCard, CalendarCheck, CalendarX,
+  Wallet, type LucideIcon,
+} from 'lucide-react'
 
 // ── Unified notification item ──────────────────────────────────────────────
 
@@ -10,7 +14,7 @@ type NotifKind = 'advance' | 'leave' | 'salary'
 interface NotifItem {
   id: string
   kind: NotifKind
-  icon: string
+  icon: LucideIcon
   iconColor: string
   title: string
   subtitle: string
@@ -18,11 +22,11 @@ interface NotifItem {
 }
 
 function advanceToNotif(a: Advance): NotifItem {
-  const map: Record<string, { icon: string; iconColor: string; title: string }> = {
-    pending:  { icon: 'pending',       iconColor: 'text-yellow-500', title: 'Advance request submitted' },
-    approved: { icon: 'check_circle',  iconColor: 'text-emerald-500', title: 'Advance approved' },
-    rejected: { icon: 'cancel',        iconColor: 'text-red-500',     title: 'Advance rejected' },
-    paid:     { icon: 'payments',      iconColor: 'text-blue-500',    title: 'Advance paid out' },
+  const map: Record<string, { icon: LucideIcon; iconColor: string; title: string }> = {
+    pending:  { icon: Clock,       iconColor: 'text-yellow-500', title: 'Advance request submitted' },
+    approved: { icon: CheckCircle,  iconColor: 'text-emerald-500', title: 'Advance approved' },
+    rejected: { icon: XCircle,        iconColor: 'text-red-500',     title: 'Advance rejected' },
+    paid:     { icon: CreditCard,      iconColor: 'text-blue-500',    title: 'Advance paid out' },
   }
   const meta = map[a.status] ?? map.pending
   return {
@@ -37,10 +41,10 @@ function advanceToNotif(a: Advance): NotifItem {
 }
 
 function leaveToNotif(l: LeaveRequest): NotifItem {
-  const map: Record<string, { icon: string; iconColor: string; title: string }> = {
-    pending:  { icon: 'schedule',      iconColor: 'text-yellow-500', title: 'Leave request submitted' },
-    approved: { icon: 'event_available', iconColor: 'text-emerald-500', title: 'Leave approved' },
-    rejected: { icon: 'event_busy',    iconColor: 'text-red-500',     title: 'Leave rejected' },
+  const map: Record<string, { icon: LucideIcon; iconColor: string; title: string }> = {
+    pending:  { icon: Clock,      iconColor: 'text-yellow-500', title: 'Leave request submitted' },
+    approved: { icon: CalendarCheck, iconColor: 'text-emerald-500', title: 'Leave approved' },
+    rejected: { icon: CalendarX,    iconColor: 'text-red-500',     title: 'Leave rejected' },
   }
   const meta = map[l.status] ?? map.pending
   const typeLabel = l.type === 'leave' ? 'Leave' : 'Permission'
@@ -64,7 +68,7 @@ function salaryToNotif(s: Salary): NotifItem {
   return {
     id: `salary-${s.id}`,
     kind: 'salary',
-    icon: 'account_balance_wallet',
+    icon: Wallet,
     iconColor: 'text-primary',
     title: `Salary generated — ${label}`,
     subtitle: `Net payable: AED ${parseFloat(s.net_payable_aed).toFixed(2)}`,
@@ -111,7 +115,7 @@ export default function MyNotifications() {
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted">
-          <span className="material-symbols-rounded text-[48px] opacity-30">notifications_none</span>
+          <Bell size={48} className="opacity-30" />
           <p className="text-sm">No notifications yet</p>
         </div>
       ) : (
@@ -126,10 +130,11 @@ export default function MyNotifications() {
 }
 
 function NotifCard({ item }: { item: NotifItem }) {
+  const Icon = item.icon
   return (
     <div className="bg-white rounded-2xl border border-border p-4 flex items-start gap-3">
       <div className={`mt-0.5 shrink-0 ${item.iconColor}`}>
-        <span className="material-symbols-rounded text-[26px]">{item.icon}</span>
+        <Icon size={26} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-primary leading-snug">{item.title}</p>

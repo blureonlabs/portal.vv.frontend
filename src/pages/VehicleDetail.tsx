@@ -13,6 +13,7 @@ import { Select } from '../components/ui/Select'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Vehicle, VehicleAssignment, VehicleServiceRecord, Document, DocumentType } from '../types'
+import { AlertCircle, AlertTriangle, ArrowLeft, Car, CheckCircle, ExternalLink, FileText, FolderOpen, History, Plus, Trash2, Upload, Wrench } from 'lucide-react'
 
 const serviceSchema = z.object({
   service_date: z.string().min(1, 'Required'),
@@ -68,7 +69,7 @@ function OverviewTab({ vehicle }: { vehicle: Vehicle }) {
             {vehicle.insurance_expiry ? (
               insuranceAlert ? (
                 <span className="inline-flex items-center gap-1 text-warning font-medium">
-                  <span className="material-symbols-rounded text-[14px]">warning</span>
+                  <AlertTriangle size={14} />
                   {formatDate(vehicle.insurance_expiry)}
                   {insLeft! <= 0 ? ' (EXPIRED)' : ` (${insLeft}d left)`}
                 </span>
@@ -134,7 +135,7 @@ function ServiceTab({ vehicleId }: { vehicleId: string }) {
       {isSuperAdmin && (
         <div className="flex justify-end mb-4">
           <Button onClick={() => { setShowAdd(true); setApiError('') }} size="sm">
-            <span className="material-symbols-rounded text-[16px]">add</span>
+            <Plus size={16} />
             Add Record
           </Button>
         </div>
@@ -281,7 +282,7 @@ function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
   if (daysLeft < 0) {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-medium text-danger bg-red-50 px-2 py-0.5 rounded-full">
-        <span className="material-symbols-rounded text-[12px]">error</span>
+        <AlertCircle size={12} />
         Expired
       </span>
     )
@@ -289,7 +290,7 @@ function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
   if (daysLeft <= 30) {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-amber-50 px-2 py-0.5 rounded-full">
-        <span className="material-symbols-rounded text-[12px]">warning</span>
+        <AlertTriangle size={12} />
         {daysLeft}d left
       </span>
     )
@@ -373,7 +374,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
     <div>
       <div className="flex justify-end mb-4">
         <Button onClick={() => { setShowUpload(true); setApiError('') }} size="sm">
-          <span className="material-symbols-rounded text-[16px]">upload</span>
+          <Upload size={16} />
           Upload Document
         </Button>
       </div>
@@ -386,7 +387,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
             <div key={doc.id} className="bg-white rounded-2xl border border-border p-4 flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-rounded text-[20px] text-muted">description</span>
+                  <FileText size={20} className="text-muted" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-primary truncate">{doc.file_name}</p>
@@ -406,7 +407,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline rounded-full px-3 py-1.5 border border-border hover:bg-surface transition-colors"
                 >
-                  <span className="material-symbols-rounded text-[14px]">open_in_new</span>
+                  <ExternalLink size={14} />
                   View
                 </a>
                 <button
@@ -414,7 +415,7 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   disabled={deleteMutation.isPending}
                   className="inline-flex items-center gap-1 text-xs text-danger hover:bg-red-50 rounded-full px-3 py-1.5 border border-border transition-colors"
                 >
-                  <span className="material-symbols-rounded text-[14px]">delete</span>
+                  <Trash2 size={14} />
                   Delete
                 </button>
               </div>
@@ -473,13 +474,13 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   />
                   {uploading && (
                     <p className="text-xs text-muted mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px] animate-spin">progress_activity</span>
+                      <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       Uploading…
                     </p>
                   )}
                   {form.file_url && !uploading && (
                     <p className="text-xs text-success mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px]">check_circle</span>
+                      <CheckCircle size={14} />
                       File uploaded
                     </p>
                   )}
@@ -531,10 +532,10 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
 }
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
-  { key: 'overview', label: 'Overview', icon: <span className="material-symbols-rounded text-[16px]">directions_car</span> },
-  { key: 'service', label: 'Service History', icon: <span className="material-symbols-rounded text-[16px]">build</span> },
-  { key: 'assignments', label: 'Assignments', icon: <span className="material-symbols-rounded text-[16px]">history</span> },
-  { key: 'documents', label: 'Documents', icon: <span className="material-symbols-rounded text-[16px]">folder_open</span> },
+  { key: 'overview', label: 'Overview', icon: <Car size={16} /> },
+  { key: 'service', label: 'Service History', icon: <Wrench size={16} /> },
+  { key: 'assignments', label: 'Assignments', icon: <History size={16} /> },
+  { key: 'documents', label: 'Documents', icon: <FolderOpen size={16} /> },
 ]
 
 export default function VehicleDetail() {
@@ -569,12 +570,12 @@ export default function VehicleDetail() {
       {/* Header */}
       <div className="mb-6">
         <Link to="/vehicles" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-4">
-          <span className="material-symbols-rounded text-[16px]">arrow_back</span>
+          <ArrowLeft size={16} />
           Back to Vehicles
         </Link>
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-surface border border-border flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-rounded text-[28px] text-muted">directions_car</span>
+            <Car size={28} className="text-muted" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-primary">{vehicle.plate_number}</h1>

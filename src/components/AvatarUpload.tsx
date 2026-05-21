@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { apiPut } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
+import { Camera } from 'lucide-react'
 
 interface AvatarUploadProps {
   size?: 'sm' | 'md' | 'lg'
@@ -101,7 +102,7 @@ export function AvatarUpload({ size = 'md' }: AvatarUploadProps) {
               />
             </svg>
           ) : (
-            <span className="material-symbols-rounded text-white text-[18px]">photo_camera</span>
+            <Camera size={18} className="text-white" />
           )}
         </div>
       </div>

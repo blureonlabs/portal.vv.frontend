@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
 import type { AuditEntry } from '../types'
+import { ChevronLeft, ChevronRight, Shield } from 'lucide-react'
 
 const PAGE_SIZE = 50
 
@@ -31,7 +32,7 @@ export default function AuditLog() {
   return (
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex items-center gap-3">
-        <span className="material-symbols-rounded text-[24px] text-primary">shield</span>
+        <Shield size={24} className="text-primary" />
         <h1 className="text-2xl font-bold text-primary">Audit Log</h1>
       </div>
 
@@ -126,7 +127,7 @@ export default function AuditLog() {
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
           >
-            <span className="material-symbols-rounded text-[16px]">chevron_left</span>
+            <ChevronLeft size={16} />
           </Button>
           <Button
             variant="outline"
@@ -134,7 +135,7 @@ export default function AuditLog() {
             onClick={() => setPage((p) => p + 1)}
             disabled={entries.length < PAGE_SIZE}
           >
-            <span className="material-symbols-rounded text-[16px]">chevron_right</span>
+            <ChevronRight size={16} />
           </Button>
         </div>
       </div>

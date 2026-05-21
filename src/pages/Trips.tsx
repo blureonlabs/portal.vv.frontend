@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Trip, CsvPreviewRow } from '../types'
+import { AlertTriangle, CheckCircle, Download, Pencil, Plus, Table, Trash2, Upload, X } from 'lucide-react'
 
 const CURRENT_MONTH_START = new Date()
 CURRENT_MONTH_START.setDate(1)
@@ -232,19 +233,19 @@ export default function Trips() {
         {canManage && (
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={downloadTemplate}>
-              <span className="material-symbols-rounded text-[16px]">download</span>
+              <Download size={16} />
               Template
             </Button>
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
-              <span className="material-symbols-rounded text-[16px]">table_view</span>
+              <Table size={16} />
               Export CSV
             </Button>
             <Button variant="outline" size="sm" onClick={() => { setShowCsv(true); setApiError('') }}>
-              <span className="material-symbols-rounded text-[16px]">upload</span>
+              <Upload size={16} />
               CSV Import
             </Button>
             <Button size="sm" onClick={() => { setShowCreate(true); setApiError(''); form.reset({ trip_date: today, cash_aed: 0 }) }}>
-              <span className="material-symbols-rounded text-[16px]">add</span>
+              <Plus size={16} />
               Add Trip
             </Button>
           </div>
@@ -319,12 +320,11 @@ export default function Trips() {
                     <span className="inline-flex items-center gap-1">
                       {formatDate(t.trip_date)}
                       {conflictKeys.has(`${t.driver_id}-${t.trip_date}`) && (
-                        <span
-                          className="material-symbols-rounded text-[14px] text-amber-500"
+                        <AlertTriangle
+                          size={14}
+                          className="text-amber-500"
                           title="Duplicate trip: same driver has another trip on this date"
-                        >
-                          warning
-                        </span>
+                        />
                       )}
                     </span>
                   </td>
@@ -347,7 +347,7 @@ export default function Trips() {
                           aria-label="Edit trip"
                           title="Edit trip"
                         >
-                          <span className="material-symbols-rounded text-[14px]">edit</span>
+                          <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => {
@@ -358,7 +358,7 @@ export default function Trips() {
                           aria-label="Delete trip"
                           title="Delete trip"
                         >
-                          <span className="material-symbols-rounded text-[14px]">delete</span>
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>
@@ -399,7 +399,7 @@ export default function Trips() {
                 aria-label="Close"
                 className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
               >
-                <span className="material-symbols-rounded text-[18px]">close</span>
+                <X size={18} />
               </button>
               <h2 className="text-lg font-bold text-primary mb-6">{formTitle}</h2>
               <form onSubmit={form.handleSubmit(handleFormSubmit)}
@@ -455,7 +455,7 @@ export default function Trips() {
                 aria-label="Close"
                 className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30"
               >
-                <span className="material-symbols-rounded text-[18px]">close</span>
+                <X size={18} />
               </button>
               <h2 className="text-lg font-bold text-primary mb-1">CSV Import</h2>
               <p className="text-sm text-muted mb-6">Format: <code className="text-xs bg-surface px-1 py-0.5 rounded">date,cash_aed,uber_cash_aed,bolt_cash_aed,card_aed,notes</code></p>
@@ -480,11 +480,11 @@ export default function Trips() {
                 <div className="mb-6">
                   <div className="flex items-center gap-4 mb-3 text-sm">
                     <span className="flex items-center gap-1 text-success">
-                      <span className="material-symbols-rounded text-[16px]">check_circle</span> {validRows.length} valid
+                      <CheckCircle size={16} /> {validRows.length} valid
                     </span>
                     {errorRows.length > 0 && (
                       <span className="flex items-center gap-1 text-danger">
-                        <span className="material-symbols-rounded text-[16px]">warning</span> {errorRows.length} errors
+                        <AlertTriangle size={16} /> {errorRows.length} errors
                       </span>
                     )}
                   </div>

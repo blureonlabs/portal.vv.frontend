@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { AlertTriangle, Info } from 'lucide-react'
 import { Button } from './Button'
 
 interface ConfirmDialogProps {
@@ -48,11 +49,9 @@ export function ConfirmDialog({
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                 variant === 'danger' ? 'bg-red-50' : 'bg-accent-light'
               }`}>
-                <span className={`material-symbols-rounded text-[24px] ${
-                  variant === 'danger' ? 'text-danger' : 'text-accent'
-                }`}>
-                  {variant === 'danger' ? 'warning' : 'info'}
-                </span>
+                {variant === 'danger'
+                  ? <AlertTriangle size={24} className="text-danger" />
+                  : <Info size={24} className="text-accent" />}
               </div>
               <div>
                 <h3 id="confirm-dialog-title" className="text-base font-bold text-primary leading-snug">{title}</h3>

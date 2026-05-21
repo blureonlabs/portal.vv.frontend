@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Advance, AdvanceStatus, Driver } from '../types'
+import { Check, CreditCard, Plus, X } from 'lucide-react'
 
 const COLUMNS: { status: AdvanceStatus; label: string; color: string }[] = [
   { status: 'pending',  label: 'Pending',  color: 'border-t-warning' },
@@ -131,7 +132,7 @@ export default function Advances() {
           <p className="text-sm text-muted mt-1">Driver salary advance requests</p>
         </div>
         <Button onClick={() => { setShowRequest(true); setApiError('') }}>
-          <span className="material-symbols-rounded text-[16px]">add</span>
+          <Plus size={16} />
           Request Advance
         </Button>
       </div>
@@ -182,13 +183,13 @@ export default function Advances() {
                             onClick={() => { setApiError(''); setConfirmApprove(adv.id) }}
                             className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                           >
-                            <span className="material-symbols-rounded text-[12px]">check</span> Approve
+                            <Check size={12} /> Approve
                           </button>
                           <button
                             onClick={() => { setApiError(''); setRejectTarget(adv); rejectForm.reset() }}
                             className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                           >
-                            <span className="material-symbols-rounded text-[12px]">close</span> Reject
+                            <X size={12} /> Reject
                           </button>
                         </div>
                       )}
@@ -203,7 +204,7 @@ export default function Advances() {
                             }}
                             className="w-full flex items-center justify-center gap-1 text-xs text-accent hover:text-blue-700 transition-colors py-1"
                           >
-                            <span className="material-symbols-rounded text-[12px]">payments</span> Mark Paid
+                            <CreditCard size={12} /> Mark Paid
                           </button>
                         </div>
                       )}

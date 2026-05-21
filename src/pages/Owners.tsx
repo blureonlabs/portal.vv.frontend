@@ -10,6 +10,7 @@ import { Input } from '../components/ui/Input'
 import { Badge } from '../components/ui/Badge'
 import { useAuthStore } from '../store/authStore'
 import type { Owner } from '../types'
+import { Search, UserCheck, UserPlus, UserX } from 'lucide-react'
 
 const createSchema = z.object({
   email: z.string().email('Valid email required'),
@@ -70,7 +71,7 @@ export default function Owners() {
         </div>
         {isSuperAdmin && (
           <Button onClick={() => { setShowCreate(true); setApiError('') }}>
-            <span className="material-symbols-rounded text-[16px]">person_add</span>
+            <UserPlus size={16} />
             Add Owner
           </Button>
         )}
@@ -78,7 +79,7 @@ export default function Owners() {
 
       {/* Search */}
       <div className="relative mb-6 max-w-sm">
-        <span className="material-symbols-rounded text-[16px] absolute left-3 top-1/2 -translate-y-1/2 text-muted">search</span>
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -135,14 +136,14 @@ export default function Owners() {
                     onClick={() => deactivateMutation.mutate(owner.id)}
                     className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
                   >
-                    <span className="material-symbols-rounded text-[12px]">person_off</span> Deactivate
+                    <UserX size={12} /> Deactivate
                   </button>
                 ) : (
                   <button
                     onClick={() => activateMutation.mutate(owner.id)}
                     className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
                   >
-                    <span className="material-symbols-rounded text-[12px]">how_to_reg</span> Activate
+                    <UserCheck size={12} /> Activate
                   </button>
                 )}
               </div>

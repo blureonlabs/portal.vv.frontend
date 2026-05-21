@@ -14,6 +14,7 @@ import { TableRowSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Expense, CashHandover, ExpenseCategory } from '../types'
+import { CheckCircle, Handshake, Plus } from 'lucide-react'
 
 const CURRENT_MONTH_START = new Date()
 CURRENT_MONTH_START.setDate(1)
@@ -149,11 +150,11 @@ export default function Finance() {
         {canManage && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => { setShowHandover(true); setApiError('') }}>
-              <span className="material-symbols-rounded text-[16px]">handshake</span>
+              <Handshake size={16} />
               Record Handover
             </Button>
             <Button onClick={() => { setShowExpense(true); setApiError('') }}>
-              <span className="material-symbols-rounded text-[16px]">add</span>
+              <Plus size={16} />
               Add Expense
             </Button>
           </div>
@@ -372,13 +373,13 @@ export default function Finance() {
                   />
                   {receiptUploading && (
                     <p className="text-xs text-muted mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px] animate-spin">progress_activity</span>
+                      <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       Uploading receipt…
                     </p>
                   )}
                   {receiptUrl && !receiptUploading && (
                     <p className="text-xs text-success mt-1 flex items-center gap-1">
-                      <span className="material-symbols-rounded text-[14px]">check_circle</span>
+                      <CheckCircle size={14} />
                       Receipt uploaded
                     </p>
                   )}

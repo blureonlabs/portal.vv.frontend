@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { formatAed, formatDate } from '../../lib/utils'
 import type { DriverContext, Trip } from '../../types'
+import { Plus } from 'lucide-react'
 
 const schema = z.object({
   trip_date: z.string().min(1, 'Required'),
@@ -73,7 +74,7 @@ export default function MyTrips() {
         </div>
         {ctx?.self_entry_enabled && (
           <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-            <span className="material-symbols-rounded text-[16px] mr-1">add</span> Add Trip
+            <Plus size={16} className="mr-1" /> Add Trip
           </Button>
         )}
       </div>

@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { Pagination } from '../components/ui/Pagination'
 import { formatDate } from '../lib/utils'
 import type { Invite, User } from '../types'
+import { ChevronRight, Clock, RefreshCw, UserCog, UserPlus, XCircle } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -264,7 +265,7 @@ export default function UserManagement() {
           <p className="text-sm text-muted mt-1">Manage team members and invitations</p>
         </div>
         <Button onClick={() => setShowModal(true)}>
-          <span className="material-symbols-rounded text-[16px]">person_add</span>
+          <UserPlus size={16} />
           Add User
         </Button>
       </div>
@@ -297,7 +298,7 @@ export default function UserManagement() {
                   >
                     <td className="px-4 py-3 font-medium text-primary flex items-center gap-2">
                       {u.full_name}
-                      <span className="material-symbols-rounded text-[14px] text-muted opacity-0 group-hover:opacity-100">chevron_right</span>
+                      <ChevronRight size={14} className="text-muted opacity-0 group-hover:opacity-100" />
                     </td>
                     <td className="px-4 py-3 text-muted">{u.email}</td>
                     <td className="px-4 py-3">
@@ -353,7 +354,7 @@ export default function UserManagement() {
                     <td className="px-4 py-3">
                       {inv.status === 'pending' && (
                         <span className="flex items-center gap-1 text-warning text-xs">
-                          <span className="material-symbols-rounded text-[12px]">schedule</span>
+                          <Clock size={12} />
                           {expiryCountdown(inv.expires_at)}
                         </span>
                       )}
@@ -367,7 +368,7 @@ export default function UserManagement() {
                             className="p-1.5 rounded-lg hover:bg-surface text-muted hover:text-primary transition-colors"
                             title="Resend"
                           >
-                            <span className="material-symbols-rounded text-[16px]">refresh</span>
+                            <RefreshCw size={16} />
                           </button>
                           <button
                             onClick={() => {
@@ -377,7 +378,7 @@ export default function UserManagement() {
                             className="p-1.5 rounded-lg hover:bg-red-50 text-muted hover:text-danger transition-colors"
                             title="Revoke"
                           >
-                            <span className="material-symbols-rounded text-[16px]">cancel</span>
+                            <XCircle size={16} />
                           </button>
                         </div>
                       )}
@@ -420,7 +421,7 @@ export default function UserManagement() {
               className="relative bg-white rounded-2xl border border-border shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-rounded text-[20px] text-accent">manage_accounts</span>
+                <UserCog size={20} className="text-accent" />
                 <h2 className="text-lg font-bold text-primary">
                   {isDriver ? 'Add Driver' : isOwner ? 'Add Owner' : 'Invite Team Member'}
                 </h2>

@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, LeaveRequest, LeaveStatus, LeaveType } from '../types'
+import { Check, CheckCheck, Plus, X } from 'lucide-react'
 
 const statusBadge: Record<LeaveStatus, 'warning' | 'success' | 'danger'> = {
   pending: 'warning',
@@ -165,12 +166,12 @@ export default function HrRequests() {
               loading={bulkApproveMutation.isPending}
               onClick={() => { setApiError(''); bulkApproveMutation.mutate(Array.from(selectedIds)) }}
             >
-              <span className="material-symbols-rounded text-[16px]">done_all</span>
+              <CheckCheck size={16} />
               Approve Selected ({selectedIds.size})
             </Button>
           )}
           <Button onClick={() => { setShowSubmit(true); setApiError('') }}>
-            <span className="material-symbols-rounded text-[16px]">add</span>
+            <Plus size={16} />
             New Request
           </Button>
         </div>
@@ -265,13 +266,13 @@ export default function HrRequests() {
                             onClick={() => { setApiError(''); setConfirmApprove(r.id) }}
                             className="flex items-center gap-1 text-xs text-success hover:text-green-700 transition-colors"
                           >
-                            <span className="material-symbols-rounded text-[12px]">check</span> Approve
+                            <Check size={12} /> Approve
                           </button>
                           <button
                             onClick={() => { setApiError(''); setRejectTarget(r); rejectForm.reset() }}
                             className="flex items-center gap-1 text-xs text-danger hover:text-red-700 transition-colors"
                           >
-                            <span className="material-symbols-rounded text-[12px]">close</span> Reject
+                            <X size={12} /> Reject
                           </button>
                         </div>
                       )}

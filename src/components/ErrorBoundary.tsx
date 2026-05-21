@@ -27,12 +27,9 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-surface">
           <div className="flex flex-col items-center gap-6 text-center max-w-sm px-6">
-            <span
-              className="material-symbols-outlined text-danger"
-              style={{ fontSize: '64px' }}
-            >
-              error
-            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-danger">
+              <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+            </svg>
             <div className="flex flex-col gap-2">
               <h1 className="text-xl font-semibold text-primary">
                 Something went wrong

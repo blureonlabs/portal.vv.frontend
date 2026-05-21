@@ -9,6 +9,7 @@ import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
 import { formatDate } from '../../lib/utils'
 import type { LeaveRequest } from '../../types'
+import { Plus } from 'lucide-react'
 
 const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -68,7 +69,7 @@ export default function MyLeave() {
           <p className="text-sm text-muted">Leave & permission requests</p>
         </div>
         <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-          <span className="material-symbols-rounded text-[16px] mr-1">add</span> Request
+          <Plus size={16} className="mr-1" /> Request
         </Button>
       </div>
 

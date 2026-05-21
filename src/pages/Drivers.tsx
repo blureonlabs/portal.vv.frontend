@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
+import { Search, UserCheck, UserPlus, UserX } from 'lucide-react'
 
 const SALARY_OPTIONS = [
   { value: 'commission', label: 'Commission' },
@@ -154,7 +155,7 @@ export default function Drivers() {
         </div>
         {isSuperAdmin && (
           <Button onClick={() => { setShowCreate(true); setApiError('') }}>
-            <span className="material-symbols-rounded text-[16px]">person_add</span>
+            <UserPlus size={16} />
             Add Driver
           </Button>
         )}
@@ -162,7 +163,7 @@ export default function Drivers() {
 
       {/* Search */}
       <div className="relative mb-6 max-w-sm">
-        <span className="material-symbols-rounded text-[16px] absolute left-3 top-1/2 -translate-y-1/2 text-muted">search</span>
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -252,7 +253,7 @@ export default function Drivers() {
                       }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-danger/30"
                     >
-                      <span className="material-symbols-rounded text-[14px]">person_off</span> Deactivate
+                      <UserX size={14} /> Deactivate
                     </button>
                   ) : (
                     <button
@@ -264,7 +265,7 @@ export default function Drivers() {
                       }}
                       className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors px-3 py-2 rounded cursor-pointer focus-visible:ring-2 focus-visible:ring-success/30"
                     >
-                      <span className="material-symbols-rounded text-[14px]">how_to_reg</span> Activate
+                      <UserCheck size={14} /> Activate
                     </button>
                   )
                 )}
