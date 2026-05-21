@@ -14,7 +14,7 @@ import {
   Gauge, BarChart3, Clock, AlertCircle, AlertTriangle, X, Wallet, Wrench, CloudOff,
   type LucideIcon,
 } from 'lucide-react'
-import type { DashboardKpis, DocumentExpiryAlert, DriverFinancial } from '../types'
+import type { DashboardKpis, DocumentExpiryAlert, Driver, DriverFinancial } from '../types'
 
 const ICON_MAP: Record<string, LucideIcon> = {
   trending_up: TrendingUp,
@@ -174,7 +174,10 @@ function getDismissed(): Set<string> {
 export default function Dashboard() {
   const { user } = useAuthStore()
   const navigate = useNavigate()
-  const monthLabel = new Date().toLocaleString('en-AE', { month: 'long', year: 'numeric' })
+  const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM
+  const [filterMonth, setFilterMonth] = useState(currentMonth)
+  const [filterDriver, setFilterDriver] = useState('')
+  const monthLabel = new Date(filterMonth + '-01').toLocaleString('en-AE', { month: 'long', year: 'numeric' })
   const [dismissed, setDismissed] = useState<Set<string>>(getDismissed)
   const dismiss = useCallback((id: string) => {
     setDismissed(prev => {
@@ -184,16 +187,28 @@ export default function Dashboard() {
     })
   }, [])
 
+  const { data: allDrivers = [] } = useQuery<Driver[]>({
+    queryKey: ['drivers'],
+    queryFn: () => apiGet('/drivers'),
+    staleTime: 120_000,
+  })
+  const activeDrivers = allDrivers.filter((d) => d.is_active)
+
+  const dashboardParams = new URLSearchParams()
+  if (filterMonth) dashboardParams.set('month', filterMonth)
+  if (filterDriver) dashboardParams.set('driver_id', filterDriver)
+  const dashboardQs = dashboardParams.toString() ? `?${dashboardParams.toString()}` : ''
+
   const { data: kpis, isLoading, isError } = useQuery<DashboardKpis>({
-    queryKey: ['dashboard'],
-    queryFn: () => apiGet('/dashboard'),
+    queryKey: ['dashboard', filterMonth, filterDriver],
+    queryFn: () => apiGet(`/dashboard${dashboardQs}`),
     staleTime: 60_000,
     refetchInterval: 120_000,
   })
 
   const { data: driverFinancials } = useQuery<DriverFinancial[]>({
-    queryKey: ['dashboard-driver-financials'],
-    queryFn: () => apiGet('/dashboard/driver-financials'),
+    queryKey: ['dashboard-driver-financials', filterMonth, filterDriver],
+    queryFn: () => apiGet(`/dashboard/driver-financials${dashboardQs}`),
     staleTime: 60_000,
     refetchInterval: 120_000,
   })
@@ -243,6 +258,26 @@ export default function Dashboard() {
           <MsIcon name="schedule" className="text-[16px]" />
           Live · refreshes every 2 min
         </div>
+      </div>
+
+      {/* ── Filters ── */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <input
+          type="month"
+          value={filterMonth}
+          onChange={(e) => setFilterMonth(e.target.value)}
+          className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+        <select
+          value={filterDriver}
+          onChange={(e) => setFilterDriver(e.target.value)}
+          className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          <option value="">All Drivers</option>
+          {activeDrivers.map((d) => (
+            <option key={d.id} value={d.id}>{d.full_name}</option>
+          ))}
+        </select>
       </div>
 
       {/* ── Document Expiry Alerts ── */}

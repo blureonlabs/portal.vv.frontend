@@ -29,6 +29,8 @@ const createSchema = z.object({
   room_rent_aed: z.coerce.number().min(0).default(0),
   commission_rate: z.coerce.number().min(0).max(100).optional(),
   joining_date: z.string().optional().nullable(),
+  phone: z.string().optional(),
+  license_number: z.string().optional(),
 })
 
 const editSchema = z.object({
@@ -37,6 +39,8 @@ const editSchema = z.object({
   room_rent_aed: z.coerce.number().min(0).default(0),
   commission_rate: z.coerce.number().min(0).max(100).optional(),
   joining_date: z.string().optional().nullable(),
+  phone: z.string().optional(),
+  license_number: z.string().optional(),
 })
 
 type CreateForm = z.infer<typeof createSchema>
@@ -85,6 +89,8 @@ export default function Drivers() {
         ? form.commission_rate / 100
         : null,
       joining_date: form.joining_date || null,
+      phone: form.phone || null,
+      license_number: form.license_number || null,
     }
   }
 
@@ -143,6 +149,8 @@ export default function Drivers() {
       room_rent_aed: parseFloat(driver.room_rent_aed) || 0,
       commission_rate: driver.commission_rate != null ? parseFloat(driver.commission_rate) * 100 : undefined,
       joining_date: driver.joining_date ?? '',
+      phone: (driver as Driver & { phone?: string }).phone ?? '',
+      license_number: driver.license_number ?? '',
     })
   }
 
@@ -218,6 +226,9 @@ export default function Drivers() {
               )}
               {driver.joining_date && (
                 <p>Joined: <span className="text-primary">{new Date(driver.joining_date).toLocaleDateString('en-GB')}</span></p>
+              )}
+              {driver.license_number && (
+                <p>License: <span className="text-primary">{driver.license_number}</span></p>
               )}
               {isSuperAdmin && (
                 <div className="flex items-center justify-between pt-1">
@@ -316,6 +327,12 @@ export default function Drivers() {
                 <Input id="joining_date" label="Joining Date" type="date"
                   error={createForm.formState.errors.joining_date?.message}
                   {...createForm.register('joining_date')} />
+                <Input id="phone" label="Phone Number" type="tel" placeholder="e.g., +971 50 123 4567"
+                  error={createForm.formState.errors.phone?.message}
+                  {...createForm.register('phone')} />
+                <Input id="license_number" label="License Number"
+                  error={createForm.formState.errors.license_number?.message}
+                  {...createForm.register('license_number')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 
@@ -371,6 +388,12 @@ export default function Drivers() {
                 <Input id="edit-joining_date" label="Joining Date" type="date"
                   error={editForm.formState.errors.joining_date?.message}
                   {...editForm.register('joining_date')} />
+                <Input id="edit-phone" label="Phone Number" type="tel" placeholder="e.g., +971 50 123 4567"
+                  error={editForm.formState.errors.phone?.message}
+                  {...editForm.register('phone')} />
+                <Input id="edit-license_number" label="License Number"
+                  error={editForm.formState.errors.license_number?.message}
+                  {...editForm.register('license_number')} />
 
                 {apiError && <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>}
 

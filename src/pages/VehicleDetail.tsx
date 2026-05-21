@@ -326,12 +326,16 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
     file_url: string
     file_name: string
     expiry_date: string
+    document_number: string
+    issue_date: string
     notes: string
   }>({
     doc_type: 'other',
     file_url: '',
     file_name: '',
     expiry_date: '',
+    document_number: '',
+    issue_date: '',
     notes: '',
   })
 
@@ -351,13 +355,15 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
         file_url: body.file_url,
         file_name: body.file_name,
         expiry_date: body.expiry_date || null,
+        document_number: body.document_number || null,
+        issue_date: body.issue_date || null,
         notes: body.notes || null,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey })
       setShowUpload(false)
       setUploading(false)
-      setForm({ doc_type: 'other', file_url: '', file_name: '', expiry_date: '', notes: '' })
+      setForm({ doc_type: 'other', file_url: '', file_name: '', expiry_date: '', document_number: '', issue_date: '', notes: '' })
     },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Upload failed'),
   })
@@ -394,6 +400,12 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   <p className="text-xs text-muted mt-0.5">{DOC_TYPE_LABELS[doc.doc_type] ?? doc.doc_type}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <ExpiryBadge expiryDate={doc.expiry_date} />
+                    {doc.document_number && (
+                      <span className="text-xs text-primary font-medium">#{doc.document_number}</span>
+                    )}
+                    {doc.issue_date && (
+                      <span className="text-xs text-muted">Issued: {formatDate(doc.issue_date)}</span>
+                    )}
                     {doc.notes && (
                       <span className="text-xs text-muted truncate max-w-xs">{doc.notes}</span>
                     )}
@@ -491,6 +503,20 @@ function DocumentsTab({ entityType, entityId }: { entityType: 'driver' | 'vehicl
                   placeholder="registration_card.pdf"
                   value={form.file_name}
                   onChange={(e) => setForm((f) => ({ ...f, file_name: e.target.value }))}
+                />
+                <Input
+                  id="doc-number"
+                  label="Document Number (optional)"
+                  placeholder="e.g., AB1234567"
+                  value={form.document_number}
+                  onChange={(e) => setForm((f) => ({ ...f, document_number: e.target.value }))}
+                />
+                <Input
+                  id="doc-issue-date"
+                  label="Issue Date (optional)"
+                  type="date"
+                  value={form.issue_date}
+                  onChange={(e) => setForm((f) => ({ ...f, issue_date: e.target.value }))}
                 />
                 <Input
                   id="doc-expiry"

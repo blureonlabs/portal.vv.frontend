@@ -33,6 +33,7 @@ export interface Driver {
   self_entry_enabled: boolean
   room_rent_aed: string
   commission_rate: string | null
+  license_number: string | null
   joining_date: string | null
   created_at: string
 }
@@ -402,6 +403,8 @@ export interface Document {
   file_url: string
   file_name: string
   expiry_date: string | null
+  document_number: string | null
+  issue_date: string | null
   uploaded_by: string
   notes: string | null
   created_at: string
