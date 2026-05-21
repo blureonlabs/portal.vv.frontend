@@ -22,56 +22,18 @@ const ROLE_OPTIONS = [
   { value: 'super_admin', label: 'Super Admin' },
   { value: 'accountant', label: 'Accountant' },
   { value: 'hr', label: 'HR' },
-  { value: 'driver', label: 'Driver' },
-  { value: 'owner', label: 'Owner' },
-]
-
-const SALARY_OPTIONS = [
-  { value: 'commission', label: 'Commission (30%)' },
-  { value: 'target_high', label: 'Target High (AED 12,300)' },
-  { value: 'target_low', label: 'Target Low (AED 6,600)' },
 ]
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
-// Base fields shared across all paths
-const baseSchema = z.object({
+// Invite flow for admin roles only
+const inviteSchema = z.object({
   email: z.string().email('Valid email required'),
   full_name: z.string().min(2, 'Full name required'),
-  role: z.enum(['super_admin', 'accountant', 'hr', 'driver', 'owner']),
+  role: z.enum(['super_admin', 'accountant', 'hr']),
   phone: z.string().optional(),
 })
 
-// Driver creation: requires password, nationality, salary_type
-const driverSchema = baseSchema.extend({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  nationality: z.string().min(2, 'Nationality required'),
-  salary_type: z.enum(['commission', 'target_high', 'target_low']),
-  company_name: z.string().optional(),
-  room_rent_aed: z.coerce.number().min(0).default(0),
-  commission_rate: z.coerce.number().min(0).max(100).optional(),
-})
-
-// Owner creation: requires password, optional company_name
-const ownerSchema = baseSchema.extend({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  nationality: z.string().optional(),
-  salary_type: z.enum(['commission', 'target_high', 'target_low']).optional(),
-  company_name: z.string().optional(),
-})
-
-// Invite flow (non-driver, non-owner): no password
-const inviteSchema = baseSchema.extend({
-  password: z.string().optional(),
-  nationality: z.string().optional(),
-  salary_type: z.enum(['commission', 'target_high', 'target_low']).optional(),
-  company_name: z.string().optional(),
-  room_rent_aed: z.coerce.number().min(0).default(0),
-  commission_rate: z.coerce.number().min(0).max(100).optional(),
-})
-
-// Combined discriminated schema — we use the loose inviteSchema for the form
-// and apply conditional validation in onSubmit
 type UserForm = z.infer<typeof inviteSchema>
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -120,49 +82,12 @@ export default function UserManagement() {
     queryFn: () => apiGet('/users/invites'),
   })
 
-  // Invite mutation (for non-driver/owner roles)
+  // Invite mutation for admin roles
   const inviteMutation = useMutation({
     mutationFn: (body: { email: string; full_name: string; role: string }) =>
       apiPost('/users/invite', body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invites'] })
-      closeModal()
-    },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
-  })
-
-  // Driver create-with-account mutation
-  const driverMutation = useMutation({
-    mutationFn: (body: {
-      email: string
-      password: string
-      full_name: string
-      phone?: string
-      nationality: string
-      salary_type: string
-      room_rent_aed: number
-      commission_rate: number | null
-    }) => apiPost('/drivers/create-with-account', body),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['users'] })
-      qc.invalidateQueries({ queryKey: ['drivers'] })
-      closeModal()
-    },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
-  })
-
-  // Owner create-with-account mutation
-  const ownerMutation = useMutation({
-    mutationFn: (body: {
-      email: string
-      password: string
-      full_name: string
-      phone?: string
-      company_name?: string
-    }) => apiPost('/owners/create-with-account', body),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['users'] })
-      qc.invalidateQueries({ queryKey: ['owners'] })
       closeModal()
     },
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
@@ -182,17 +107,11 @@ export default function UserManagement() {
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<UserForm>({
     resolver: zodResolver(inviteSchema) as never,
     defaultValues: { role: 'super_admin' },
   })
-
-  const selectedRole = watch('role')
-  const isDriver = selectedRole === 'driver'
-  const isOwner = selectedRole === 'owner'
-  const needsDirectAccount = isDriver || isOwner
 
   function closeModal() {
     setShowModal(false)
@@ -202,48 +121,6 @@ export default function UserManagement() {
 
   const onSubmit = (data: UserForm) => {
     setApiError('')
-
-    if (isDriver) {
-      // Validate driver-specific fields manually
-      const parsed = driverSchema.safeParse(data)
-      if (!parsed.success) {
-        const first = parsed.error.issues[0]
-        setApiError(first?.message ?? 'Validation error')
-        return
-      }
-      driverMutation.mutate({
-        email: data.email,
-        password: data.password!,
-        full_name: data.full_name,
-        phone: data.phone || undefined,
-        nationality: data.nationality!,
-        salary_type: data.salary_type!,
-        room_rent_aed: data.room_rent_aed ?? 0,
-        commission_rate: data.commission_rate != null && data.commission_rate > 0
-          ? data.commission_rate / 100
-          : null,
-      })
-      return
-    }
-
-    if (isOwner) {
-      const parsed = ownerSchema.safeParse(data)
-      if (!parsed.success) {
-        const first = parsed.error.issues[0]
-        setApiError(first?.message ?? 'Validation error')
-        return
-      }
-      ownerMutation.mutate({
-        email: data.email,
-        password: data.password!,
-        full_name: data.full_name,
-        phone: data.phone || undefined,
-        company_name: data.company_name || undefined,
-      })
-      return
-    }
-
-    // Standard invite flow
     inviteMutation.mutate({
       email: data.email,
       full_name: data.full_name,
@@ -251,8 +128,7 @@ export default function UserManagement() {
     })
   }
 
-  const isPending =
-    inviteMutation.isPending || driverMutation.isPending || ownerMutation.isPending || isSubmitting
+  const isPending = inviteMutation.isPending || isSubmitting
 
   const usersTotalPages = Math.ceil(users.length / PAGE_SIZE)
   const pagedUsers = users.slice((usersPage - 1) * PAGE_SIZE, usersPage * PAGE_SIZE)
@@ -261,8 +137,8 @@ export default function UserManagement() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Users</h1>
-          <p className="text-sm text-muted mt-1">Manage team members and invitations</p>
+          <h1 className="text-2xl font-bold text-primary">Team</h1>
+          <p className="text-sm text-muted mt-1">Manage team members & invitations</p>
         </div>
         <Button onClick={() => setShowModal(true)}>
           <UserPlus size={16} />
@@ -422,18 +298,13 @@ export default function UserManagement() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <UserCog size={20} className="text-accent" />
-                <h2 className="text-lg font-bold text-primary">
-                  {isDriver ? 'Add Driver' : isOwner ? 'Add Owner' : 'Invite Team Member'}
-                </h2>
+                <h2 className="text-lg font-bold text-primary">Invite Team Member</h2>
               </div>
               <p className="text-sm text-muted mb-6">
-                {needsDirectAccount
-                  ? 'Create a new account with credentials directly.'
-                  : "They'll receive a 24-hour invite link by email."}
+                They'll receive a 24-hour invite link by email.
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                {/* Role — always first */}
                 <Select
                   id="um-role"
                   label="Role"
@@ -442,7 +313,6 @@ export default function UserManagement() {
                   {...register('role')}
                 />
 
-                {/* Common fields */}
                 <Input
                   id="um-email"
                   label="Email Address"
@@ -460,7 +330,6 @@ export default function UserManagement() {
                   {...register('full_name')}
                 />
 
-                {/* Phone — for all roles */}
                 <Input
                   id="um-phone"
                   label="Phone (optional)"
@@ -469,70 +338,6 @@ export default function UserManagement() {
                   error={errors.phone?.message}
                   {...register('phone')}
                 />
-
-                {/* Password — only when creating direct account */}
-                {needsDirectAccount && (
-                  <Input
-                    id="um-password"
-                    label="Password"
-                    type="password"
-                    placeholder="Min. 8 characters"
-                    error={errors.password?.message}
-                    {...register('password')}
-                  />
-                )}
-
-                {/* Driver-specific fields */}
-                {isDriver && (
-                  <>
-                    <Input
-                      id="um-nationality"
-                      label="Nationality"
-                      placeholder="e.g. Indian"
-                      error={errors.nationality?.message}
-                      {...register('nationality')}
-                    />
-                    <Select
-                      id="um-salary-type"
-                      label="Salary Type"
-                      options={SALARY_OPTIONS}
-                      error={errors.salary_type?.message}
-                      {...register('salary_type')}
-                    />
-                    <Input
-                      id="um-room-rent"
-                      label="Room Rent (AED)"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0"
-                      error={errors.room_rent_aed?.message}
-                      {...register('room_rent_aed')}
-                    />
-                    <Input
-                      id="um-commission-rate"
-                      label="Commission Rate (%)"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      placeholder="Default (from settings)"
-                      error={errors.commission_rate?.message}
-                      {...register('commission_rate')}
-                    />
-                  </>
-                )}
-
-                {/* Owner-specific fields */}
-                {isOwner && (
-                  <Input
-                    id="um-company"
-                    label="Company Name (optional)"
-                    placeholder="e.g. Al Faris Transport LLC"
-                    error={errors.company_name?.message}
-                    {...register('company_name')}
-                  />
-                )}
 
                 {apiError && (
                   <p className="text-sm text-danger bg-red-50 rounded-lg px-3 py-2">{apiError}</p>
@@ -548,7 +353,7 @@ export default function UserManagement() {
                     Cancel
                   </Button>
                   <Button type="submit" loading={isPending} className="flex-1">
-                    {isDriver ? 'Create Driver' : isOwner ? 'Create Owner' : 'Send Invite'}
+                    Send Invite
                   </Button>
                 </div>
               </form>

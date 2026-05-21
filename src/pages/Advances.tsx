@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -10,16 +10,18 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
+import { EmptyState } from '../components/ui/EmptyState'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Advance, AdvanceStatus, Driver } from '../types'
-import { Check, CreditCard, Plus, X } from 'lucide-react'
+import { Check, CreditCard, Inbox, Plus, X } from 'lucide-react'
 
-const COLUMNS: { status: AdvanceStatus; label: string; color: string }[] = [
-  { status: 'pending',  label: 'Pending',  color: 'border-t-warning' },
-  { status: 'approved', label: 'Approved', color: 'border-t-accent' },
-  { status: 'rejected', label: 'Rejected', color: 'border-t-danger' },
-  { status: 'paid',     label: 'Paid',     color: 'border-t-success' },
+const STATUS_TABS: { key: AdvanceStatus | 'all'; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'approved', label: 'Approved' },
+  { key: 'rejected', label: 'Rejected' },
+  { key: 'paid', label: 'Paid' },
 ]
 
 const statusBadge: Record<AdvanceStatus, 'warning' | 'default' | 'danger' | 'success'> = {
@@ -57,6 +59,7 @@ export default function Advances() {
   const [payTarget, setPayTarget] = useState<Advance | null>(null)
   const [confirmApprove, setConfirmApprove] = useState<string | null>(null)
   const [apiError, setApiError] = useState('')
+  const [activeTab, setActiveTab] = useState<AdvanceStatus | 'all'>('all')
 
   const today = new Date().toISOString().slice(0, 10)
 
@@ -122,11 +125,27 @@ export default function Advances() {
     onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
   })
 
-  const grouped = (status: AdvanceStatus) => advances.filter((a) => a.status === status)
+  const filtered = useMemo(
+    () => activeTab === 'all' ? advances : advances.filter((a) => a.status === activeTab),
+    [advances, activeTab]
+  )
+
+  const stats = useMemo(() => {
+    const totalRequested = advances.reduce((sum, a) => sum + parseFloat(a.amount_aed), 0)
+    const pendingCount = advances.filter((a) => a.status === 'pending').length
+    const approvedAmount = advances
+      .filter((a) => a.status === 'approved')
+      .reduce((sum, a) => sum + parseFloat(a.amount_aed), 0)
+    const outstandingAmount = advances
+      .filter((a) => a.status === 'approved' || a.status === 'pending')
+      .reduce((sum, a) => sum + parseFloat(a.amount_aed), 0)
+    return { totalRequested, pendingCount, approvedAmount, outstandingAmount }
+  }, [advances])
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Advances</h1>
           <p className="text-sm text-muted mt-1">Driver salary advance requests</p>
@@ -137,84 +156,186 @@ export default function Advances() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <p className="text-sm text-muted text-center py-12">Loading…</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {COLUMNS.map(({ status, label, color }) => {
-            const cards = grouped(status)
-            return (
-              <div key={status} className={`bg-white rounded-xl border border-border border-t-4 ${color} flex flex-col`}>
-                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                  <span className="text-sm font-semibold text-primary">{label}</span>
-                  <span className="text-xs text-muted bg-surface rounded-full px-2 py-0.5">{cards.length}</span>
-                </div>
-                <div className="flex flex-col gap-3 p-3 min-h-[200px]">
-                  {cards.length === 0 && (
-                    <p className="text-xs text-muted text-center py-8">No {label.toLowerCase()} advances</p>
-                  )}
-                  {cards.map((adv) => (
-                    <div key={adv.id} className="bg-surface rounded-2xl border border-border p-3 flex flex-col gap-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-primary">{adv.driver_name}</p>
-                        <Badge variant={statusBadge[adv.status]} className="text-xs shrink-0">
-                          {adv.status}
-                        </Badge>
-                      </div>
-                      <p className="text-base font-bold text-primary">{formatAed(parseFloat(adv.amount_aed))}</p>
-                      <p className="text-xs text-muted line-clamp-2">{adv.reason}</p>
-                      <p className="text-xs text-muted">{formatDate(adv.created_at)}</p>
-
-                      {adv.rejection_reason && (
-                        <p className="text-xs text-danger bg-red-50 rounded px-2 py-1">
-                          {adv.rejection_reason}
-                        </p>
-                      )}
-
-                      {adv.payment_date && (
-                        <p className="text-xs text-success">
-                          Paid {formatDate(adv.payment_date)} · {adv.method?.replace('_', ' ')}
-                        </p>
-                      )}
-
-                      {canManage && adv.status === 'pending' && (
-                        <div className="flex gap-2 pt-1 border-t border-border">
-                          <button
-                            onClick={() => { setApiError(''); setConfirmApprove(adv.id) }}
-                            className="flex-1 flex items-center justify-center gap-1 text-xs text-success hover:text-green-700 transition-colors py-1"
-                          >
-                            <Check size={12} /> Approve
-                          </button>
-                          <button
-                            onClick={() => { setApiError(''); setRejectTarget(adv); rejectForm.reset() }}
-                            className="flex-1 flex items-center justify-center gap-1 text-xs text-danger hover:text-red-700 transition-colors py-1"
-                          >
-                            <X size={12} /> Reject
-                          </button>
-                        </div>
-                      )}
-
-                      {canManage && adv.status === 'approved' && (
-                        <div className="pt-1 border-t border-border">
-                          <button
-                            onClick={() => {
-                              setApiError('')
-                              setPayTarget(adv)
-                              payForm.reset({ payment_date: today, method: 'cash' })
-                            }}
-                            className="w-full flex items-center justify-center gap-1 text-xs text-accent hover:text-blue-700 transition-colors py-1"
-                          >
-                            <CreditCard size={12} /> Mark Paid
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl border border-border p-4">
+          <p className="text-xs text-muted mb-1">Total Requested</p>
+          <p className="text-xl font-bold text-primary tabular-nums">{formatAed(stats.totalRequested)}</p>
         </div>
+        <div className="bg-white rounded-2xl border border-border p-4">
+          <p className="text-xs text-muted mb-1">Pending Count</p>
+          <p className="text-xl font-bold text-yellow-600 tabular-nums">{stats.pendingCount}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-border p-4">
+          <p className="text-xs text-muted mb-1">Approved Amount</p>
+          <p className="text-xl font-bold text-primary tabular-nums">{formatAed(stats.approvedAmount)}</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-border p-4">
+          <p className="text-xs text-muted mb-1">Outstanding</p>
+          <p className="text-xl font-bold text-red-600 tabular-nums">{formatAed(stats.outstandingAmount)}</p>
+        </div>
+      </div>
+
+      {/* Status Filter Tabs */}
+      <div className="flex gap-1 bg-surface rounded-full p-1 w-fit">
+        {STATUS_TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === t.key
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            {t.label}
+            {t.key !== 'all' && (
+              <span className="ml-1.5 text-xs opacity-60">
+                {advances.filter((a) => a.status === t.key).length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      {isLoading ? (
+        <p className="text-sm text-muted text-center py-12">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-border">
+          <EmptyState
+            icon={Inbox}
+            title="No advances found"
+            description={activeTab === 'all' ? 'No advance requests yet.' : `No ${activeTab} advances.`}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-2xl border border-border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface">
+                  <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
+                  <th className="py-3 px-4 text-right font-medium text-muted">Amount (AED)</th>
+                  <th className="py-3 px-4 text-left font-medium text-muted">Reason</th>
+                  <th className="py-3 px-4 text-left font-medium text-muted">Date</th>
+                  <th className="py-3 px-4 text-left font-medium text-muted">Status</th>
+                  {canManage && <th className="py-3 px-4 text-right font-medium text-muted">Actions</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((adv) => (
+                  <tr key={adv.id} className="hover:bg-surface/50 transition-colors">
+                    <td className="py-3 px-4 font-medium text-primary">{adv.driver_name}</td>
+                    <td className="py-3 px-4 text-right font-semibold text-primary tabular-nums">
+                      {formatAed(parseFloat(adv.amount_aed))}
+                    </td>
+                    <td className="py-3 px-4 text-muted max-w-[200px] truncate" title={adv.reason}>
+                      {adv.reason}
+                    </td>
+                    <td className="py-3 px-4 text-muted">{formatDate(adv.created_at)}</td>
+                    <td className="py-3 px-4">
+                      <Badge variant={statusBadge[adv.status]}>{adv.status}</Badge>
+                    </td>
+                    {canManage && (
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2 justify-end">
+                          {adv.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => { setApiError(''); setConfirmApprove(adv.id) }}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-success bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                              >
+                                <Check size={14} /> Approve
+                              </button>
+                              <button
+                                onClick={() => { setApiError(''); setRejectTarget(adv); rejectForm.reset() }}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-danger bg-red-50 hover:bg-red-100 transition-colors"
+                              >
+                                <X size={14} /> Reject
+                              </button>
+                            </>
+                          )}
+                          {adv.status === 'approved' && (
+                            <button
+                              onClick={() => {
+                                setApiError('')
+                                setPayTarget(adv)
+                                payForm.reset({ payment_date: today, method: 'cash' })
+                              }}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-accent bg-blue-50 hover:bg-blue-100 transition-colors"
+                            >
+                              <CreditCard size={14} /> Mark Paid
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card layout */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((adv) => (
+              <div key={adv.id} className="bg-white rounded-2xl border border-border p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-primary">{adv.driver_name}</p>
+                    <p className="text-xs text-muted mt-0.5">{formatDate(adv.created_at)}</p>
+                  </div>
+                  <Badge variant={statusBadge[adv.status]}>{adv.status}</Badge>
+                </div>
+                <p className="text-lg font-bold text-primary tabular-nums">{formatAed(parseFloat(adv.amount_aed))}</p>
+                <p className="text-xs text-muted line-clamp-2">{adv.reason}</p>
+
+                {adv.rejection_reason && (
+                  <p className="text-xs text-danger bg-red-50 rounded px-2 py-1">{adv.rejection_reason}</p>
+                )}
+                {adv.payment_date && (
+                  <p className="text-xs text-success">
+                    Paid {formatDate(adv.payment_date)} · {adv.method?.replace('_', ' ')}
+                  </p>
+                )}
+
+                {canManage && adv.status === 'pending' && (
+                  <div className="flex gap-2 pt-2 border-t border-border">
+                    <button
+                      onClick={() => { setApiError(''); setConfirmApprove(adv.id) }}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-success bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                    >
+                      <Check size={14} /> Approve
+                    </button>
+                    <button
+                      onClick={() => { setApiError(''); setRejectTarget(adv); rejectForm.reset() }}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-danger bg-red-50 hover:bg-red-100 transition-colors"
+                    >
+                      <X size={14} /> Reject
+                    </button>
+                  </div>
+                )}
+
+                {canManage && adv.status === 'approved' && (
+                  <div className="pt-2 border-t border-border">
+                    <button
+                      onClick={() => {
+                        setApiError('')
+                        setPayTarget(adv)
+                        payForm.reset({ payment_date: today, method: 'cash' })
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-accent bg-blue-50 hover:bg-blue-100 transition-colors"
+                    >
+                      <CreditCard size={14} /> Mark Paid
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Request Advance Modal */}
@@ -239,7 +360,7 @@ export default function Advances() {
                     id="adv-driver"
                     label="Driver"
                     options={[
-                      { value: '', label: 'Select driver…' },
+                      { value: '', label: 'Select driver...' },
                       ...drivers.map((d) => ({ value: d.id, label: d.full_name })),
                     ]}
                     error={requestForm.formState.errors.driver_id?.message}
@@ -259,7 +380,7 @@ export default function Advances() {
                   <textarea
                     id="adv-reason"
                     rows={3}
-                    placeholder="Briefly explain the reason for this advance…"
+                    placeholder="Briefly explain the reason for this advance..."
                     className="rounded-lg border border-border px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent resize-none"
                     {...requestForm.register('reason')}
                   />
@@ -309,7 +430,7 @@ export default function Advances() {
                   <textarea
                     id="rej-reason"
                     rows={3}
-                    placeholder="Explain why this request is rejected…"
+                    placeholder="Explain why this request is rejected..."
                     className="rounded-lg border border-border px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent resize-none"
                     {...rejectForm.register('rejection_reason')}
                   />

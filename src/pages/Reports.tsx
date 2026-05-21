@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { apiGet, apiFetchRaw } from '../lib/api'
-import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
+import { EmptyState } from '../components/ui/EmptyState'
 import { useAuthStore } from '../store/authStore'
 import { formatAed } from '../lib/utils'
-import { BarChart3, Download, FileText } from 'lucide-react'
+import { BarChart3, Download, FileText, Inbox } from 'lucide-react'
 import type {
   Driver,
   DriverSummaryReport,
@@ -142,45 +142,52 @@ export default function Reports() {
 
   const tabs: { id: TabId; label: string }[] = [
     { id: 'drivers', label: 'Driver Summary' },
-    { id: 'trips', label: 'Trip Detail' },
-    { id: 'finance', label: 'Finance Summary' },
-    { id: 'advances', label: 'Advance Report' },
+    { id: 'trips', label: 'Trips' },
+    { id: 'finance', label: 'Finance' },
+    { id: 'advances', label: 'Advances' },
     { id: 'cash-flow', label: 'Cash Flow' },
-    { id: 'leave', label: 'Leave Report' },
-    { id: 'salary', label: 'Salary Summary' },
+    { id: 'leave', label: 'Leave' },
+    { id: 'salary', label: 'Salary' },
     { id: 'vehicles', label: 'Vehicles' },
   ]
 
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <BarChart3 size={24} className="text-primary" />
           <h1 className="text-2xl font-bold text-primary">Reports</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={exporting}>
-            <Download size={16} className="mr-1" />
-            Export CSV
-          </Button>
+          <button
+            onClick={handleExportCsv}
+            disabled={exporting}
+            className="p-2.5 rounded-xl border border-border text-muted hover:bg-surface hover:text-primary transition-colors disabled:opacity-50"
+            title="Export CSV"
+          >
+            <Download size={18} />
+          </button>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm font-medium text-muted hover:bg-surface"
+            className="p-2.5 rounded-xl border border-border text-muted hover:bg-surface hover:text-primary transition-colors"
+            title="Print / PDF"
           >
-            <FileText size={16} />
-            Export PDF
+            <FileText size={18} />
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-surface p-1 rounded-lg w-full flex-wrap">
+      {/* Tab Pills */}
+      <div className="flex gap-1 bg-surface rounded-full p-1 overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t.id ? 'bg-white shadow-sm text-primary' : 'text-muted hover:text-primary'
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+              tab === t.id
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-muted hover:text-primary'
             }`}
           >
             {t.label}
@@ -188,8 +195,8 @@ export default function Reports() {
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-3 flex-wrap items-end">
+      {/* Filter Bar */}
+      <div className="flex gap-3 flex-wrap items-end bg-white rounded-2xl border border-border p-4">
         <div>
           <label className="block text-xs text-muted mb-1">From</label>
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
@@ -213,6 +220,9 @@ export default function Reports() {
           </div>
         )}
       </div>
+
+      {/* Summary Cards */}
+      <SummaryCards tab={tab} driverSummary={driverSummary} finance={finance} advances={advances} cashFlow={cashFlow} leaveData={leaveData} salaryData={salaryData} />
 
       {/* Content */}
       {tab === 'drivers' && (
@@ -243,6 +253,111 @@ export default function Reports() {
   )
 }
 
+// ── Summary Cards ────────────────────────────────────────────────────────────
+
+function SummaryCards({
+  tab,
+  driverSummary,
+  finance,
+  advances,
+  cashFlow,
+  leaveData,
+  salaryData,
+}: {
+  tab: TabId
+  driverSummary: DriverSummaryReport[]
+  finance?: FinanceSummaryReport
+  advances: AdvanceReport[]
+  cashFlow: CashFlowReport[]
+  leaveData: LeaveReport[]
+  salaryData: SalaryReport[]
+}) {
+  const cards = useMemo(() => {
+    if (tab === 'drivers') {
+      const totals = driverSummary.reduce(
+        (acc, r) => ({
+          trips: acc.trips + r.trips_count,
+          revenue: acc.revenue + parseFloat(r.total_revenue_aed),
+          expenses: acc.expenses + parseFloat(r.total_expenses_aed),
+          net: acc.net + parseFloat(r.net_aed),
+        }),
+        { trips: 0, revenue: 0, expenses: 0, net: 0 }
+      )
+      return [
+        { label: 'Total Trips', value: String(totals.trips) },
+        { label: 'Total Revenue', value: formatAed(totals.revenue), color: 'text-green-700' },
+        { label: 'Total Expenses', value: formatAed(totals.expenses), color: 'text-red-600' },
+        { label: 'Net Profit', value: formatAed(totals.net), color: totals.net >= 0 ? 'text-green-700' : 'text-red-700' },
+      ]
+    }
+    if (tab === 'finance' && finance) {
+      return [
+        { label: 'Total Revenue', value: formatAed(finance.trip_revenue_total), color: 'text-green-700' },
+        { label: 'Total Expenses', value: formatAed(finance.total_expenses), color: 'text-red-600' },
+        { label: 'Cash Handovers', value: formatAed(finance.total_handovers) },
+        { label: 'Net', value: formatAed(finance.net_aed), color: parseFloat(String(finance.net_aed)) >= 0 ? 'text-green-700' : 'text-red-700' },
+      ]
+    }
+    if (tab === 'advances') {
+      const totalReq = advances.reduce((s, r) => s + parseFloat(r.total_requested), 0)
+      const totalPaid = advances.reduce((s, r) => s + parseFloat(r.total_paid), 0)
+      const totalOut = advances.reduce((s, r) => s + parseFloat(r.outstanding_balance), 0)
+      return [
+        { label: 'Drivers', value: String(advances.length) },
+        { label: 'Total Requested', value: formatAed(totalReq) },
+        { label: 'Total Paid', value: formatAed(totalPaid), color: 'text-green-700' },
+        { label: 'Outstanding', value: formatAed(totalOut), color: totalOut > 0 ? 'text-red-600' : undefined },
+      ]
+    }
+    if (tab === 'cash-flow') {
+      const totalReceived = cashFlow.reduce((s, r) => s + parseFloat(r.total_cash_received), 0)
+      const totalSubmitted = cashFlow.reduce((s, r) => s + parseFloat(r.total_cash_submitted), 0)
+      const totalShortfall = cashFlow.reduce((s, r) => s + parseFloat(r.shortfall), 0)
+      return [
+        { label: 'Cash Received', value: formatAed(totalReceived) },
+        { label: 'Cash Submitted', value: formatAed(totalSubmitted), color: 'text-green-700' },
+        { label: 'Shortfall', value: formatAed(totalShortfall), color: totalShortfall > 0 ? 'text-red-600' : undefined },
+      ]
+    }
+    if (tab === 'leave') {
+      const totalDays = leaveData.reduce((s, r) => s + r.total_leave_days, 0)
+      const totalPending = leaveData.reduce((s, r) => s + r.pending_count, 0)
+      const totalApproved = leaveData.reduce((s, r) => s + r.approved_count, 0)
+      return [
+        { label: 'Total Leave Days', value: String(totalDays) },
+        { label: 'Pending', value: String(totalPending), color: 'text-yellow-600' },
+        { label: 'Approved', value: String(totalApproved), color: 'text-green-700' },
+      ]
+    }
+    if (tab === 'salary') {
+      const totalGross = salaryData.reduce((s, r) => s + parseFloat(r.gross), 0)
+      const totalDed = salaryData.reduce((s, r) => s + parseFloat(r.deductions), 0)
+      const totalNet = salaryData.reduce((s, r) => s + parseFloat(r.net_payable), 0)
+      return [
+        { label: 'Gross Total', value: formatAed(totalGross) },
+        { label: 'Deductions', value: formatAed(totalDed), color: 'text-red-600' },
+        { label: 'Net Payable', value: formatAed(totalNet), color: 'text-green-700' },
+      ]
+    }
+    return []
+  }, [tab, driverSummary, finance, advances, cashFlow, leaveData, salaryData])
+
+  if (cards.length === 0) return null
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {cards.map((c) => (
+        <div key={c.label} className="bg-white rounded-2xl border border-border p-4">
+          <p className="text-xs text-muted mb-1">{c.label}</p>
+          <p className={`text-xl font-bold tabular-nums ${c.color ?? 'text-primary'}`}>{c.value}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── Table Components ─────────────────────────────────────────────────────────
+
 function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; loading: boolean }) {
   const totals = rows.reduce(
     (acc, r) => ({
@@ -255,9 +370,9 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
   )
 
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-right font-medium text-muted">Trips</th>
@@ -268,28 +383,28 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={5} className="py-12 text-center text-muted">No data for selected period</td></tr>
+            <tr><td colSpan={5} className="py-0"><EmptyState icon={Inbox} title="No data for selected period" /></td></tr>
           ) : (
             <>
-              {rows.map((r) => (
-                <tr key={r.driver_id} className="border-b border-border last:border-0 hover:bg-surface">
+              {rows.map((r, idx) => (
+                <tr key={r.driver_id} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
                   <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
-                  <td className="py-2.5 px-4 text-right text-primary">{r.trips_count}</td>
-                  <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_revenue_aed)}</td>
-                  <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.total_expenses_aed)}</td>
-                  <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.net_aed) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{r.trips_count}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-green-700">{formatAed(r.total_revenue_aed)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-red-600">{formatAed(r.total_expenses_aed)}</td>
+                  <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${parseFloat(r.net_aed) >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                     {formatAed(r.net_aed)}
                   </td>
                 </tr>
               ))}
               <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
                 <td className="py-3 px-4 text-primary">Total</td>
-                <td className="py-3 px-4 text-right">{totals.trips}</td>
-                <td className="py-3 px-4 text-right">{formatAed(totals.revenue)}</td>
-                <td className="py-3 px-4 text-right text-red-600">{formatAed(totals.expenses)}</td>
-                <td className={`py-3 px-4 text-right ${totals.net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                <td className="py-3 px-4 text-right tabular-nums">{totals.trips}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-green-700">{formatAed(totals.revenue)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-red-600">{formatAed(totals.expenses)}</td>
+                <td className={`py-3 px-4 text-right tabular-nums ${totals.net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   {formatAed(totals.net)}
                 </td>
               </tr>
@@ -303,9 +418,9 @@ function DriverSummaryTable({ rows, loading }: { rows: DriverSummaryReport[]; lo
 
 function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-left font-medium text-muted">Date</th>
@@ -318,19 +433,19 @@ function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading:
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={7} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={7} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={7} className="py-12 text-center text-muted">No trips in selected period</td></tr>
+            <tr><td colSpan={7} className="py-0"><EmptyState icon={Inbox} title="No trips in selected period" /></td></tr>
           ) : (
-            rows.map((r) => (
-              <tr key={r.trip_id} className="border-b border-border last:border-0 hover:bg-surface">
+            rows.map((r, idx) => (
+              <tr key={r.trip_id} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
                 <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
                 <td className="py-2.5 px-4 text-muted">{r.trip_date}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.cash_aed)}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.card_aed)}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.other_aed)}</td>
-                <td className="py-2.5 px-4 text-right font-semibold text-primary">{formatAed(r.total_aed)}</td>
-                <td className="py-2.5 px-4 text-muted text-xs">{r.notes ?? '—'}</td>
+                <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.cash_aed)}</td>
+                <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.card_aed)}</td>
+                <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.other_aed)}</td>
+                <td className="py-2.5 px-4 text-right tabular-nums font-semibold text-primary">{formatAed(r.total_aed)}</td>
+                <td className="py-2.5 px-4 text-muted text-xs">{r.notes ?? '--'}</td>
               </tr>
             ))
           )}
@@ -340,66 +455,48 @@ function TripDetailTable({ rows, loading }: { rows: TripDetailReport[]; loading:
   )
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="bg-white rounded-xl border border-border p-4">
-      <p className="text-xs text-muted mb-1">{label}</p>
-      <p className="text-xl font-bold text-primary">{value}</p>
-      {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
-    </div>
-  )
-}
-
 function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; loading: boolean }) {
-  if (loading) return <div className="py-12 text-center text-muted">Loading…</div>
+  if (loading) return <div className="py-12 text-center text-muted">Loading...</div>
   if (!data) return null
 
   return (
     <div className="space-y-5">
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Revenue" value={formatAed(data.trip_revenue_total)} sub="from trips" />
-        <StatCard label="Total Expenses" value={formatAed(data.total_expenses)} />
-        <StatCard label="Cash Handovers" value={formatAed(data.total_handovers)} />
-        <StatCard label="Net" value={formatAed(data.net_aed)} />
-      </div>
-
       {/* Revenue breakdown */}
-      <div className="bg-white rounded-xl border border-border p-4">
+      <div className="bg-white rounded-2xl border border-border p-4">
         <h3 className="text-sm font-semibold text-primary mb-3">Revenue Breakdown</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <p className="text-xs text-muted">Cash</p>
-            <p className="text-base font-semibold">{formatAed(data.trip_revenue_cash)}</p>
+            <p className="text-base font-semibold tabular-nums text-green-700">{formatAed(data.trip_revenue_cash)}</p>
           </div>
           <div>
             <p className="text-xs text-muted">Card</p>
-            <p className="text-base font-semibold">{formatAed(data.trip_revenue_card)}</p>
+            <p className="text-base font-semibold tabular-nums text-green-700">{formatAed(data.trip_revenue_card)}</p>
           </div>
           <div>
             <p className="text-xs text-muted">Other</p>
-            <p className="text-base font-semibold">{formatAed(data.trip_revenue_other)}</p>
+            <p className="text-base font-semibold tabular-nums text-green-700">{formatAed(data.trip_revenue_other)}</p>
           </div>
         </div>
       </div>
 
       {/* Expenses by category */}
       {data.expense_by_category.length > 0 && (
-        <div className="bg-white rounded-xl border border-border overflow-x-auto">
-          <div className="px-4 py-3 border-b border-border bg-surface">
+        <div className="bg-white rounded-2xl border border-border overflow-x-auto">
+          <div className="px-4 py-3 border-b border-border bg-surface rounded-t-2xl">
             <h3 className="text-sm font-semibold text-primary">Expenses by Category</h3>
           </div>
           <table className="w-full text-sm">
             <tbody>
-              {data.expense_by_category.map((cat) => (
-                <tr key={cat.category} className="border-b border-border last:border-0">
+              {data.expense_by_category.map((cat, idx) => (
+                <tr key={cat.category} className={`border-b border-border last:border-0 ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
                   <td className="py-2.5 px-4 text-primary capitalize">{cat.category.replace(/_/g, ' ')}</td>
-                  <td className="py-2.5 px-4 text-right font-medium text-red-600">{formatAed(cat.total_aed)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums font-medium text-red-600">{formatAed(cat.total_aed)}</td>
                 </tr>
               ))}
               <tr className="bg-surface font-semibold border-t-2 border-border">
                 <td className="py-3 px-4 text-primary">Total</td>
-                <td className="py-3 px-4 text-right text-red-700">{formatAed(data.total_expenses)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-red-700">{formatAed(data.total_expenses)}</td>
               </tr>
             </tbody>
           </table>
@@ -410,10 +507,20 @@ function FinanceSummaryView({ data, loading }: { data?: FinanceSummaryReport; lo
 }
 
 function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading: boolean }) {
+  const totals = rows.reduce(
+    (acc, r) => ({
+      requested: acc.requested + parseFloat(r.total_requested),
+      approved: acc.approved + parseFloat(r.total_approved),
+      paid: acc.paid + parseFloat(r.total_paid),
+      outstanding: acc.outstanding + parseFloat(r.outstanding_balance),
+    }),
+    { requested: 0, approved: 0, paid: 0, outstanding: 0 }
+  )
+
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-right font-medium text-muted">Requested (AED)</th>
@@ -424,21 +531,32 @@ function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading:
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={5} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={5} className="py-12 text-center text-muted">No advance data for selected period</td></tr>
+            <tr><td colSpan={5} className="py-0"><EmptyState icon={Inbox} title="No advance data for selected period" /></td></tr>
           ) : (
-            rows.map((r) => (
-              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
-                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_requested)}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_approved)}</td>
-                <td className="py-2.5 px-4 text-right text-green-700">{formatAed(r.total_paid)}</td>
-                <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.outstanding_balance) > 0 ? 'text-red-700' : 'text-primary'}`}>
-                  {formatAed(r.outstanding_balance)}
+            <>
+              {rows.map((r, idx) => (
+                <tr key={r.driver_name} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
+                  <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.total_requested)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.total_approved)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-green-700">{formatAed(r.total_paid)}</td>
+                  <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${parseFloat(r.outstanding_balance) > 0 ? 'text-red-700' : 'text-primary'}`}>
+                    {formatAed(r.outstanding_balance)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
+                <td className="py-3 px-4 text-primary">Total</td>
+                <td className="py-3 px-4 text-right tabular-nums">{formatAed(totals.requested)}</td>
+                <td className="py-3 px-4 text-right tabular-nums">{formatAed(totals.approved)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-green-700">{formatAed(totals.paid)}</td>
+                <td className={`py-3 px-4 text-right tabular-nums ${totals.outstanding > 0 ? 'text-red-700' : 'text-primary'}`}>
+                  {formatAed(totals.outstanding)}
                 </td>
               </tr>
-            ))
+            </>
           )}
         </tbody>
       </table>
@@ -447,10 +565,19 @@ function AdvanceReportTable({ rows, loading }: { rows: AdvanceReport[]; loading:
 }
 
 function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boolean }) {
+  const totals = rows.reduce(
+    (acc, r) => ({
+      received: acc.received + parseFloat(r.total_cash_received),
+      submitted: acc.submitted + parseFloat(r.total_cash_submitted),
+      shortfall: acc.shortfall + parseFloat(r.shortfall),
+    }),
+    { received: 0, submitted: 0, shortfall: 0 }
+  )
+
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-right font-medium text-muted">Cash Received (AED)</th>
@@ -460,20 +587,30 @@ function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boo
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={4} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={4} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={4} className="py-12 text-center text-muted">No cash flow data for selected period</td></tr>
+            <tr><td colSpan={4} className="py-0"><EmptyState icon={Inbox} title="No cash flow data for selected period" /></td></tr>
           ) : (
-            rows.map((r) => (
-              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
-                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.total_cash_received)}</td>
-                <td className="py-2.5 px-4 text-right text-green-700">{formatAed(r.total_cash_submitted)}</td>
-                <td className={`py-2.5 px-4 text-right font-semibold ${parseFloat(r.shortfall) > 0 ? 'text-red-700' : 'text-primary'}`}>
-                  {formatAed(r.shortfall)}
+            <>
+              {rows.map((r, idx) => (
+                <tr key={r.driver_name} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
+                  <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.total_cash_received)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-green-700">{formatAed(r.total_cash_submitted)}</td>
+                  <td className={`py-2.5 px-4 text-right tabular-nums font-semibold ${parseFloat(r.shortfall) > 0 ? 'text-red-700' : 'text-primary'}`}>
+                    {formatAed(r.shortfall)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
+                <td className="py-3 px-4 text-primary">Total</td>
+                <td className="py-3 px-4 text-right tabular-nums">{formatAed(totals.received)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-green-700">{formatAed(totals.submitted)}</td>
+                <td className={`py-3 px-4 text-right tabular-nums ${totals.shortfall > 0 ? 'text-red-700' : 'text-primary'}`}>
+                  {formatAed(totals.shortfall)}
                 </td>
               </tr>
-            ))
+            </>
           )}
         </tbody>
       </table>
@@ -482,10 +619,21 @@ function CashFlowTable({ rows, loading }: { rows: CashFlowReport[]; loading: boo
 }
 
 function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boolean }) {
+  const totals = rows.reduce(
+    (acc, r) => ({
+      days: acc.days + r.total_leave_days,
+      permissions: acc.permissions + r.total_permissions,
+      pending: acc.pending + r.pending_count,
+      approved: acc.approved + r.approved_count,
+      rejected: acc.rejected + r.rejected_count,
+    }),
+    { days: 0, permissions: 0, pending: 0, approved: 0, rejected: 0 }
+  )
+
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-right font-medium text-muted">Leave Days</th>
@@ -497,20 +645,30 @@ function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boo
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={6} className="py-12 text-center text-muted">No leave data for selected period</td></tr>
+            <tr><td colSpan={6} className="py-0"><EmptyState icon={Inbox} title="No leave data for selected period" /></td></tr>
           ) : (
-            rows.map((r) => (
-              <tr key={r.driver_name} className="border-b border-border last:border-0 hover:bg-surface">
-                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{r.total_leave_days}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{r.total_permissions}</td>
-                <td className="py-2.5 px-4 text-right text-yellow-600">{r.pending_count}</td>
-                <td className="py-2.5 px-4 text-right text-green-700">{r.approved_count}</td>
-                <td className="py-2.5 px-4 text-right text-red-600">{r.rejected_count}</td>
+            <>
+              {rows.map((r, idx) => (
+                <tr key={r.driver_name} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
+                  <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{r.total_leave_days}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{r.total_permissions}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-yellow-600">{r.pending_count}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-green-700">{r.approved_count}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-red-600">{r.rejected_count}</td>
+                </tr>
+              ))}
+              <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
+                <td className="py-3 px-4 text-primary">Total</td>
+                <td className="py-3 px-4 text-right tabular-nums">{totals.days}</td>
+                <td className="py-3 px-4 text-right tabular-nums">{totals.permissions}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-yellow-600">{totals.pending}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-green-700">{totals.approved}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-red-600">{totals.rejected}</td>
               </tr>
-            ))
+            </>
           )}
         </tbody>
       </table>
@@ -519,10 +677,19 @@ function LeaveReportTable({ rows, loading }: { rows: LeaveReport[]; loading: boo
 }
 
 function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: boolean }) {
+  const totals = rows.reduce(
+    (acc, r) => ({
+      gross: acc.gross + parseFloat(r.gross),
+      deductions: acc.deductions + parseFloat(r.deductions),
+      net: acc.net + parseFloat(r.net_payable),
+    }),
+    { gross: 0, deductions: 0, net: 0 }
+  )
+
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Driver</th>
             <th className="py-3 px-4 text-left font-medium text-muted">Period</th>
@@ -534,20 +701,28 @@ function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: b
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={6} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={6} className="py-12 text-center text-muted">No salary data for selected period</td></tr>
+            <tr><td colSpan={6} className="py-0"><EmptyState icon={Inbox} title="No salary data for selected period" /></td></tr>
           ) : (
-            rows.map((r, idx) => (
-              <tr key={idx} className="border-b border-border last:border-0 hover:bg-surface">
-                <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
-                <td className="py-2.5 px-4 text-muted">{r.period}</td>
-                <td className="py-2.5 px-4 text-primary capitalize">{r.salary_type.replace(/_/g, ' ')}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{formatAed(r.gross)}</td>
-                <td className="py-2.5 px-4 text-right text-red-600">{formatAed(r.deductions)}</td>
-                <td className="py-2.5 px-4 text-right font-semibold text-green-700">{formatAed(r.net_payable)}</td>
+            <>
+              {rows.map((r, idx) => (
+                <tr key={idx} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
+                  <td className="py-2.5 px-4 font-medium text-primary">{r.driver_name}</td>
+                  <td className="py-2.5 px-4 text-muted">{r.period}</td>
+                  <td className="py-2.5 px-4 text-primary capitalize">{r.salary_type.replace(/_/g, ' ')}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-primary">{formatAed(r.gross)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-red-600">{formatAed(r.deductions)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums font-semibold text-green-700">{formatAed(r.net_payable)}</td>
+                </tr>
+              ))}
+              <tr className="bg-surface font-semibold text-sm border-t-2 border-border">
+                <td className="py-3 px-4 text-primary" colSpan={3}>Total</td>
+                <td className="py-3 px-4 text-right tabular-nums">{formatAed(totals.gross)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-red-600">{formatAed(totals.deductions)}</td>
+                <td className="py-3 px-4 text-right tabular-nums text-green-700">{formatAed(totals.net)}</td>
               </tr>
-            ))
+            </>
           )}
         </tbody>
       </table>
@@ -557,9 +732,9 @@ function SalaryReportTable({ rows, loading }: { rows: SalaryReport[]; loading: b
 
 function VehicleReportTable({ rows, loading }: { rows: VehicleReport[]; loading: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
       <table className="w-full text-sm">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-border bg-surface">
             <th className="py-3 px-4 text-left font-medium text-muted">Plate</th>
             <th className="py-3 px-4 text-left font-medium text-muted">Make / Model</th>
@@ -573,12 +748,12 @@ function VehicleReportTable({ rows, loading }: { rows: VehicleReport[]; loading:
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={8} className="py-12 text-center text-muted">Loading…</td></tr>
+            <tr><td colSpan={8} className="py-12 text-center text-muted">Loading...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={8} className="py-12 text-center text-muted">No vehicle data</td></tr>
+            <tr><td colSpan={8} className="py-0"><EmptyState icon={Inbox} title="No vehicle data" /></td></tr>
           ) : (
-            rows.map((r) => (
-              <tr key={r.plate_number} className="border-b border-border last:border-0 hover:bg-surface">
+            rows.map((r, idx) => (
+              <tr key={r.plate_number} className={`border-b border-border last:border-0 hover:bg-surface/50 transition-colors ${idx % 2 === 0 ? '' : 'bg-surface/30'}`}>
                 <td className="py-2.5 px-4 font-medium text-primary">{r.plate_number}</td>
                 <td className="py-2.5 px-4 text-primary">{r.make} {r.model}</td>
                 <td className="py-2.5 px-4">
@@ -592,11 +767,11 @@ function VehicleReportTable({ rows, loading }: { rows: VehicleReport[]; loading:
                     {r.status}
                   </span>
                 </td>
-                <td className="py-2.5 px-4 text-muted">{r.owner_name ?? '—'}</td>
-                <td className="py-2.5 px-4 text-muted">{r.current_driver ?? '—'}</td>
-                <td className="py-2.5 px-4 text-muted">{r.insurance_expiry ?? '—'}</td>
-                <td className="py-2.5 px-4 text-right text-primary">{r.service_count}</td>
-                <td className="py-2.5 px-4 text-muted">{r.last_service_date ?? '—'}</td>
+                <td className="py-2.5 px-4 text-muted">{r.owner_name ?? '--'}</td>
+                <td className="py-2.5 px-4 text-muted">{r.current_driver ?? '--'}</td>
+                <td className="py-2.5 px-4 text-muted">{r.insurance_expiry ?? '--'}</td>
+                <td className="py-2.5 px-4 text-right tabular-nums text-primary">{r.service_count}</td>
+                <td className="py-2.5 px-4 text-muted">{r.last_service_date ?? '--'}</td>
               </tr>
             ))
           )}

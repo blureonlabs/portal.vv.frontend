@@ -7,7 +7,7 @@ import { AvatarUpload } from './AvatarUpload'
 import { NotificationPanel, useNotificationCount } from './NotificationPanel'
 import {
   Bell, Lock, LogOut, Menu,
-  LayoutDashboard, Users, BadgeCheck, Car, BookUser, Route, CreditCard,
+  LayoutDashboard, UsersRound, BadgeCheck, Car, BookUser, Route, CreditCard,
   CalendarX, Wallet, Receipt, BarChart3, Megaphone, Settings, Shield,
   type LucideIcon,
 } from 'lucide-react'
@@ -22,7 +22,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Users', href: '/users', icon: Users, roles: ['super_admin'] },
+  { label: 'Team', href: '/users', icon: UsersRound, roles: ['super_admin'] },
   { label: 'Drivers', href: '/drivers', icon: BadgeCheck, roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
   { label: 'Owners', href: '/owners', icon: BookUser, roles: ['super_admin'] },
