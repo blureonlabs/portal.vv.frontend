@@ -195,8 +195,8 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
             </div>
             <Badge variant="default">{SALARY_TYPE_LABELS[s.salary_type_snapshot]}</Badge>
             <Badge variant={STATUS_VARIANTS[s.status]}>{STATUS_LABELS[s.status]}</Badge>
-            {s.edited_fields && (
-              <Badge variant="warning">Edited</Badge>
+            {s.adjusted_from_id && (
+              <Badge variant="default">Adjusted</Badge>
             )}
           </div>
           <div className="flex items-center gap-3">

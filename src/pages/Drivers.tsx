@@ -16,9 +16,9 @@ import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
 
 const SALARY_OPTIONS = [
-  { value: 'commission', label: 'Commission (30%)' },
-  { value: 'target_high', label: 'Target High (AED 12,300)' },
-  { value: 'target_low', label: 'Target Low (AED 6,600)' },
+  { value: 'commission', label: 'Commission' },
+  { value: 'target_high', label: 'Target High' },
+  { value: 'target_low', label: 'Target Low' },
 ]
 
 const createSchema = z.object({

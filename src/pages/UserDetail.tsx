@@ -27,9 +27,9 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const SALARY_LABELS: Record<string, string> = {
-  commission: 'Commission (30%)',
-  target_high: 'Target High (AED 12,300)',
-  target_low: 'Target Low (AED 6,600)',
+  commission: 'Commission',
+  target_high: 'Target High',
+  target_low: 'Target Low',
 }
 
 // ── Tab definitions ────────────────────────────────────────────────────────────

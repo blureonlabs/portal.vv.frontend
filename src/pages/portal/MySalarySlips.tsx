@@ -58,9 +58,14 @@ function SlipCard({ slip }: { slip: Salary }) {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-base font-bold text-primary">{periodLabel(slip.period_month)}</p>
-          <p className="text-xs text-muted mt-0.5">
-            {SALARY_TYPE_LABELS[slip.salary_type_snapshot] ?? slip.salary_type_snapshot}
-          </p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <p className="text-xs text-muted">
+              {SALARY_TYPE_LABELS[slip.salary_type_snapshot] ?? slip.salary_type_snapshot}
+            </p>
+            {slip.adjusted_from_id && (
+              <span className="text-[10px] font-medium text-accent bg-accent-light rounded-full px-2 py-0.5">Adjusted</span>
+            )}
+          </div>
         </div>
         <div className={`text-right`}>
           <p className={`text-lg font-bold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
