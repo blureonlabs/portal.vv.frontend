@@ -323,7 +323,6 @@ export default function Trips() {
                         <AlertTriangle
                           size={14}
                           className="text-amber-500"
-                          title="Duplicate trip: same driver has another trip on this date"
                         />
                       )}
                     </span>

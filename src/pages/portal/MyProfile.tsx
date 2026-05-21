@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../../lib/api'
 import type { DriverContext } from '../../types'
-import { CarOff, User, Flag, BadgeCheck, PenLine, Hash, Car, Calendar, Palette, type LucideIcon } from 'lucide-react'
+import { CarFront, User, Flag, BadgeCheck, PenLine, Hash, Car, Calendar, Palette, type LucideIcon } from 'lucide-react'
 
 const SALARY_TYPE_LABELS: Record<string, string> = {
   commission: 'Commission',
@@ -73,7 +73,7 @@ export default function MyProfile() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-border px-4 py-5 flex items-center gap-3 text-muted">
-          <CarOff size={22} />
+          <CarFront size={22} />
           <p className="text-sm">No vehicle currently assigned</p>
         </div>
       )}

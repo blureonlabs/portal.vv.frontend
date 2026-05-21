@@ -4,7 +4,7 @@ import { apiGet, apiPut } from '../lib/api'
 import { Input } from '../components/ui/Input'
 import { useAuthStore } from '../store/authStore'
 import type { Setting } from '../types'
-import { Check, Pencil, Settings, X } from 'lucide-react'
+import { Check, Pencil, Settings as SettingsIcon, X } from 'lucide-react'
 
 const ACCOUNTANT_KEYS = new Set([
   'salary_target_high_aed',
@@ -137,7 +137,7 @@ export default function Settings() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <Settings size={24} className="text-primary" />
+        <SettingsIcon size={24} className="text-primary" />
         <h1 className="text-2xl font-bold text-primary">Settings</h1>
       </div>
 

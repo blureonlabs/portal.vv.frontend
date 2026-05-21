@@ -5,8 +5,8 @@ import { apiGet, apiPut } from '../lib/api'
 import { Badge } from '../components/ui/Badge'
 import { formatDate, formatAed } from '../lib/utils'
 import { useAuthStore } from '../store/authStore'
+import { ArrowLeft, CalendarX, Car, CreditCard, Download, KeyRound, Shield, User as UserIcon, X } from 'lucide-react'
 import type {
-import { ArrowLeft, CalendarX, Car, CreditCard, Download, KeyRound, Shield, User, X } from 'lucide-react'
   User,
   Driver,
   Owner,
@@ -47,12 +47,12 @@ interface TabDef {
 }
 
 const BASE_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'profile', label: 'Profile', icon: <UserIcon size={16} /> },
   { key: 'audit', label: 'Audit', icon: <Shield size={16} /> },
 ]
 
 const DRIVER_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'profile', label: 'Profile', icon: <UserIcon size={16} /> },
   { key: 'trips', label: 'Trips', icon: <Car size={16} /> },
   { key: 'advances', label: 'Advances', icon: <CreditCard size={16} /> },
   { key: 'leave', label: 'Leave', icon: <CalendarX size={16} /> },
@@ -61,7 +61,7 @@ const DRIVER_TABS: TabDef[] = [
 ]
 
 const OWNER_TABS: TabDef[] = [
-  { key: 'profile', label: 'Profile', icon: <User size={16} /> },
+  { key: 'profile', label: 'Profile', icon: <UserIcon size={16} /> },
   { key: 'vehicles', label: 'Vehicles', icon: <Car size={16} /> },
   { key: 'audit', label: 'Audit', icon: <Shield size={16} /> },
 ]

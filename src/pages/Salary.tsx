@@ -421,6 +421,8 @@ export default function SalaryPage() {
     enabled: earningsEnabled && showForm,
   })
 
+  const activeDrivers = drivers.filter((d) => d.is_active)
+
   // When driver selection changes, auto-set salary type from driver profile
   useEffect(() => {
     if (watchedDriverId) {
@@ -446,8 +448,6 @@ export default function SalaryPage() {
       setShowForm(false)
     },
   })
-
-  const activeDrivers = drivers.filter((d) => d.is_active)
 
   const filteredSalaries = filterType
     ? salaries.filter((s) => s.salary_type_snapshot === filterType)
