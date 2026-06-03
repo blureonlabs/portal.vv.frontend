@@ -32,11 +32,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: '',
     items: [
       { label: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['super_admin', 'accountant', 'hr'] },
-    ],
-  },
-  {
-    title: 'Team',
-    items: [
       { label: 'Team', href: '/users', icon: UsersRound, roles: ['super_admin'] },
     ],
   },
