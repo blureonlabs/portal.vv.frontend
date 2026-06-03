@@ -7,12 +7,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, id, required, ...props }, ref) => {
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
           <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-muted">
             {label}
+            {required && <span className="text-danger ml-0.5">*</span>}
           </label>
         )}
         <input
@@ -26,6 +27,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             error && 'border-danger focus:ring-danger/20',
             className
           )}
+          required={required}
           {...props}
         />
         {error && <p className="text-xs text-danger">{error}</p>}

@@ -116,18 +116,25 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="h-8 text-sm w-full max-w-[256px]"
+          className="h-8 text-sm w-full max-w-full sm:max-w-[256px]"
           autoFocus
         />
         <button
           onClick={() => mutate()}
           disabled={isPending}
-          className="p-1.5 text-green-600 hover:bg-green-50 rounded"
+          aria-label="Save"
+          className="p-1.5 text-green-600 hover:bg-green-50 rounded inline-flex items-center gap-1"
         >
-          <Check size={16} />
+          {isPending ? (
+            <div className="animate-spin w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full" />
+          ) : (
+            <Check size={16} />
+          )}
+          <span className="text-xs">Save</span>
         </button>
         <button
           onClick={() => { setEditing(false); setValue(setting.value); setError('') }}
+          aria-label="Cancel"
           className="p-1.5 text-muted hover:bg-surface rounded"
         >
           <X size={16} />
@@ -140,6 +147,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
       <span className="text-sm text-primary">{setting.value || '\u2014'}</span>
       <button
         onClick={() => { setValue(setting.value); setEditing(true) }}
+        aria-label="Edit"
         className="p-1 text-muted hover:text-primary rounded opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <Pencil size={14} />

@@ -144,15 +144,17 @@ export function ConfigCrudTable({
         <div className="flex items-center justify-end gap-1">
           <button
             onClick={(e) => { e.stopPropagation(); handleOpenEdit(row) }}
-            className="p-1.5 text-muted hover:text-primary hover:bg-surface rounded-lg transition-colors"
+            className="p-2 text-muted hover:text-primary hover:bg-surface rounded-lg transition-colors"
             title="Edit"
+            aria-label="Edit"
           >
             <Pencil size={15} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setDeleteId(row.id) }}
-            className="p-1.5 text-muted hover:text-danger hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 text-muted hover:text-danger hover:bg-red-50 rounded-lg transition-colors"
             title="Deactivate"
+            aria-label="Deactivate"
           >
             <Trash2 size={15} />
           </button>
@@ -162,7 +164,7 @@ export function ConfigCrudTable({
   )
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-primary">{title}</h2>
         <Button size="sm" onClick={handleOpenAdd}>

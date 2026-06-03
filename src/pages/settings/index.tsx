@@ -28,7 +28,7 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState(tabs[0].key)
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center gap-3">
         <SettingsIcon size={24} className="text-primary" />
         <PageHeader title="Settings" description="Manage application configuration" />

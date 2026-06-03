@@ -130,23 +130,29 @@ export default function Dashboard() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <input
-          type="month"
-          value={filterMonth}
-          onChange={(e) => setFilterMonth(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-        />
-        <select
-          value={filterDriver}
-          onChange={(e) => setFilterDriver(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          <option value="">All Drivers</option>
-          {activeDrivers.map((d) => (
-            <option key={d.id} value={d.id}>{d.full_name}</option>
-          ))}
-        </select>
+      <div className="flex flex-wrap gap-3 items-end">
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Month</label>
+          <input
+            type="month"
+            value={filterMonth}
+            onChange={(e) => setFilterMonth(e.target.value)}
+            className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted mb-1">Driver</label>
+          <select
+            value={filterDriver}
+            onChange={(e) => setFilterDriver(e.target.value)}
+            className="px-3 py-2 rounded-xl border border-border text-sm bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+          >
+            <option value="">All Drivers</option>
+            {activeDrivers.map((d) => (
+              <option key={d.id} value={d.id}>{d.full_name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Alerts */}
