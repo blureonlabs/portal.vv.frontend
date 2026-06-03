@@ -8,7 +8,7 @@ import { AvatarUpload } from './AvatarUpload'
 import { NotificationPanel, useNotificationCount } from './NotificationPanel'
 import { CommandPalette } from './CommandPalette'
 import {
-  Bell, Lock, LogOut, Menu, Search, Sun, Moon,
+  Bell, LogOut, Menu, Search, Sun, Moon,
   LayoutDashboard, UsersRound, BadgeCheck, Car, BookUser, Route, CreditCard,
   CalendarX, Wallet, Receipt, BarChart3, Megaphone, Settings, Shield,
   type LucideIcon,
@@ -112,39 +112,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const sidebarContent = (
     <>
-      {/* Logo + Actions */}
-      <div className="h-16 flex items-center justify-between px-6">
+      {/* Logo */}
+      <div className="h-14 flex items-center px-6">
         <span className="text-white font-bold text-lg tracking-tight">Voiture Voyages</span>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setCmdOpen(true)}
-            className="p-2.5 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Search (Cmd+K)"
-            title="Search (Cmd+K)"
-          >
-            <Search size={20} className="text-white/60 hover:text-white" />
-          </button>
-          <button
-            onClick={toggleTheme}
-            className="p-2.5 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Toggle dark mode"
-            title="Toggle dark mode"
-          >
-            {dark ? <Sun size={20} className="text-white/60 hover:text-white" /> : <Moon size={20} className="text-white/60 hover:text-white" />}
-          </button>
-          <button
-            onClick={() => setPanelOpen(true)}
-            className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Open notifications"
-          >
-            <Bell size={20} className="text-white/60 hover:text-white" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-        </div>
+      </div>
+
+      {/* Search bar */}
+      <div className="px-3 mb-2">
+        <button
+          onClick={() => setCmdOpen(true)}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white/8 text-white/40 text-sm hover:bg-white/12 transition-colors"
+          aria-label="Search (Cmd+K)"
+        >
+          <Search size={16} />
+          <span>Search...</span>
+          <kbd className="ml-auto text-[10px] bg-white/10 rounded px-1.5 py-0.5">&#8984;K</kbd>
+        </button>
       </div>
 
       {/* Nav */}
@@ -181,27 +164,50 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      {/* User + Actions */}
-      <div className="p-3 border-t border-white/10">
-        <div className="flex items-center gap-3 px-3 py-2 mb-1">
-          <AvatarUpload size="sm" />
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-white truncate">{user?.full_name}</p>
-            <p className="text-xs text-white/50 truncate">{user?.email}</p>
-          </div>
+      {/* Bottom section */}
+      <div className="p-3 border-t border-white/10 space-y-1">
+        {/* Quick actions row */}
+        <div className="flex items-center justify-between px-2 mb-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Toggle dark mode"
+            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {dark ? <Sun size={18} className="text-white/50" /> : <Moon size={18} className="text-white/50" />}
+          </button>
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Notifications"
+          >
+            <Bell size={18} className="text-white/50" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* User profile — clickable to change password / settings */}
         <button
           onClick={() => { navigate('/change-password'); setSidebarOpen(false) }}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full cursor-pointer"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/8 transition-all duration-200 w-full cursor-pointer"
         >
-          <Lock size={20} />
-          Change Password
+          <AvatarUpload size="sm" />
+          <div className="min-w-0 text-left flex-1">
+            <p className="text-sm font-medium text-white truncate">{user?.full_name}</p>
+            <p className="text-xs text-white/40 truncate">{user?.email}</p>
+          </div>
         </button>
+
+        {/* Sign out */}
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:bg-white/8 hover:text-white/80 transition-all duration-200 w-full cursor-pointer"
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-white/40 hover:bg-white/8 hover:text-white/70 transition-all duration-200 w-full cursor-pointer"
         >
-          <LogOut size={20} />
+          <LogOut size={18} />
           Sign out
         </button>
       </div>
