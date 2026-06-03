@@ -516,3 +516,31 @@ export interface VehicleReport {
   service_count: number
   last_service_date: string | null
 }
+
+export interface Platform {
+  id: string
+  name: string
+  code: string
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface ConfigItem {
+  id: string
+  name: string
+  code: string
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface ConfigDocumentType {
+  id: string
+  name: string
+  code: string
+  applies_to: string  // 'driver' | 'vehicle' | 'both'
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}

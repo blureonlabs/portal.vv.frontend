@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiGet, apiPut } from '../lib/api'
-import { Input } from '../components/ui/Input'
-import { useAuthStore } from '../store/authStore'
-import type { Setting } from '../types'
-import { Check, Pencil, Settings as SettingsIcon, X } from 'lucide-react'
-import { useToast } from '../components/ui/Toast'
+import { apiGet, apiPut } from '../../lib/api'
+import { Input } from '../../components/ui/Input'
+import { useAuthStore } from '../../store/authStore'
+import type { Setting } from '../../types'
+import { Check, Pencil, X } from 'lucide-react'
+import { useToast } from '../../components/ui/Toast'
 
 const ACCOUNTANT_KEYS = new Set([
   'salary_target_high_aed',
@@ -50,7 +50,7 @@ function SettingsSection({ title, settings, canEdit }: { title: string; settings
                 <EditRowInner setting={s} canEdit={canEdit} />
               </td>
               <td className="py-3 px-4 text-xs text-muted">
-                {s.updated_at ? new Date(s.updated_at).toLocaleDateString() : '—'}
+                {s.updated_at ? new Date(s.updated_at).toLocaleDateString() : '\u2014'}
               </td>
             </tr>
           ))}
@@ -78,7 +78,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
     onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed to save'; setError(msg); toast.add(msg, 'error') },
   })
 
-  if (!canEdit) return <span className="text-sm text-primary">{setting.value || '—'}</span>
+  if (!canEdit) return <span className="text-sm text-primary">{setting.value || '\u2014'}</span>
 
   return editing ? (
     <div className="flex flex-col gap-1">
@@ -107,7 +107,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
     </div>
   ) : (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-primary">{setting.value || '—'}</span>
+      <span className="text-sm text-primary">{setting.value || '\u2014'}</span>
       <button
         onClick={() => { setValue(setting.value); setEditing(true) }}
         className="p-1 text-muted hover:text-primary rounded opacity-0 group-hover:opacity-100 transition-opacity"
@@ -118,7 +118,7 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
   )
 }
 
-export default function Settings() {
+export default function GeneralSettings() {
   const { user } = useAuthStore()
   const isSuperAdmin = user?.role === 'super_admin'
 
@@ -131,25 +131,18 @@ export default function Settings() {
 
   if (isLoading) {
     return (
-      <div className="p-4 md:p-6 flex items-center justify-center h-48">
+      <div className="flex items-center justify-center h-48">
         <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     )
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <SettingsIcon size={24} className="text-primary" />
-        <h1 className="text-2xl font-bold text-primary">Settings</h1>
-      </div>
-
-      <div className="space-y-4">
-        {isSuperAdmin && other.length > 0 && (
-          <SettingsSection title="General" settings={other} canEdit={true} />
-        )}
-        <SettingsSection title="Salary Parameters" settings={salary} canEdit={true} />
-      </div>
+    <div className="space-y-4">
+      {isSuperAdmin && other.length > 0 && (
+        <SettingsSection title="General" settings={other} canEdit={true} />
+      )}
+      <SettingsSection title="Salary Parameters" settings={salary} canEdit={true} />
     </div>
   )
 }
