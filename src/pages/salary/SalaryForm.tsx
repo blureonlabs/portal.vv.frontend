@@ -141,6 +141,11 @@ export function SalaryForm({ activeDrivers, onClose }: {
             )}
           />
           {errors.driver_id && <p className="text-xs text-danger mt-1">{errors.driver_id.message}</p>}
+          {activeDrivers.length === 0 && (
+            <p className="text-xs text-muted mt-1">
+              No active drivers. <a href="/drivers" className="text-accent hover:underline">Add a driver</a> first.
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-xs text-muted mb-1">Month</label>

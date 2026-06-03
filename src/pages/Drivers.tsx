@@ -14,7 +14,8 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
-import { Search, UserCheck, UserPlus, UserX } from 'lucide-react'
+import { Search, UserCheck, UserPlus, UserX, Users } from 'lucide-react'
+import { EmptyState } from '../components/ui/EmptyState'
 import { useToast } from '../components/ui/Toast'
 
 const SALARY_OPTIONS = [
@@ -189,9 +190,22 @@ export default function Drivers() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {driversLoading && Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
         {!driversLoading && filtered.length === 0 && (
-          <p className="col-span-full text-center text-muted py-12 text-sm">
-            {search ? 'No drivers match your search' : 'No drivers yet'}
-          </p>
+          search ? (
+            <p className="col-span-full text-center text-muted py-12 text-sm">No drivers match your search</p>
+          ) : (
+            <div className="col-span-full">
+              <EmptyState
+                icon={Users}
+                title="No drivers yet"
+                description="Add your first driver to get started."
+                action={isSuperAdmin && (
+                  <Button size="sm" onClick={() => { setShowCreate(true); setApiError('') }}>
+                    <UserPlus size={16} className="mr-1" /> Add Driver
+                  </Button>
+                )}
+              />
+            </div>
+          )
         )}
         {!driversLoading && filtered.map((driver) => (
           <motion.div

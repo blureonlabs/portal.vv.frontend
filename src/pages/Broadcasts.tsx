@@ -98,6 +98,14 @@ export default function Broadcasts() {
         </Button>
       </div>
 
+      <div className="flex items-center gap-3 bg-primary/5 border border-primary/10 rounded-xl p-4">
+        <MessageCircle size={20} className="text-primary flex-shrink-0" />
+        <div>
+          <p className="text-sm font-medium text-primary">WhatsApp Integration</p>
+          <p className="text-xs text-muted">Send broadcasts via WhatsApp Business API — coming soon</p>
+        </div>
+      </div>
+
       {isLoading ? (
         <p className="text-muted text-sm">Loading...</p>
       ) : broadcasts.length === 0 ? (

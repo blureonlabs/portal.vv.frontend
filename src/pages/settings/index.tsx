@@ -8,6 +8,7 @@ import PlatformSettings from './PlatformSettings'
 import ExpenseCategorySettings from './ExpenseCategorySettings'
 import LeaveTypeSettings from './LeaveTypeSettings'
 import DocumentTypeSettings from './DocumentTypeSettings'
+import IntegrationSettings from './IntegrationSettings'
 
 const ALL_TABS = [
   { key: 'general', label: 'General' },
@@ -15,6 +16,7 @@ const ALL_TABS = [
   { key: 'expense-categories', label: 'Expense Categories' },
   { key: 'leave-types', label: 'Leave Types' },
   { key: 'document-types', label: 'Document Types' },
+  { key: 'integrations', label: 'Integrations' },
 ]
 
 const ACCOUNTANT_TABS = [
@@ -42,6 +44,7 @@ export default function Settings() {
         {activeTab === 'expense-categories' && <ExpenseCategorySettings />}
         {activeTab === 'leave-types' && <LeaveTypeSettings />}
         {activeTab === 'document-types' && <DocumentTypeSettings />}
+        {activeTab === 'integrations' && <IntegrationSettings />}
       </div>
     </div>
   )

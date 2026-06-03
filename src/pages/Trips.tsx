@@ -13,7 +13,8 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Trip, CsvPreviewRow } from '../types'
-import { AlertTriangle, CheckCircle, Download, Pencil, Plus, Table, Trash2, Upload, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Download, MapPin, Pencil, Plus, Table, Trash2, Upload, X } from 'lucide-react'
+import { EmptyState } from '../components/ui/EmptyState'
 import { useToast } from '../components/ui/Toast'
 
 const CURRENT_MONTH_START = new Date()
@@ -301,7 +302,16 @@ export default function Trips() {
       {isLoading ? (
         <p className="text-muted text-sm text-center py-12">Loading…</p>
       ) : trips.length === 0 ? (
-        <p className="text-muted text-sm text-center py-12">No trips in this range.</p>
+        <EmptyState
+          icon={MapPin}
+          title="No trips recorded"
+          description="Add your first trip to get started."
+          action={canManage && (
+            <Button size="sm" onClick={() => { setShowCreate(true); setApiError(''); form.reset({ trip_date: today, cash_aed: 0 }) }}>
+              <Plus size={16} className="mr-1" /> Add Trip
+            </Button>
+          )}
+        />
       ) : (
         <div className="bg-white rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
@@ -409,10 +419,17 @@ export default function Trips() {
               <h2 className="text-lg font-bold text-primary mb-6">{formTitle}</h2>
               <form onSubmit={form.handleSubmit(handleFormSubmit)}
                 className="flex flex-col gap-4">
-                <Select id="trip-driver" label="Driver"
-                  options={[{ value: '', label: 'Select driver…' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}
-                  error={form.formState.errors.driver_id?.message}
-                  {...form.register('driver_id')} />
+                <div>
+                  <Select id="trip-driver" label="Driver"
+                    options={[{ value: '', label: 'Select driver…' }, ...drivers.map((d) => ({ value: d.id, label: d.full_name }))]}
+                    error={form.formState.errors.driver_id?.message}
+                    {...form.register('driver_id')} />
+                  {drivers.length === 0 && (
+                    <p className="text-xs text-muted mt-1">
+                      No active drivers. <a href="/drivers" className="text-accent hover:underline">Add a driver</a> first.
+                    </p>
+                  )}
+                </div>
                 <Input id="trip-date" label="Trip Date" type="date"
                   max={new Date().toISOString().slice(0, 10)}
                   error={form.formState.errors.trip_date?.message}

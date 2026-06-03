@@ -210,8 +210,13 @@ export default function Advances() {
         <div className="bg-white rounded-2xl border border-border">
           <EmptyState
             icon={Inbox}
-            title="No advances found"
-            description={activeTab === 'all' ? 'No advance requests yet.' : `No ${activeTab} advances.`}
+            title="No advance requests"
+            description={activeTab === 'all' ? 'Request an advance to get started.' : `No ${activeTab} advances.`}
+            action={activeTab === 'all' && (
+              <Button size="sm" onClick={() => { setShowRequest(true); setApiError('') }}>
+                <Plus size={16} className="mr-1" /> Request Advance
+              </Button>
+            )}
           />
         </div>
       ) : (

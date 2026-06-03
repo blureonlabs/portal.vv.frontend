@@ -16,6 +16,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, Owner, Vehicle } from '../types'
 import { AlertTriangle, Car, Plus, Search } from 'lucide-react'
+import { EmptyState } from '../components/ui/EmptyState'
 import { useToast } from '../components/ui/Toast'
 
 const vehicleSchema = z.object({
@@ -156,9 +157,22 @@ export default function Vehicles() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {vehiclesLoading && Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
         {!vehiclesLoading && filtered.length === 0 && (
-          <p className="col-span-full text-center text-muted py-12 text-sm">
-            {search ? 'No vehicles match your search' : 'No vehicles yet'}
-          </p>
+          search ? (
+            <p className="col-span-full text-center text-muted py-12 text-sm">No vehicles match your search</p>
+          ) : (
+            <div className="col-span-full">
+              <EmptyState
+                icon={Car}
+                title="No vehicles registered"
+                description="Add your first vehicle to start tracking your fleet."
+                action={isSuperAdmin && (
+                  <Button size="sm" onClick={() => { setShowCreate(true); setApiError(''); form.reset() }}>
+                    <Plus size={16} className="mr-1" /> Add Vehicle
+                  </Button>
+                )}
+              />
+            </div>
+          )
         )}
         {!vehiclesLoading && filtered.map((v) => {
           const insLeft = insuranceDaysLeft(v.insurance_expiry)

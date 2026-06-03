@@ -97,7 +97,16 @@ export default function SalaryPage() {
           <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : filteredSalaries.length === 0 ? (
-        <EmptyState icon={CreditCardIcon} title="No salary records found" description="Generate a salary to get started." />
+        <EmptyState
+          icon={CreditCardIcon}
+          title="No salary records"
+          description="Generate a salary to get started."
+          action={canAdmin && (
+            <Button size="sm" onClick={() => setShowForm(true)}>
+              <Plus size={16} className="mr-1" /> Generate Salary
+            </Button>
+          )}
+        />
       ) : (
         <div className="space-y-3">
           {filteredSalaries.map((s) => <SalaryRow key={s.id} s={s} canAdmin={canAdmin} setEditingSalary={setEditingSalary} />)}
