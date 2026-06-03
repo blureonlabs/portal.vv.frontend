@@ -22,22 +22,57 @@ interface NavItem {
   roles: Role[]
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Team', href: '/users', icon: UsersRound, roles: ['super_admin'] },
-  { label: 'Drivers', href: '/drivers', icon: BadgeCheck, roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Owners', href: '/owners', icon: BookUser, roles: ['super_admin'] },
-  { label: 'Trips', href: '/trips', icon: Route, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Finance', href: '/finance', icon: CreditCard, roles: ['super_admin', 'accountant'] },
-  { label: 'Advances', href: '/advances', icon: CreditCard, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Leave', href: '/hr', icon: CalendarX, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
-  { label: 'Salary', href: '/salary', icon: Wallet, roles: ['super_admin', 'accountant'] },
-  { label: 'Invoices', href: '/invoices', icon: Receipt, roles: ['super_admin', 'accountant'] },
-  { label: 'Reports', href: '/reports', icon: BarChart3, roles: ['super_admin', 'accountant', 'hr'] },
-  { label: 'Broadcasts', href: '/broadcasts', icon: Megaphone, roles: ['super_admin'] },
-  { label: 'Settings', href: '/settings', icon: Settings, roles: ['super_admin', 'accountant'] },
-  { label: 'Audit Log', href: '/audit', icon: Shield, roles: ['super_admin'] },
+interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    title: '',
+    items: [
+      { label: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['super_admin', 'accountant', 'hr'] },
+    ],
+  },
+  {
+    title: 'Fleet',
+    items: [
+      { label: 'Team', href: '/users', icon: UsersRound, roles: ['super_admin'] },
+      { label: 'Drivers', href: '/drivers', icon: BadgeCheck, roles: ['super_admin', 'accountant', 'hr'] },
+      { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
+      { label: 'Owners', href: '/owners', icon: BookUser, roles: ['super_admin'] },
+    ],
+  },
+  {
+    title: 'Operations',
+    items: [
+      { label: 'Trips', href: '/trips', icon: Route, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+      { label: 'Finance', href: '/finance', icon: CreditCard, roles: ['super_admin', 'accountant'] },
+      { label: 'Advances', href: '/advances', icon: CreditCard, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+      { label: 'Leave', href: '/hr', icon: CalendarX, roles: ['super_admin', 'accountant', 'hr', 'driver'] },
+    ],
+  },
+  {
+    title: 'Payroll',
+    items: [
+      { label: 'Salary', href: '/salary', icon: Wallet, roles: ['super_admin', 'accountant'] },
+      { label: 'Invoices', href: '/invoices', icon: Receipt, roles: ['super_admin', 'accountant'] },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
+      { label: 'Reports', href: '/reports', icon: BarChart3, roles: ['super_admin', 'accountant', 'hr'] },
+      { label: 'Audit Log', href: '/audit', icon: Shield, roles: ['super_admin'] },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { label: 'Broadcasts', href: '/broadcasts', icon: Megaphone, roles: ['super_admin'] },
+      { label: 'Settings', href: '/settings', icon: Settings, roles: ['super_admin', 'accountant'] },
+    ],
+  },
 ]
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -62,9 +97,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  const visibleNav = NAV_ITEMS.filter((item) =>
-    user?.role ? item.roles.includes(user.role) : false
-  )
+  const visibleSections = NAV_SECTIONS
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => user?.role ? item.roles.includes(user.role) : false),
+    }))
+    .filter((section) => section.items.length > 0)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -110,26 +148,37 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-        {visibleNav.map((item) => {
-          const active = item.href === '/' ? location.pathname === '/' : location.pathname.startsWith(item.href)
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                active
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/60 hover:bg-white/8 hover:text-white/90'
-              )}
-            >
-              <item.icon size={20} />
-              {item.label}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-3 py-2 overflow-y-auto">
+        {visibleSections.map((section, si) => (
+          <div key={section.title || si} className={si > 0 ? 'mt-5' : ''}>
+            {section.title && (
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+                {section.title}
+              </p>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = item.href === '/' ? location.pathname === '/' : location.pathname.startsWith(item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                      active
+                        ? 'bg-white/15 text-white'
+                        : 'text-white/60 hover:bg-white/8 hover:text-white/90'
+                    )}
+                  >
+                    <item.icon size={18} />
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* User + Actions */}
