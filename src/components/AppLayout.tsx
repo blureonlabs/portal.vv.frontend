@@ -35,9 +35,14 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Fleet',
+    title: 'Team',
     items: [
       { label: 'Team', href: '/users', icon: UsersRound, roles: ['super_admin'] },
+    ],
+  },
+  {
+    title: 'Fleet',
+    items: [
       { label: 'Drivers', href: '/drivers', icon: BadgeCheck, roles: ['super_admin', 'accountant', 'hr'] },
       { label: 'Vehicles', href: '/vehicles', icon: Car, roles: ['super_admin', 'accountant', 'hr'] },
       { label: 'Owners', href: '/owners', icon: BookUser, roles: ['super_admin'] },
