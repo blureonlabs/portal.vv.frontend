@@ -15,6 +15,7 @@ import { Pagination } from '../components/ui/Pagination'
 import { formatDate } from '../lib/utils'
 import type { Invite, User } from '../types'
 import { ChevronRight, Clock, RefreshCw, UserCog, UserPlus, XCircle } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ function expiryCountdown(expiresAt: string) {
 export default function UserManagement() {
   const qc = useQueryClient()
   const navigate = useNavigate()
+  const toast = useToast()
   const [showModal, setShowModal] = useState(false)
   const [apiError, setApiError] = useState('')
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
@@ -89,18 +91,21 @@ export default function UserManagement() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invites'] })
       closeModal()
+      toast.add('Invitation sent', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const revokeMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/users/invites/${id}/revoke`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invites'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invites'] }); toast.add('Invitation revoked', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const resendMutation = useMutation({
     mutationFn: (id: string) => apiPost(`/users/invites/${id}/resend`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invites'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invites'] }); toast.add('Invitation resent', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const {

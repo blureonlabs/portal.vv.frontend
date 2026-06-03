@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Advance, AdvanceStatus, Driver } from '../types'
 import { Check, CreditCard, Inbox, Plus, X } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const STATUS_TABS: { key: AdvanceStatus | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -54,6 +55,7 @@ export default function Advances() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const canManage = user?.role === 'super_admin' || user?.role === 'accountant'
+  const toast = useToast()
   const [showRequest, setShowRequest] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<Advance | null>(null)
   const [payTarget, setPayTarget] = useState<Advance | null>(null)
@@ -93,14 +95,15 @@ export default function Advances() {
       qc.invalidateQueries({ queryKey: ['advances'] })
       setShowRequest(false)
       requestForm.reset()
+      toast.add('Advance requested', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const approveMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/advances/${id}/approve`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['advances'] }),
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['advances'] }); toast.add('Advance approved', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const rejectMutation = useMutation({
@@ -110,8 +113,9 @@ export default function Advances() {
       qc.invalidateQueries({ queryKey: ['advances'] })
       setRejectTarget(null)
       rejectForm.reset()
+      toast.add('Advance rejected', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const payMutation = useMutation({
@@ -121,8 +125,9 @@ export default function Advances() {
       qc.invalidateQueries({ queryKey: ['advances'] })
       setPayTarget(null)
       payForm.reset()
+      toast.add('Advance marked as paid', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const filtered = useMemo(

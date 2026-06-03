@@ -15,6 +15,7 @@ import { CardSkeleton } from '../components/ui/Skeleton'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, User } from '../types'
 import { Search, UserCheck, UserPlus, UserX } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const SALARY_OPTIONS = [
   { value: 'commission', label: 'Commission' },
@@ -53,6 +54,7 @@ function salaryLabel(s: string) {
 export default function Drivers() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
+  const toast = useToast()
   const [search, setSearch] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [editDriver, setEditDriver] = useState<Driver | null>(null)
@@ -96,30 +98,33 @@ export default function Drivers() {
 
   const createMutation = useMutation({
     mutationFn: (body: CreateForm) => apiPost('/drivers', toDriverPayload(body)),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setShowCreate(false); createForm.reset() },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setShowCreate(false); createForm.reset(); toast.add('Driver created successfully', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const editMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: EditForm }) => apiPut(`/drivers/${id}`, toDriverPayload(body)),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setEditDriver(null) },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); setEditDriver(null); toast.add('Driver updated', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const deactivateMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/drivers/${id}/deactivate`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['drivers'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); toast.add('Driver deactivated', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const activateMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/drivers/${id}/activate`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['drivers'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['drivers'] }); toast.add('Driver activated', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const selfEntryMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       apiPut(`/drivers/${id}/self-entry`, { enabled }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['drivers'] }),
+    onSuccess: (_data, vars) => { qc.invalidateQueries({ queryKey: ['drivers'] }); toast.add(`Self-entry ${vars.enabled ? 'enabled' : 'disabled'}`, 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const createForm = useForm<CreateForm>({

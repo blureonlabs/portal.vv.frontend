@@ -15,6 +15,7 @@ import { formatAed } from '../lib/utils'
 import { useAuthStore } from '../store/authStore'
 import type { Driver, MonthlyEarnings, Salary, SalaryStatusType, SalaryType } from '../types'
 import { ChevronDown, ChevronUp, CreditCard as CreditCardIcon, Download, FileText, Pencil, Plus, Printer, X } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const SALARY_TYPE_LABELS: Record<SalaryType, string> = {
   commission: 'Commission',
@@ -81,6 +82,7 @@ function MarkPaidDialog({
     defaultValues: { payment_mode: 'bank_transfer' },
   })
 
+  const toast = useToast()
   const { mutate, isPending, error } = useMutation({
     mutationFn: (data: MarkPaidForm) =>
       apiPost(`/salaries/${salaryId}/pay`, {
@@ -93,7 +95,9 @@ function MarkPaidDialog({
       qc.invalidateQueries({ queryKey: ['salaries'] })
       reset()
       onClose()
+      toast.add('Payment recorded', 'success')
     },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   return (
@@ -178,16 +182,18 @@ function SalaryRow({ s, canAdmin, setEditingSalary }: { s: Salary; canAdmin: boo
   const [payDialog, setPayDialog] = useState(false)
   const [confirmApprove, setConfirmApprove] = useState(false)
 
+  const toast = useToast()
   const { mutate: approve, isPending: approving } = useMutation({
     mutationFn: () => apiPost(`/salaries/${s.id}/approve`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['salaries'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['salaries'] }); toast.add('Salary approved', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const [slipError, setSlipError] = useState('')
   const generateSlipMut = useMutation({
     mutationFn: (salaryId: string) => apiGet<{ slip_url: string }>(`/salaries/${salaryId}/slip`),
-    onSuccess: () => { setSlipError(''); qc.invalidateQueries({ queryKey: ['salaries'] }) },
-    onError: (e: Error) => setSlipError(e.message),
+    onSuccess: () => { setSlipError(''); qc.invalidateQueries({ queryKey: ['salaries'] }); toast.add('Salary slip generated', 'success') },
+    onError: (e: Error) => { setSlipError(e.message); toast.add(e.message, 'error') },
   })
 
   return (
@@ -440,13 +446,17 @@ export default function SalaryPage() {
     }
   }, [earnings, setValue])
 
+  const toast = useToast()
   const { mutate, isPending, error } = useMutation({
     mutationFn: (data: Form) => apiPost('/salaries/generate', data),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: ['salaries'] })
       reset()
       setShowForm(false)
+      const driverName = activeDrivers.find(d => d.id === vars.driver_id)?.full_name ?? 'driver'
+      toast.add(`Salary generated for ${driverName}`, 'success')
     },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const filteredSalaries = filterType
@@ -713,10 +723,11 @@ function EditSalaryDialog({ salary, onClose }: { salary: Salary; onClose: () => 
     },
   })
 
+  const toast = useToast()
   const mutation = useMutation({
     mutationFn: (data: EditForm) => apiPut(`/salaries/${salary.id}`, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['salaries'] }); onClose() },
-    onError: (e: Error) => setError(e.message),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['salaries'] }); onClose(); toast.add('Salary adjusted', 'success') },
+    onError: (e: Error) => { setError(e.message); toast.add(e.message, 'error') },
   })
 
   return (

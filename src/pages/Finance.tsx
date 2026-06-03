@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Expense, CashHandover, ExpenseCategory } from '../types'
 import { CheckCircle, Handshake, Plus } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const CURRENT_MONTH_START = new Date()
 CURRENT_MONTH_START.setDate(1)
@@ -58,6 +59,7 @@ export default function Finance() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const canManage = user?.role === 'super_admin' || user?.role === 'accountant'
+  const toast = useToast()
 
   const [tab, setTab] = useState<Tab>('expenses')
   const [from, setFrom] = useState(monthStart)
@@ -116,14 +118,15 @@ export default function Finance() {
       setShowExpense(false)
       setReceiptUrl('')
       expenseForm.reset()
+      toast.add('Expense recorded', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const addHandoverMutation = useMutation({
     mutationFn: (body: HandoverForm) => apiPost('/finance/handovers', body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['handovers'] }); setShowHandover(false); handoverForm.reset() },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['handovers'] }); setShowHandover(false); handoverForm.reset(); toast.add('Handover recorded', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const driverOptions = [

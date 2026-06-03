@@ -13,6 +13,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Invoice } from '../types'
 import { Download, Eye, FileText, Plus, Printer, Trash2 } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const lineItemSchema = z.object({
   description: z.string().min(1, 'Required'),
@@ -31,6 +32,7 @@ export default function Invoices() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const canManage = user?.role === 'super_admin' || user?.role === 'accountant'
+  const toast = useToast()
 
   const [driverFilter, setDriverFilter] = useState('')
   const [showGenerate, setShowGenerate] = useState(false)
@@ -64,8 +66,9 @@ export default function Invoices() {
       qc.invalidateQueries({ queryKey: ['invoices'] })
       setShowGenerate(false)
       form.reset()
+      toast.add('Invoice generated', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const driverOptions = [

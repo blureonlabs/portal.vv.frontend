@@ -14,6 +14,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, LeaveRequest, LeaveStatus, LeaveType } from '../types'
 import { Check, CheckCheck, Plus, X } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const statusBadge: Record<LeaveStatus, 'warning' | 'success' | 'danger'> = {
   pending: 'warning',
@@ -61,6 +62,7 @@ export default function HrRequests() {
   const qc = useQueryClient()
   const canAction = user?.role === 'super_admin' || user?.role === 'hr'
   const canManage = canAction || user?.role === 'accountant'
+  const toast = useToast()
   const [statusFilter, setStatusFilter] = useState<LeaveStatus | ''>('')
   const [typeFilter, setTypeFilter] = useState<LeaveType | ''>('')
   const [driverFilter, setDriverFilter] = useState('')
@@ -104,14 +106,15 @@ export default function HrRequests() {
       qc.invalidateQueries({ queryKey: ['leave'] })
       setShowSubmit(false)
       submitForm.reset()
+      toast.add('Leave request submitted', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const approveMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/hr/requests/${id}/approve`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['leave'] }),
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['leave'] }); toast.add('Request approved', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const rejectMutation = useMutation({
@@ -121,17 +124,19 @@ export default function HrRequests() {
       qc.invalidateQueries({ queryKey: ['leave'] })
       setRejectTarget(null)
       rejectForm.reset()
+      toast.add('Request rejected', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const bulkApproveMutation = useMutation({
     mutationFn: (request_ids: string[]) => apiPost('/hr/requests/bulk-approve', { request_ids }),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: ['leave'] })
       setSelectedIds(new Set())
+      toast.add(`${vars.length} requests approved`, 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const toggleSelect = (id: string) => {

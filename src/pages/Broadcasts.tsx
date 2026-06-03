@@ -12,6 +12,7 @@ import { Select } from '../components/ui/Select'
 import { Badge } from '../components/ui/Badge'
 import type { Broadcast, Driver } from '../types'
 import { Mail, Megaphone, MessageCircle, Send } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const schema = z.object({
   subject: z.string().min(1, 'Subject required'),
@@ -31,6 +32,7 @@ const statusVariant = {
 
 export default function Broadcasts() {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const [showModal, setShowModal] = useState(false)
   const [apiError, setApiError] = useState('')
   const [selectedDriverIds, setSelectedDriverIds] = useState<string[]>([])
@@ -61,8 +63,9 @@ export default function Broadcasts() {
       reset()
       setSelectedDriverIds([])
       setApiError('')
+      toast.add('Broadcast sent', 'success')
     },
-    onError: (e: Error) => setApiError(e.message),
+    onError: (e: Error) => { setApiError(e.message); toast.add(e.message, 'error') },
   })
 
   const onSubmit = (data: Form) => {

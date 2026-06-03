@@ -16,6 +16,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate } from '../lib/utils'
 import type { Driver, Owner, Vehicle } from '../types'
 import { AlertTriangle, Car, Plus, Search } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const vehicleSchema = z.object({
   plate_number: z.string().min(1, 'Required'),
@@ -44,6 +45,7 @@ function statusVariant(status: string) {
 export default function Vehicles() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
+  const toast = useToast()
   const [search, setSearch] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null)
@@ -85,26 +87,27 @@ export default function Vehicles() {
 
   const createMutation = useMutation({
     mutationFn: (body: VehicleForm) => apiPost('/vehicles', body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setShowCreate(false); form.reset() },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setShowCreate(false); form.reset(); toast.add('Vehicle added', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const updateMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: VehicleForm }) => apiPut(`/vehicles/${id}`, body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setEditVehicle(null) },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setEditVehicle(null); toast.add('Vehicle updated', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const assignMutation = useMutation({
     mutationFn: ({ id, driver_id }: { id: string; driver_id: string }) =>
       apiPost(`/vehicles/${id}/assign`, { driver_id }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setAssignVehicle(null); setSelectedDriver('') },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); setAssignVehicle(null); setSelectedDriver(''); toast.add('Driver assigned', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const unassignMutation = useMutation({
     mutationFn: (id: string) => apiPost(`/vehicles/${id}/unassign`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['vehicles'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['vehicles'] }); toast.add('Driver unassigned', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const openEdit = (v: Vehicle) => {

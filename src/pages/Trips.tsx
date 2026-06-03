@@ -14,6 +14,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatDate, formatAed } from '../lib/utils'
 import type { Driver, Trip, CsvPreviewRow } from '../types'
 import { AlertTriangle, CheckCircle, Download, Pencil, Plus, Table, Trash2, Upload, X } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const CURRENT_MONTH_START = new Date()
 CURRENT_MONTH_START.setDate(1)
@@ -45,6 +46,7 @@ export default function Trips() {
   const isAccountant = user?.role === 'accountant'
   const canManage = isSuperAdmin || isAccountant
 
+  const toast = useToast()
   const [from, setFrom] = useState(monthStart)
   const [to, setTo] = useState(today)
   const [driverFilter, setDriverFilter] = useState('')
@@ -87,8 +89,9 @@ export default function Trips() {
       qc.invalidateQueries({ queryKey: ['trips'] })
       setShowCreate(false)
       form.reset()
+      toast.add('Trip added', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const updateMutation = useMutation({
@@ -97,13 +100,15 @@ export default function Trips() {
       qc.invalidateQueries({ queryKey: ['trips'] })
       setEditingTrip(null)
       form.reset()
+      toast.add('Trip updated', 'success')
     },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiDelete(`/trips/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['trips'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['trips'] }); toast.add('Trip deleted', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const driverOptions = [
@@ -178,6 +183,7 @@ export default function Trips() {
     try {
       await apiPost('/trips/csv/import', { driver_id: csvDriverId, rows: csvPreview })
       qc.invalidateQueries({ queryKey: ['trips'] })
+      toast.add(`${csvPreview.filter(r => !r.error).length} trips imported`, 'success')
       setShowCsv(false)
       setCsvPreview(null)
       setCsvDriverId('')

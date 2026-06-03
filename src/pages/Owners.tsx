@@ -11,6 +11,7 @@ import { Badge } from '../components/ui/Badge'
 import { useAuthStore } from '../store/authStore'
 import type { Owner } from '../types'
 import { Search, UserCheck, UserPlus, UserX } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const createSchema = z.object({
   email: z.string().email('Valid email required'),
@@ -26,6 +27,7 @@ type CreateForm = z.infer<typeof createSchema>
 export default function Owners() {
   const { user } = useAuthStore()
   const qc = useQueryClient()
+  const toast = useToast()
   const [search, setSearch] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [apiError, setApiError] = useState('')
@@ -44,18 +46,20 @@ export default function Owners() {
 
   const createMutation = useMutation({
     mutationFn: (body: CreateForm) => apiPost('/owners/create-with-account', body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['owners'] }); setShowCreate(false); createForm.reset() },
-    onError: (e) => setApiError(e instanceof Error ? e.message : 'Failed'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['owners'] }); setShowCreate(false); createForm.reset(); toast.add('Owner added', 'success') },
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed'; setApiError(msg); toast.add(msg, 'error') },
   })
 
   const deactivateMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/owners/${id}/deactivate`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['owners'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['owners'] }); toast.add('Owner deactivated', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const activateMutation = useMutation({
     mutationFn: (id: string) => apiPut(`/owners/${id}/activate`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['owners'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['owners'] }); toast.add('Owner activated', 'success') },
+    onError: (e: Error) => toast.add(e.message, 'error'),
   })
 
   const createForm = useForm<CreateForm>({

@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input'
 import { useAuthStore } from '../store/authStore'
 import type { Setting } from '../types'
 import { Check, Pencil, Settings as SettingsIcon, X } from 'lucide-react'
+import { useToast } from '../components/ui/Toast'
 
 const ACCOUNTANT_KEYS = new Set([
   'salary_target_high_aed',
@@ -65,14 +66,16 @@ function EditRowInner({ setting, canEdit }: { setting: Setting; canEdit: boolean
   const [value, setValue] = useState(setting.value)
   const [error, setError] = useState('')
 
+  const toast = useToast()
   const { mutate, isPending } = useMutation({
     mutationFn: () => apiPut(`/settings/${setting.key}`, { value }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['settings'] })
       setEditing(false)
       setError('')
+      toast.add('Setting updated', 'success')
     },
-    onError: (e) => setError(e instanceof Error ? e.message : 'Failed to save'),
+    onError: (e) => { const msg = e instanceof Error ? e.message : 'Failed to save'; setError(msg); toast.add(msg, 'error') },
   })
 
   if (!canEdit) return <span className="text-sm text-primary">{setting.value || '—'}</span>
