@@ -7,21 +7,44 @@ import type { Setting } from '../../types'
 import { Check, Pencil, X } from 'lucide-react'
 import { useToast } from '../../components/ui/Toast'
 
-const ACCOUNTANT_KEYS = new Set([
-  'salary_target_high_aed',
-  'salary_fixed_car_high_aed',
-  'salary_target_low_aed',
-  'salary_fixed_car_low_aed',
-])
+const GROUPS: { key: string; title: string; description: string; icon: string; keys: string[]; adminOnly: boolean }[] = [
+  {
+    key: 'company',
+    title: 'Company Information',
+    description: 'Business name and address shown on invoices and salary slips',
+    icon: 'building',
+    keys: ['company_name', 'company_address'],
+    adminOnly: true,
+  },
+  {
+    key: 'salary',
+    title: 'Salary Parameters',
+    description: 'Base amounts and rates used in salary calculations',
+    icon: 'wallet',
+    keys: ['commission_rate', 'salary_target_high_aed', 'salary_fixed_car_high_aed', 'salary_target_low_aed', 'salary_fixed_car_low_aed'],
+    adminOnly: false,
+  },
+  {
+    key: 'operations',
+    title: 'Operations',
+    description: 'Trip limits, pay cycle, and automation settings',
+    icon: 'settings',
+    keys: ['trip_cap_aed', 'salary_auto_generate_day', 'salary_auto_generate_enabled'],
+    adminOnly: true,
+  },
+]
 
 const KEY_LABELS: Record<string, string> = {
   company_name: 'Company Name',
   company_address: 'Company Address',
-  trip_cap_aed: 'Trip Cap (AED)',
+  commission_rate: 'Commission Rate (decimal, e.g. 0.30 = 30%)',
+  trip_cap_aed: 'Daily Trip Cap (AED)',
   salary_target_high_aed: 'Salary Target — High (AED)',
   salary_fixed_car_high_aed: 'Fixed Car Allowance — High (AED)',
   salary_target_low_aed: 'Salary Target — Low (AED)',
   salary_fixed_car_low_aed: 'Fixed Car Allowance — Low (AED)',
+  salary_auto_generate_day: 'Auto-Generate Salary Day (1-28)',
+  salary_auto_generate_enabled: 'Auto-Generate Salary Enabled (true/false)',
 }
 
 function formatKey(key: string) {
@@ -29,17 +52,24 @@ function formatKey(key: string) {
 }
 
 function groupSettings(settings: Setting[], isSuperAdmin: boolean) {
-  const salary = settings.filter((s) => ACCOUNTANT_KEYS.has(s.key))
-  const other = isSuperAdmin ? settings.filter((s) => !ACCOUNTANT_KEYS.has(s.key)) : []
-  return { salary, other }
+  return GROUPS
+    .filter(g => isSuperAdmin || !g.adminOnly)
+    .map(g => ({
+      ...g,
+      settings: g.keys
+        .map(k => settings.find(s => s.key === k))
+        .filter((s): s is Setting => s != null),
+    }))
+    .filter(g => g.settings.length > 0)
 }
 
-function SettingsSection({ title, settings, canEdit }: { title: string; settings: Setting[]; canEdit: boolean }) {
+function SettingsSection({ title, description, settings, canEdit }: { title: string; description?: string; settings: Setting[]; canEdit: boolean }) {
   if (settings.length === 0) return null
   return (
-    <div className="bg-white rounded-xl border border-border overflow-x-auto">
-      <div className="px-4 py-3 border-b border-border bg-surface">
+    <div className="bg-white rounded-2xl border border-border overflow-x-auto">
+      <div className="px-5 py-4 border-b border-border">
         <h3 className="text-sm font-semibold text-primary">{title}</h3>
+        {description && <p className="text-xs text-muted mt-0.5">{description}</p>}
       </div>
       <table className="w-full">
         <tbody>
@@ -127,7 +157,7 @@ export default function GeneralSettings() {
     queryFn: () => apiGet('/settings'),
   })
 
-  const { salary, other } = groupSettings(settings, isSuperAdmin)
+  const groups = groupSettings(settings, isSuperAdmin)
 
   if (isLoading) {
     return (
@@ -138,11 +168,10 @@ export default function GeneralSettings() {
   }
 
   return (
-    <div className="space-y-4">
-      {isSuperAdmin && other.length > 0 && (
-        <SettingsSection title="General" settings={other} canEdit={true} />
-      )}
-      <SettingsSection title="Salary Parameters" settings={salary} canEdit={true} />
+    <div className="space-y-6">
+      {groups.map(g => (
+        <SettingsSection key={g.key} title={g.title} description={g.description} settings={g.settings} canEdit={true} />
+      ))}
     </div>
   )
 }
