@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
+import { useTheme } from '../hooks/useTheme'
 import { AvatarUpload } from './AvatarUpload'
 import { NotificationPanel, useNotificationCount } from './NotificationPanel'
+import { CommandPalette } from './CommandPalette'
 import {
-  Bell, Lock, LogOut, Menu,
+  Bell, Lock, LogOut, Menu, Search, Sun, Moon,
   LayoutDashboard, UsersRound, BadgeCheck, Car, BookUser, Route, CreditCard,
   CalendarX, Wallet, Receipt, BarChart3, Megaphone, Settings, Shield,
   type LucideIcon,
@@ -44,7 +46,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, clear } = useAuthStore()
   const [panelOpen, setPanelOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [cmdOpen, setCmdOpen] = useState(false)
   const { unreadCount } = useNotificationCount()
+  const { dark, toggle: toggleTheme } = useTheme()
+
+  // Global Cmd+K / Ctrl+K listener
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCmdOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   const visibleNav = NAV_ITEMS.filter((item) =>
     user?.role ? item.roles.includes(user.role) : false
@@ -58,21 +74,39 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const sidebarContent = (
     <>
-      {/* Logo + Bell */}
+      {/* Logo + Actions */}
       <div className="h-16 flex items-center justify-between px-6">
         <span className="text-white font-bold text-lg tracking-tight">Voiture Voyages</span>
-        <button
-          onClick={() => setPanelOpen(true)}
-          className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors"
-          aria-label="Open notifications"
-        >
-          <Bell size={24} className="text-white/60 hover:text-white" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setCmdOpen(true)}
+            className="p-2.5 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Search (Cmd+K)"
+            title="Search (Cmd+K)"
+          >
+            <Search size={20} className="text-white/60 hover:text-white" />
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Toggle dark mode"
+            title="Toggle dark mode"
+          >
+            {dark ? <Sun size={20} className="text-white/60 hover:text-white" /> : <Moon size={20} className="text-white/60 hover:text-white" />}
+          </button>
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="relative p-2.5 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Open notifications"
+          >
+            <Bell size={20} className="text-white/60 hover:text-white" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Nav */}
@@ -183,6 +217,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
 
     <NotificationPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
+    <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     </>
   )
 }

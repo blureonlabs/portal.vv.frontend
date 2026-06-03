@@ -2,8 +2,10 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
+import { useTheme } from '../hooks/useTheme'
 import {
   LogOut, Home, Route, TrendingUp, CreditCard, CalendarX, Landmark, Receipt, Bell, User,
+  Sun, Moon,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -34,6 +36,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
   const { clear } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const { dark, toggle: toggleTheme } = useTheme()
 
   const isOwnerPortal = location.pathname.startsWith('/owner-portal')
   const NAV = isOwnerPortal ? OWNER_NAV : DRIVER_NAV
@@ -49,13 +52,22 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
       {/* Top bar */}
       <header className="bg-primary px-4 h-14 flex items-center justify-between sticky top-0 z-20">
         <span className="text-white font-bold text-base tracking-tight">Voiture Voyages</span>
-        <button
-          onClick={handleSignOut}
-          aria-label="Sign out"
-          className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
-        >
-          <LogOut size={24} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle dark mode"
+            className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
+          >
+            {dark ? <Sun size={22} /> : <Moon size={22} />}
+          </button>
+          <button
+            onClick={handleSignOut}
+            aria-label="Sign out"
+            className="p-2 text-white/60 hover:text-white rounded-xl transition-colors"
+          >
+            <LogOut size={24} />
+          </button>
+        </div>
       </header>
 
       {/* Page content */}

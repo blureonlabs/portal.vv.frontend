@@ -43,6 +43,51 @@
   }
 }
 
+/* ── Dark mode overrides ─────────────────────────────────── */
+.dark body,
+.dark {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.dark .bg-white { background-color: #1e293b !important; }
+.dark .bg-surface { background-color: #0f172a !important; }
+.dark .bg-surface\/30 { background-color: rgba(30, 41, 59, 0.3) !important; }
+.dark .bg-surface\/50 { background-color: rgba(30, 41, 59, 0.5) !important; }
+.dark .border-border { border-color: #334155 !important; }
+.dark .text-primary { color: #e2e8f0 !important; }
+.dark .text-muted { color: #94a3b8 !important; }
+.dark .bg-primary { background-color: #0f172a !important; }
+.dark .bg-primary\/10 { background-color: rgba(226, 232, 240, 0.1) !important; }
+.dark .hover\:bg-surface:hover { background-color: #334155 !important; }
+.dark .bg-accent-light { background-color: #1e293b !important; }
+.dark .bg-gray-50 { background-color: #1e293b !important; }
+.dark .bg-gray-100 { background-color: #1e293b !important; }
+.dark .text-gray-500 { color: #94a3b8 !important; }
+.dark .text-gray-600 { color: #94a3b8 !important; }
+.dark .text-gray-700 { color: #cbd5e1 !important; }
+.dark .text-gray-900 { color: #e2e8f0 !important; }
+.dark .border-gray-200 { border-color: #334155 !important; }
+.dark .border-gray-300 { border-color: #334155 !important; }
+.dark .ring-gray-300 { --tw-ring-color: #334155 !important; }
+.dark .bg-black\/40 { background-color: rgba(0,0,0,0.6) !important; }
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark table thead { background-color: #1e293b !important; }
+.dark table tbody tr { border-color: #334155 !important; }
+.dark table tbody tr:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
+
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+.dark .shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.4) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5) !important; }
+
 @media print {
   nav, .no-print, button, [role="navigation"] { display: none !important; }
   body { background: white !important; }
